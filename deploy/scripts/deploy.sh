@@ -135,12 +135,17 @@ pnpm build
 log "starting $NEW_NAME on port $NEW_PORT"
 pm2 delete "$NEW_NAME" >/dev/null 2>&1 || true
 
-PORT="$NEW_PORT" NODE_ENV=production pm2 start pnpm \
+# Start Next.js directly — PM2 + pnpm arg forwarding is unreliable for -p
+pm2 start "$RELEASE_DIR/node_modules/.bin/next" \
   --name "$NEW_NAME" \
   --cwd "$RELEASE_DIR" \
-  -- start -- -p "$NEW_PORT"
+  --interpreter none \
+  -- start -p "$NEW_PORT"
 
 pm2 save
+
+log "waiting for app to bind port $NEW_PORT..."
+sleep 8
 
 log "health-check new instance"
 bash "$SCRIPT_DIR/healthcheck.sh" "$NEW_PORT" "/"

@@ -5,7 +5,7 @@ set -euo pipefail
 
 PORT="${1:?port required}"
 PATH_CHECK="${2:-/}"
-RETRIES="${HEALTH_RETRIES:-5}"
+RETRIES="${HEALTH_RETRIES:-10}"
 SLEEP_SECS="${HEALTH_SLEEP:-3}"
 URL="http://127.0.0.1:${PORT}${PATH_CHECK}"
 

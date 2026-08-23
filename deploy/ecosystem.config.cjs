@@ -10,8 +10,8 @@ module.exports = {
     {
       name: 'sambhavi-blue',
       cwd: '/var/www/sambhavi-handloom/current',
-      script: 'pnpm',
-      args: 'start -- -p 3001',
+      script: 'node_modules/.bin/next',
+      args: 'start -p 3001',
       interpreter: 'none',
       env: {
         NODE_ENV: 'production',
@@ -21,8 +21,8 @@ module.exports = {
     {
       name: 'sambhavi-green',
       cwd: '/var/www/sambhavi-handloom/current',
-      script: 'pnpm',
-      args: 'start -- -p 3002',
+      script: 'node_modules/.bin/next',
+      args: 'start -p 3002',
       interpreter: 'none',
       env: {
         NODE_ENV: 'production',
