@@ -161,6 +161,7 @@ export function CartDrawer() {
                   <Button
                     className="mt-4 h-12 w-full rounded-none bg-primary text-sm uppercase tracking-luxe text-primary-foreground hover:bg-primary/90"
                     size="lg"
+                    render={<Link href="/checkout" onClick={closeCart} />}
                   >
                     Proceed to Checkout
                   </Button>

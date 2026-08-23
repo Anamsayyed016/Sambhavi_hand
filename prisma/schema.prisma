@@ -141,3 +141,30 @@ model NewsletterSubscriber {
   subscribedAt DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+/// Admin-only authentication. Separate from any future customer accounts.
+model AdminUser {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String
+  name         String
+  active       Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  sessions     AdminSession[]
+
+  @@index([active])
+}
+
+/// Server-side admin sessions. Cookie stores raw token; DB stores tokenHash only.
+model AdminSession {
+  id          String    @id @default(cuid())
+  adminUserId String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  adminUser   AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId])
+  @@index([expiresAt])
+}

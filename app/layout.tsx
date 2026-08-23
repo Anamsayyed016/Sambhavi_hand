@@ -2,10 +2,6 @@ import type React from 'react'
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Jost } from 'next/font/google'
-import { CartProvider } from '@/components/cart/cart-provider'
-import { Navbar } from '@/components/layout/navbar'
-import { Footer } from '@/components/layout/footer'
-import { CartDrawer } from '@/components/cart/cart-drawer'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -73,12 +69,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`light ${cormorant.variable} ${jost.variable} bg-background`}>
       <body className="antialiased">
-        <CartProvider>
-          <Navbar />
-          <CartDrawer />
-          <main>{children}</main>
-          <Footer />
-        </CartProvider>
+        {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

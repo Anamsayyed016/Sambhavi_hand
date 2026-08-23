@@ -15,6 +15,7 @@ const customerCare = [
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms & Conditions', href: '/terms' },
   { label: 'FAQs', href: '/faqs' },
+  { label: 'Admin Login', href: '/admin/login' },
 ]
 
 const socials = [

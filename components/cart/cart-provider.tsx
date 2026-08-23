@@ -28,6 +28,7 @@ type CartContextValue = {
   addItem: (product: Product, quantity?: number) => void
   removeItem: (slug: string) => void
   updateQuantity: (slug: string, quantity: number) => void
+  clearCart: () => void
   toggleWishlist: (slug: string) => void
   isWishlisted: (slug: string) => boolean
   openCart: () => void
@@ -76,6 +77,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
+  const clearCart = useCallback(() => setItems([]), [])
+
   const toggleWishlist = useCallback((slug: string) => {
     setWishlist((prev) =>
       prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
@@ -102,6 +105,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     addItem,
     removeItem,
     updateQuantity,
+    clearCart,
     toggleWishlist,
     isWishlisted,
     openCart,

@@ -1,0 +1,99 @@
+import Image from 'next/image'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
+import { Check } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { getPublicOrderByNumber } from '@/lib/checkout/create-order'
+import { formatDate } from '@/lib/admin/format'
+import { formatINR } from '@/lib/products'
+
+export const metadata: Metadata = {
+  title: 'Order placed',
+  robots: { index: false, follow: false },
+}
+
+type Params = { params: Promise<{ orderNumber: string }> }
+
+export default async function CheckoutSuccessPage({ params }: Params) {
+  const { orderNumber: raw } = await params
+  const orderNumber = decodeURIComponent(raw)
+
+  const order = await getPublicOrderByNumber(orderNumber).catch(() => null)
+  if (!order) notFound()
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-12 md:px-8 md:py-16">
+      <div className="rounded-md border border-border bg-card p-8 md:p-10">
+        <div className="flex flex-col items-center text-center">
+          <span className="flex size-14 items-center justify-center rounded-full bg-secondary text-primary">
+            <Check className="size-6" strokeWidth={2} aria-hidden />
+          </span>
+          <h1 className="mt-6 font-serif text-3xl text-foreground">Order placed successfully</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Thank you, {order.customerName}. We&apos;ve received your order.
+          </p>
+        </div>
+
+        <dl className="mt-8 space-y-3 rounded-md border border-border bg-background p-5 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Order number</dt>
+            <dd className="font-medium">#{order.orderNumber}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Email</dt>
+            <dd>{order.customerEmail}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Date</dt>
+            <dd>{formatDate(order.createdAt)}</dd>
+          </div>
+          <div className="flex justify-between gap-4 border-t border-border pt-3 font-serif text-lg">
+            <dt>Total</dt>
+            <dd>{formatINR(order.total)}</dd>
+          </div>
+        </dl>
+
+        <div className="mt-8">
+          <h2 className="font-serif text-lg text-foreground">Order summary</h2>
+          <ul className="mt-4 divide-y divide-border">
+            {order.items.map((item) => (
+              <li key={`${item.productSlug}-${item.quantity}`} className="flex gap-3 py-4">
+                <div className="relative aspect-3/4 w-14 shrink-0 overflow-hidden rounded-sm bg-muted">
+                  {item.product?.image ? (
+                    <Image
+                      src={item.product.image}
+                      alt=""
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
+                  ) : null}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-serif text-sm">{item.productName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Qty {item.quantity} · {formatINR(item.price)} each
+                  </p>
+                </div>
+                <p className="text-sm">{formatINR(item.subtotal)}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="mt-8 text-sm leading-relaxed text-muted-foreground">
+          Payment is still pending — our team will contact you with payment instructions once
+          Razorpay checkout is enabled. Your order status is{' '}
+          <span className="capitalize">{order.status.toLowerCase()}</span>.
+        </p>
+
+        <div className="mt-8 flex justify-center">
+          <Button className="rounded-none" render={<Link href="/shop" />}>
+            Continue Shopping
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
