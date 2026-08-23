@@ -150,15 +150,27 @@ sleep 8
 log "health-check new instance"
 bash "$SCRIPT_DIR/healthcheck.sh" "$NEW_PORT" "/"
 
-# --- Switch Nginx upstream only for Sambhavi ---
+# --- Switch Nginx to new port (http-level upstream, no keepalive) ---
+NGINX_UPSTREAM_CONF="${NGINX_UPSTREAM_CONF:-/etc/nginx/conf.d/sambhavi-upstream.conf}"
+SAMBHAVI_NGINX_SITE="${SAMBHAVI_NGINX_SITE:-/etc/nginx/sites-available/sambhaviheritagereimagined.com}"
+
 log "updating Nginx upstream → $NEW_PORT"
-cat > "$NGINX_UPSTREAM_SNIPPET" <<EOF
-# Managed by Sambhavi deploy.sh — do not edit AFTIONIX configs
+cat > "$NGINX_UPSTREAM_CONF" <<EOF
+# Managed by Sambhavi deploy.sh — AFTIONIX uses port 3000 separately
 upstream sambhavi_backend {
     server 127.0.0.1:${NEW_PORT};
-    keepalive 64;
 }
 EOF
+
+if [[ -f "$SAMBHAVI_NGINX_SITE" ]]; then
+  sed -i '/include \/etc\/nginx\/snippets\/sambhavi-upstream.conf;/d' "$SAMBHAVI_NGINX_SITE"
+  sed -i '0,/proxy_pass/ s|proxy_pass http://[^;]*;|proxy_pass http://sambhavi_backend;|' "$SAMBHAVI_NGINX_SITE"
+fi
+
+if [[ -f "/etc/nginx/sites-enabled/sambhaviheritagereimagined.com" ]] \
+  && [[ ! -L "/etc/nginx/sites-enabled/sambhaviheritagereimagined.com" ]]; then
+  cp "$SAMBHAVI_NGINX_SITE" /etc/nginx/sites-enabled/sambhaviheritagereimagined.com
+fi
 
 if ! nginx -t; then
   log "nginx -t FAILED — leaving traffic on $ACTIVE_PORT; stopping new process"
@@ -185,12 +197,14 @@ done
 
 if [[ "$PUBLIC_OK" -ne 1 ]]; then
   log "public health FAILED — reverting Nginx to $ACTIVE_PORT"
-  cat > "$NGINX_UPSTREAM_SNIPPET" <<EOF
+  cat > "$NGINX_UPSTREAM_CONF" <<EOF
 upstream sambhavi_backend {
     server 127.0.0.1:${ACTIVE_PORT};
-    keepalive 64;
 }
 EOF
+  if [[ -f "$SAMBHAVI_NGINX_SITE" ]]; then
+    sed -i '0,/proxy_pass/ s|proxy_pass http://[^;]*;|proxy_pass http://sambhavi_backend;|' "$SAMBHAVI_NGINX_SITE"
+  fi
   nginx -t && systemctl reload nginx || true
   pm2 delete "$NEW_NAME" >/dev/null 2>&1 || true
   pm2 save
