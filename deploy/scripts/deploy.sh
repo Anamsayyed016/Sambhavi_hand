@@ -21,6 +21,14 @@ BLUE_PORT=3001
 GREEN_PORT=3002
 # AFTIONIX uses 3000 — never use it for Sambhavi
 
+# Non-interactive SSH (GitHub Actions) often skips nvm — load it explicitly
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+  # shellcheck disable=SC1090
+  . "$NVM_DIR/nvm.sh"
+fi
+export PATH="/usr/local/bin:/root/.nvm/versions/node/v22.23.2/bin:$PATH"
+
 log() { echo "[deploy $(date -u +%H:%M:%S)] $*"; }
 fail() { echo "[deploy ERROR] $*" >&2; exit 1; }
 
