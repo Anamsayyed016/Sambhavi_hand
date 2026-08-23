@@ -19,11 +19,11 @@ const NAV = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
-  { href: '/admin/customers', label: 'Customers', icon: Users, soon: true },
-  { href: '/admin/collections', label: 'Collections', icon: Layers, soon: true },
-  { href: '/admin/marketing', label: 'Marketing', icon: Megaphone, soon: true },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, soon: true },
-  { href: '/admin/settings', label: 'Settings', icon: Settings, soon: true },
+  { href: '/admin/customers', label: 'Customers', icon: Users },
+  { href: '/admin/collections', label: 'Collections', icon: Layers },
+  { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/admin/settings', label: 'Settings', icon: Settings },
 ] as const
 
 export function AdminSidebar({
@@ -78,21 +78,6 @@ export function AdminSidebar({
               ? pathname === item.href
               : pathname === item.href || pathname.startsWith(`${item.href}/`)
             const Icon = item.icon
-            const soon = 'soon' in item && item.soon
-
-            if (soon) {
-              return (
-                <span
-                  key={item.href}
-                  className="flex cursor-not-allowed items-center gap-3 rounded-md px-3 py-2.5 text-sm text-muted-foreground/70"
-                  title="Coming in a later phase"
-                >
-                  <Icon className="size-4 shrink-0" />
-                  <span className="flex-1">{item.label}</span>
-                  <span className="text-[10px] uppercase tracking-wider">Soon</span>
-                </span>
-              )
-            }
 
             return (
               <Link
@@ -114,7 +99,7 @@ export function AdminSidebar({
         </nav>
 
         <div className="border-t border-border p-4 text-xs text-muted-foreground">
-          Catalog &amp; orders · Admin
+          Commerce admin · Sambhavi Handloom
         </div>
       </aside>
     </>

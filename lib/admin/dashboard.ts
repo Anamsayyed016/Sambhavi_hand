@@ -1,18 +1,92 @@
-import { PaymentStatus, ProductAvailability } from '@prisma/client'
+import { OrderStatus, PaymentStatus, ProductAvailability } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { LOW_STOCK_THRESHOLD } from '@/lib/admin/products'
+import { getCustomerCount } from '@/lib/admin/customers'
+import { getDailySeries } from '@/lib/admin/analytics'
 
 export type DashboardStats = {
   revenue: number
+  paidRevenue: number
   orderCount: number
   productCount: number
   activeProductCount: number
   lowStockCount: number
+  customerCount: number
+  pendingOrders: number
+  processingOrders: number
+  shippedOrders: number
+  deliveredOrders: number
   hasOrders: boolean
+  salesToday: number
+  sales7d: number
+  sales30d: number
+  salesMonth: number
+  salesYear: number
+  ordersToday: number
+  orders7d: number
+  orders30d: number
+}
+
+function startOfToday() {
+  const d = new Date()
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+function daysAgo(n: number) {
+  const d = new Date()
+  d.setDate(d.getDate() - n)
+  return d
+}
+
+function startOfMonth() {
+  const d = new Date()
+  d.setDate(1)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+function startOfYear() {
+  const d = new Date()
+  d.setMonth(0, 1)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+async function sumOrdersSince(since: Date) {
+  const [agg, count] = await Promise.all([
+    prisma.order.aggregate({ where: { createdAt: { gte: since } }, _sum: { total: true } }),
+    prisma.order.count({ where: { createdAt: { gte: since } } }),
+  ])
+  return { revenue: agg._sum.total ?? 0, orders: count }
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const [paidAgg, orderCount, productCount, activeProductCount, lowStockCount] = await Promise.all([
+  const today = startOfToday()
+  const d7 = daysAgo(7)
+  const d30 = daysAgo(30)
+  const month = startOfMonth()
+  const year = startOfYear()
+
+  const [
+    revenueAgg,
+    paidAgg,
+    orderCount,
+    productCount,
+    activeProductCount,
+    lowStockCount,
+    customerCount,
+    pendingOrders,
+    processingOrders,
+    shippedOrders,
+    deliveredOrders,
+    todayStats,
+    stats7d,
+    stats30d,
+    monthStats,
+    yearStats,
+  ] = await Promise.all([
+    prisma.order.aggregate({ _sum: { total: true } }),
     prisma.order.aggregate({
       where: { paymentStatus: PaymentStatus.PAID },
       _sum: { total: true },
@@ -29,16 +103,44 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         ],
       },
     }),
+    getCustomerCount(),
+    prisma.order.count({ where: { status: OrderStatus.PENDING } }),
+    prisma.order.count({ where: { status: OrderStatus.PROCESSING } }),
+    prisma.order.count({ where: { status: OrderStatus.SHIPPED } }),
+    prisma.order.count({ where: { status: OrderStatus.DELIVERED } }),
+    sumOrdersSince(today),
+    sumOrdersSince(d7),
+    sumOrdersSince(d30),
+    sumOrdersSince(month),
+    sumOrdersSince(year),
   ])
 
   return {
-    revenue: paidAgg._sum.total ?? 0,
+    revenue: revenueAgg._sum.total ?? 0,
+    paidRevenue: paidAgg._sum.total ?? 0,
     orderCount,
     productCount,
     activeProductCount,
     lowStockCount,
+    customerCount,
+    pendingOrders,
+    processingOrders,
+    shippedOrders,
+    deliveredOrders,
     hasOrders: orderCount > 0,
+    salesToday: todayStats.revenue,
+    sales7d: stats7d.revenue,
+    sales30d: stats30d.revenue,
+    salesMonth: monthStats.revenue,
+    salesYear: yearStats.revenue,
+    ordersToday: todayStats.orders,
+    orders7d: stats7d.orders,
+    orders30d: stats30d.orders,
   }
+}
+
+export async function getDashboardCharts() {
+  return getDailySeries(30)
 }
 
 export async function getRecentOrders(limit = 5) {

@@ -32,6 +32,18 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum NotificationType {
+  NEW_ORDER
+  LOW_STOCK
+  PAYMENT_ISSUE
+  SYSTEM
+}
+
 /// Catalog products. Seeded from lib/products.ts — frontend still reads that file in Phase 2.
 model Product {
   id           String              @id @default(cuid())
@@ -74,8 +86,13 @@ model Collection {
   name        String
   description String
   image       String
+  active      Boolean  @default(true)
+  featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([active])
+  @@index([featured])
 }
 
 /// Order foundation only — no checkout logic in Phase 2
@@ -167,4 +184,52 @@ model AdminSession {
 
   @@index([adminUserId])
   @@index([expiresAt])
+}
+
+/// Discount coupons — not auto-applied at checkout until integration phase.
+model Coupon {
+  id              String       @id @default(cuid())
+  code            String       @unique
+  discountType    DiscountType
+  /// Percentage 1–100 or fixed INR amount
+  discountValue   Int
+  minOrderValue   Int?
+  maxDiscount     Int?
+  startsAt        DateTime?
+  expiresAt       DateTime?
+  usageLimit      Int?
+  usageCount      Int          @default(0)
+  active          Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([active])
+  @@index([expiresAt])
+}
+
+/// Singleton store configuration (id = "default").
+model StoreSettings {
+  id                    String   @id @default("default")
+  storeName             String   @default("Sambhavi Handloom")
+  storeEmail            String   @default("")
+  storePhone            String   @default("")
+  storeAddress          String   @default("")
+  currency              String   @default("INR")
+  timezone              String   @default("Asia/Kolkata")
+  shippingFee           Int      @default(149)
+  freeShippingThreshold Int      @default(9999)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model AdminNotification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([read, createdAt])
 }

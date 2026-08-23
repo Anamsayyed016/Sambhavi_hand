@@ -8,6 +8,7 @@ import { prisma } from '@/lib/prisma'
 import { calculateOrderTotal } from '@/lib/checkout/shipping'
 import { CheckoutError } from '@/lib/checkout/errors'
 import type { CheckoutRequest } from '@/lib/checkout/validation'
+import { notifyNewOrder } from '@/lib/admin/notifications'
 
 type Tx = Prisma.TransactionClient
 
@@ -133,6 +134,8 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
       },
     })
   })
+
+  await notifyNewOrder(order.orderNumber, input.customer.name, order.total).catch(() => undefined)
 
   return {
     orderId: order.id,

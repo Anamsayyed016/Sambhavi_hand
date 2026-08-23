@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, LogOut, Menu, Search } from 'lucide-react'
+import { LogOut, Menu } from 'lucide-react'
 import { AdminSidebar } from '@/components/admin/sidebar'
+import { AdminHeaderSearch } from '@/components/admin/admin-header-search'
+import { AdminNotifications } from '@/components/admin/admin-notifications'
 import type { SafeAdmin } from '@/lib/admin/types'
 
 export function AdminShell({
@@ -44,30 +46,14 @@ export function AdminShell({
               <Menu className="size-5" />
             </button>
 
-            <div className="hidden min-w-0 flex-1 items-center gap-2 rounded-md border border-border bg-white px-3 py-1.5 sm:flex sm:max-w-md">
-              <Search className="size-4 shrink-0 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="Search products, SKUs…"
-                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                aria-label="Search"
-                disabled
-              />
-            </div>
+            <AdminHeaderSearch />
 
             <div className="ml-auto flex items-center gap-2">
               <div className="hidden text-right sm:block">
                 <p className="text-sm font-medium leading-none">{admin.name}</p>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">{admin.email}</p>
               </div>
-              <button
-                type="button"
-                className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-charcoal"
-                aria-label="Notifications"
-                disabled
-              >
-                <Bell className="size-4" />
-              </button>
+              <AdminNotifications />
               <button
                 type="button"
                 onClick={logout}
