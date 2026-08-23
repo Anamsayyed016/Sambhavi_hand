@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 type Status = 'idle' | 'submitting' | 'invalid' | 'inactive' | 'error' | 'success'
@@ -13,6 +14,7 @@ export function AdminLoginForm() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState<string | null>(null)
 
@@ -86,19 +88,30 @@ export function AdminLoginForm() {
         >
           Password
         </label>
-        <input
-          id="admin-password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value)
-            setStatus('idle')
-            setMessage(null)
-          }}
-          className="mt-1.5 w-full rounded-md border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-        />
+        <div className="relative mt-1.5">
+          <input
+            id="admin-password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              setStatus('idle')
+              setMessage(null)
+            }}
+            className="w-full rounded-md border border-border bg-white px-3 py-2.5 pr-10 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((visible) => !visible)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            title={showPassword ? 'Hide password' : 'Show password'}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-charcoal focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
+          >
+            {showPassword ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+          </button>
+        </div>
       </div>
 
       {message ? (
