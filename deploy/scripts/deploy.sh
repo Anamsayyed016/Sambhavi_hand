@@ -108,7 +108,15 @@ pnpm install --frozen-lockfile
 if [[ -f "prisma/schema.prisma" ]]; then
   log "prisma generate"
   pnpm exec prisma generate
-  if [[ -n "${DATABASE_URL:-}" || ( -f .env && grep -q '^DATABASE_URL=.\+' .env ) ]]; then
+
+  HAS_DB_URL=0
+  if [[ -n "${DATABASE_URL:-}" ]]; then
+    HAS_DB_URL=1
+  elif [[ -f .env ]] && grep -qE '^DATABASE_URL=.+' .env; then
+    HAS_DB_URL=1
+  fi
+
+  if [[ "$HAS_DB_URL" -eq 1 ]]; then
     if [[ -d "prisma/migrations" ]] && compgen -G "prisma/migrations/*/migration.sql" >/dev/null; then
       log "prisma migrate deploy"
       pnpm exec prisma migrate deploy
