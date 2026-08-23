@@ -1,0 +1,98 @@
+name: Deploy Sambhavi Handloom
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: sambhavi-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Production build gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm 11.20.0
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm exec prisma generate
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/sambhavi?schema=public
+
+      - name: Build
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/sambhavi?schema=public
+
+  deploy:
+    name: Blue-green deploy to Hostinger
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_SSH_KEY }}
+
+      - name: Add Hostinger to known_hosts
+        env:
+          HOST: ${{ secrets.HOSTINGER_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_PORT }}
+        run: |
+          set -euo pipefail
+          PORT="${SSH_PORT:-22}"
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "$PORT" -H "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy exact commit via SSH
+        env:
+          HOST: ${{ secrets.HOSTINGER_HOST }}
+          USER: ${{ secrets.HOSTINGER_USER }}
+          SSH_PORT: ${{ secrets.HOSTINGER_PORT }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          PORT="${SSH_PORT:-22}"
+          ssh -p "$PORT" -o StrictHostKeyChecking=yes "$USER@$HOST" \
+            "export COMMIT_SHA='$SHA'; bash -s" <<'REMOTE'
+          set -euo pipefail
+          APP_ROOT="/var/www/sambhavi-handloom"
+          REPO="$APP_ROOT/repo"
+
+          if [[ ! -d "$REPO/.git" ]]; then
+            echo "Missing $REPO — run deploy/scripts/setup-server.sh on the VPS first" >&2
+            exit 1
+          fi
+
+          git -C "$REPO" fetch --force origin main
+          git -C "$REPO" fetch --force origin "$COMMIT_SHA" || true
+          git -C "$REPO" checkout -f "$COMMIT_SHA"
+
+          SCRIPT="$REPO/deploy/scripts/deploy.sh"
+          if [[ ! -f "$SCRIPT" ]]; then
+            echo "deploy.sh missing at $SCRIPT for commit $COMMIT_SHA" >&2
+            exit 1
+          fi
+
+          chmod +x "$REPO/deploy/scripts/"*.sh
+          bash "$SCRIPT" "$COMMIT_SHA"
+          REMOTE

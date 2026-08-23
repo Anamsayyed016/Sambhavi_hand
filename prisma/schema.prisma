@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductAvailability {
+  IN_STOCK
+  LOW_STOCK
+  MADE_TO_ORDER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+/// Catalog products. Seeded from lib/products.ts — frontend still reads that file in Phase 2.
+model Product {
+  id           String              @id @default(cuid())
+  slug         String              @unique
+  sku          String              @unique
+  name         String
+  description  String
+  /// Price in INR rupees (integer), matching existing storefront values
+  price        Int
+  originalPrice Int?
+  image        String
+  images       String[]
+  category     String
+  /// Collection slugs matching lib/content.ts (e.g. silk-sarees, new-arrivals)
+  collections  String[]
+  fabric       String
+  weave        String
+  length       String
+  blouse       String
+  care         String
+  availability ProductAvailability
+  isNew        Boolean             @default(false)
+  /// Provisional until real inventory is set in admin (see seed docs)
+  stock        Int                 @default(0)
+  active       Boolean             @default(true)
+  featured     Boolean             @default(false)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  orderItems   OrderItem[]
+
+  @@index([category])
+  @@index([active])
+  @@index([featured])
+}
+
+/// Collection metadata from lib/content.ts. Products link via Product.collections slug array.
+model Collection {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  image       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Order foundation only — no checkout logic in Phase 2
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  subtotal        Int
+  shipping        Int
+  total           Int
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  shippingAddress String
+  city            String
+  state           String
+  postalCode      String
+  country         String        @default("IN")
+  paymentId       String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  items           OrderItem[]
+
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([customerEmail])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  productId   String?
+  productSlug String
+  productName String
+  /// Snapshot price in INR at time of order
+  price       Int
+  quantity    Int
+  subtotal    Int
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  active       Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

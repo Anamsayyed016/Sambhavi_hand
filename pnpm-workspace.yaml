@@ -2,7 +2,11 @@ packages:
   - "."
 
 allowBuilds:
+  "@prisma/client": true
+  "@prisma/engines": true
+  esbuild: true
   msw: true
+  prisma: true
 
 overrides:
   hono: 4.12.25
