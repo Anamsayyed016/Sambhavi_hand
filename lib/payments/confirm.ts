@@ -86,6 +86,53 @@ export async function confirmPaidOrder(input: {
   return { orderNumber: order.orderNumber, alreadyPaid: false }
 }
 
+/**
+ * Mark an order payment as FAILED from Razorpay payment.failed webhook.
+ * Never overwrites PAID. Never decrements stock. Never sets order status to paid.
+ */
+export async function markPaymentFailed(input: {
+  razorpayOrderId: string
+  razorpayPaymentId?: string
+}): Promise<{ orderNumber: string; updated: boolean; alreadyPaid: boolean }> {
+  const order = await prisma.order.findUnique({
+    where: { razorpayOrderId: input.razorpayOrderId },
+    select: {
+      id: true,
+      orderNumber: true,
+      paymentStatus: true,
+    },
+  })
+
+  if (!order) {
+    throw new CheckoutError('Order not found.', 404)
+  }
+
+  if (order.paymentStatus === PaymentStatus.PAID) {
+    return { orderNumber: order.orderNumber, updated: false, alreadyPaid: true }
+  }
+
+  if (order.paymentStatus === PaymentStatus.FAILED) {
+    return { orderNumber: order.orderNumber, updated: false, alreadyPaid: false }
+  }
+
+  const updated = await prisma.order.updateMany({
+    where: {
+      id: order.id,
+      paymentStatus: { not: PaymentStatus.PAID },
+    },
+    data: {
+      paymentStatus: PaymentStatus.FAILED,
+      ...(input.razorpayPaymentId ? { paymentId: input.razorpayPaymentId } : {}),
+    },
+  })
+
+  return {
+    orderNumber: order.orderNumber,
+    updated: updated.count > 0,
+    alreadyPaid: false,
+  }
+}
+
 export async function notifyPaymentIssue(orderNumber: string) {
   await createNotification({
     type: 'PAYMENT_ISSUE',

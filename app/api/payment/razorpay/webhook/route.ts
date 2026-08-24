@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkoutErrorResponse, CheckoutError } from '@/lib/checkout/errors'
 import { verifyWebhookSignature } from '@/lib/payments/razorpay'
-import { confirmPaidOrder } from '@/lib/payments/confirm'
+import { confirmPaidOrder, markPaymentFailed } from '@/lib/payments/confirm'
 
 export async function POST(request: Request) {
   try {
@@ -34,13 +34,34 @@ export async function POST(request: Request) {
     }
 
     const event = payload.event
+    const payment = payload.payload?.payment?.entity
+    const razorpayOrderId = payment?.order_id ?? payload.payload?.order?.entity?.id
+    const razorpayPaymentId = payment?.id
+
+    if (event === 'payment.failed') {
+      if (!razorpayOrderId) {
+        return NextResponse.json({ ok: true, ignored: true })
+      }
+
+      try {
+        await markPaymentFailed({
+          razorpayOrderId,
+          razorpayPaymentId: razorpayPaymentId ?? undefined,
+        })
+      } catch (error) {
+        if (error instanceof CheckoutError && error.status === 404) {
+          return NextResponse.json({ ok: true, ignored: true })
+        }
+        throw error
+      }
+
+      return NextResponse.json({ ok: true })
+    }
+
     if (event !== 'payment.captured' && event !== 'order.paid') {
       return NextResponse.json({ ok: true, ignored: true })
     }
 
-    const payment = payload.payload?.payment?.entity
-    const razorpayOrderId = payment?.order_id ?? payload.payload?.order?.entity?.id
-    const razorpayPaymentId = payment?.id
     const orderNumber =
       payment?.notes?.orderNumber ??
       payload.payload?.order?.entity?.notes?.orderNumber ??
