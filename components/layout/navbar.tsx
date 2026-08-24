@@ -5,41 +5,21 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Search, Heart, User, ShoppingBag, Menu, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { navLinks } from '@/lib/content'
 import { useCart } from '@/components/cart/cart-provider'
 import { BrandLogo } from '@/components/layout/brand-logo'
 
 export function Navbar() {
   const pathname = usePathname()
-  const isHome = pathname === '/'
-  const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const { count, openCart, wishlist } = useCart()
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
 
-  const solid = scrolled || !isHome || mobileOpen
-  const iconColor = solid ? 'text-foreground' : 'text-ivory'
-
   return (
-    <header
-      className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-500',
-        solid
-          ? 'border-b border-border/60 bg-background/90 backdrop-blur-md'
-          : 'bg-transparent',
-      )}
-    >
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-ivory transition-colors duration-500">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:h-20 md:px-8">
         {/* Left: logo */}
         <Link
@@ -56,10 +36,7 @@ export function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className={cn(
-                  'group relative text-sm font-light tracking-wide transition-colors',
-                  solid ? 'text-foreground hover:text-primary' : 'text-ivory/90 hover:text-ivory',
-                )}
+                className="group relative text-sm font-light tracking-wide text-foreground transition-colors hover:text-primary"
               >
                 {link.label}
                 <span className="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
@@ -69,18 +46,18 @@ export function Navbar() {
         </ul>
 
         {/* Right: actions */}
-        <div className="flex items-center gap-1 sm:gap-3">
+        <div className="flex items-center gap-1 text-foreground sm:gap-3">
           <button
             type="button"
             aria-label="Search"
-            className={cn('rounded-full p-2 transition-colors hover:text-accent', iconColor)}
+            className="rounded-full p-2 transition-colors hover:text-accent"
           >
             <Search className="size-5" strokeWidth={1.5} />
           </button>
           <Link
             href="/wishlist"
             aria-label="Wishlist"
-            className={cn('relative rounded-full p-2 transition-colors hover:text-accent', iconColor)}
+            className="relative rounded-full p-2 transition-colors hover:text-accent"
           >
             <Heart className="size-5" strokeWidth={1.5} />
             {wishlist.length > 0 ? (
@@ -92,7 +69,7 @@ export function Navbar() {
           <Link
             href="/account"
             aria-label="Account"
-            className={cn('hidden rounded-full p-2 transition-colors hover:text-accent sm:block', iconColor)}
+            className="hidden rounded-full p-2 transition-colors hover:text-accent sm:block"
           >
             <User className="size-5" strokeWidth={1.5} />
           </Link>
@@ -100,7 +77,7 @@ export function Navbar() {
             type="button"
             onClick={openCart}
             aria-label="Shopping bag"
-            className={cn('relative rounded-full p-2 transition-colors hover:text-accent', iconColor)}
+            className="relative rounded-full p-2 transition-colors hover:text-accent"
           >
             <ShoppingBag className="size-5" strokeWidth={1.5} />
             {count > 0 ? (
@@ -114,7 +91,7 @@ export function Navbar() {
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
-            className={cn('rounded-full p-2 transition-colors hover:text-accent lg:hidden', iconColor)}
+            className="rounded-full p-2 transition-colors hover:text-accent lg:hidden"
           >
             {mobileOpen ? <X className="size-5" strokeWidth={1.5} /> : <Menu className="size-5" strokeWidth={1.5} />}
           </button>
@@ -130,7 +107,7 @@ export function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-border/60 bg-background lg:hidden"
+            className="overflow-hidden border-t border-border/40 bg-ivory lg:hidden"
           >
             <ul className="flex flex-col px-4 py-4">
               {navLinks.map((link, i) => (
