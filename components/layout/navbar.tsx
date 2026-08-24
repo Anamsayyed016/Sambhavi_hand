@@ -42,8 +42,12 @@ export function Navbar() {
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:h-20 md:px-8">
         {/* Left: logo */}
-        <Link href="/" className="flex shrink-0 items-center" aria-label="Sambhavi Handloom home">
-          <BrandLogo priority />
+        <Link
+          href="/"
+          className="flex h-full shrink-0 items-center py-1.5"
+          aria-label="Sambhavi Handloom home"
+        >
+          <BrandLogo priority className="h-12 w-auto object-contain md:h-[4.25rem]" />
         </Link>
 
         {/* Center: links */}
