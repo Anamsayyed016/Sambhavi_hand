@@ -113,6 +113,7 @@ model Order {
   postalCode      String
   country         String        @default("IN")
   paymentId       String?
+  razorpayOrderId String?       @unique
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   items           OrderItem[]

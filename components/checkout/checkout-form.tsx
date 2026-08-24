@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/components/cart/cart-provider'
 import { calculateOrderTotal } from '@/lib/checkout/shipping'
+import { loadRazorpayScript, type RazorpaySuccessResponse } from '@/lib/payments/load-razorpay'
 import { formatINR } from '@/lib/products'
 
 const inputClass =
@@ -44,6 +45,7 @@ export function CheckoutForm() {
   })
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
+  const processing = useRef(false)
 
   const preview = useMemo(() => calculateOrderTotal(subtotal), [subtotal])
 
@@ -52,18 +54,37 @@ export function CheckoutForm() {
     setError(null)
   }
 
+  async function verifyPayment(orderNumber: string, response: RazorpaySuccessResponse) {
+    const res = await fetch('/api/payment/razorpay/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderNumber,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature,
+      }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok || !data.paid) {
+      throw new Error(data.error ?? 'Payment could not be verified. Please try again.')
+    }
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (items.length === 0) {
       setError('Your cart is empty.')
       return
     }
+    if (processing.current) return
+    processing.current = true
 
     setStatus('submitting')
     setError(null)
 
     try {
-      const res = await fetch('/api/checkout', {
+      const checkoutRes = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,19 +105,104 @@ export function CheckoutForm() {
         }),
       })
 
-      const data = await res.json().catch(() => ({}))
+      const checkoutData = await checkoutRes.json().catch(() => ({}))
 
-      if (!res.ok) {
+      if (!checkoutRes.ok) {
         setStatus('error')
-        setError(data.error ?? 'Unable to place your order. Please try again.')
+        setError(checkoutData.error ?? 'Unable to place your order. Please try again.')
         return
       }
 
-      clearCart()
-      router.push(`/checkout/success/${encodeURIComponent(data.orderNumber)}`)
+      const orderNumber = checkoutData.orderNumber as string
+
+      const razorpayRes = await fetch('/api/payment/razorpay/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderNumber }),
+      })
+      const razorpayData = await razorpayRes.json().catch(() => ({}))
+
+      if (!razorpayRes.ok) {
+        setStatus('error')
+        setError(razorpayData.error ?? 'Payment service is temporarily unavailable. Please try again.')
+        return
+      }
+
+      if (razorpayData.alreadyPaid) {
+        clearCart()
+        router.push(`/checkout/success/${encodeURIComponent(orderNumber)}`)
+        return
+      }
+
+      const Razorpay = await loadRazorpayScript().catch(() => null)
+      if (!Razorpay) {
+        setStatus('error')
+        setError('Payment service is temporarily unavailable. Please try again.')
+        return
+      }
+
+      await new Promise<void>((resolve) => {
+        let outcome: 'handler' | 'dismiss' | null = null
+
+        const done = () => resolve()
+
+        try {
+          const checkout = new Razorpay({
+            key: razorpayData.keyId,
+            amount: razorpayData.amount,
+            currency: razorpayData.currency ?? 'INR',
+            name: 'Sambhavi Handloom',
+            description: `Order ${orderNumber}`,
+            order_id: razorpayData.razorpayOrderId,
+            prefill: {
+              name: razorpayData.customer?.name ?? form.name,
+              email: razorpayData.customer?.email ?? form.email,
+              contact: razorpayData.customer?.contact ?? form.phone,
+            },
+            theme: { color: '#7a1f2b' },
+            handler: async (response: RazorpaySuccessResponse) => {
+              outcome = 'handler'
+              try {
+                await verifyPayment(orderNumber, response)
+                clearCart()
+                router.push(`/checkout/success/${encodeURIComponent(orderNumber)}`)
+              } catch (err) {
+                setStatus('error')
+                setError(
+                  err instanceof Error
+                    ? err.message
+                    : 'Payment could not be verified. Please try again.',
+                )
+              } finally {
+                done()
+              }
+            },
+            modal: {
+              ondismiss: () => {
+                window.setTimeout(() => {
+                  if (outcome === 'handler') return
+                  outcome = 'dismiss'
+                  setStatus('idle')
+                  setError('Payment was cancelled. You can try again.')
+                  done()
+                }, 500)
+              },
+            },
+          })
+
+          checkout.open()
+        } catch {
+          setStatus('error')
+          setError('Payment service is temporarily unavailable. Please try again.')
+          done()
+        }
+      })
     } catch {
       setStatus('error')
       setError('Unable to place your order. Please try again.')
+    } finally {
+      processing.current = false
+      setStatus((current) => (current === 'submitting' ? 'idle' : current))
     }
   }
 
@@ -118,8 +224,7 @@ export function CheckoutForm() {
         <div>
           <h1 className="font-serif text-3xl text-foreground md:text-4xl">Checkout</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Complete your details below. Online payment will be added in a future update — your
-            order is saved with payment pending.
+            Complete your details below. You will pay securely with Razorpay after placing the order.
           </p>
         </div>
 
@@ -258,7 +363,7 @@ export function CheckoutForm() {
           className="h-12 w-full rounded-none bg-primary text-sm uppercase tracking-luxe text-primary-foreground hover:bg-primary/90 lg:hidden"
           size="lg"
         >
-          {status === 'submitting' ? 'Placing order…' : 'Place Order'}
+          {status === 'submitting' ? 'Processing...' : 'Pay Securely'}
         </Button>
       </div>
 
@@ -301,8 +406,8 @@ export function CheckoutForm() {
           </div>
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Final amounts are confirmed on the server when you place your order. Payment is not
-          collected in this step.
+          Final amounts are confirmed on the server when you pay. Your card or UPI details never
+          pass through Sambhavi servers.
         </p>
         <Button
           type="submit"
@@ -310,7 +415,7 @@ export function CheckoutForm() {
           className="hidden h-12 w-full rounded-none bg-primary text-sm uppercase tracking-luxe text-primary-foreground hover:bg-primary/90 lg:inline-flex"
           size="lg"
         >
-          {status === 'submitting' ? 'Placing order…' : 'Place Order'}
+          {status === 'submitting' ? 'Processing...' : 'Pay Securely'}
         </Button>
       </aside>
     </form>

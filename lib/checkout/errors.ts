@@ -1,8 +1,8 @@
 /**
- * Stock policy (checkout phase, no Razorpay yet):
- * - Validate available stock for IN_STOCK / LOW_STOCK products
+ * Stock policy:
+ * - Validate available stock for IN_STOCK / LOW_STOCK products at checkout
  * - MADE_TO_ORDER may checkout with stock = 0
- * - Do NOT decrement stock until payment is confirmed (future Razorpay phase)
+ * - Decrement stock only after Razorpay payment is verified server-side
  */
 
 export class CheckoutError extends Error {
