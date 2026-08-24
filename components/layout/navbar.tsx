@@ -8,6 +8,7 @@ import { Search, Heart, User, ShoppingBag, Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { navLinks } from '@/lib/content'
 import { useCart } from '@/components/cart/cart-provider'
+import { BrandLogo } from '@/components/layout/brand-logo'
 
 export function Navbar() {
   const pathname = usePathname()
@@ -41,23 +42,8 @@ export function Navbar() {
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:h-20 md:px-8">
         {/* Left: logo */}
-        <Link href="/" className="flex flex-col leading-none">
-          <span
-            className={cn(
-              'font-serif text-lg font-semibold tracking-wide transition-colors md:text-xl',
-              solid ? 'text-primary' : 'text-ivory',
-            )}
-          >
-            Sambhavi
-          </span>
-          <span
-            className={cn(
-              'text-[0.6rem] uppercase tracking-luxe transition-colors',
-              solid ? 'text-accent' : 'text-ivory/80',
-            )}
-          >
-            Handloom
-          </span>
+        <Link href="/" className="flex shrink-0 items-center" aria-label="Sambhavi Handloom home">
+          <BrandLogo priority />
         </Link>
 
         {/* Center: links */}

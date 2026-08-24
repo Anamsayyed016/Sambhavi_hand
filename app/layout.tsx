@@ -18,12 +18,12 @@ const jost = Jost({
   display: 'swap',
 })
 
-const siteUrl = 'https://sambhavihandloom.com'
+const siteUrl = 'https://sambhaviheritagereimagined.com'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Sambhavi Handloom — Timeless Handloom, Modern Elegance',
+    default: 'Sambhavi Handloom — Heritage Reimagined',
     template: '%s | Sambhavi Handloom',
   },
   description:
@@ -38,9 +38,13 @@ export const metadata: Metadata = {
     'luxury saree',
   ],
   generator: 'v0.app',
+  icons: {
+    icon: [{ url: '/icon.jpg', type: 'image/jpeg' }],
+    apple: [{ url: '/icon.jpg', type: 'image/jpeg' }],
+  },
   openGraph: {
     type: 'website',
-    title: 'Sambhavi Handloom — Timeless Handloom, Modern Elegance',
+    title: 'Sambhavi Handloom — Heritage Reimagined',
     description:
       'Beautifully crafted sarees that celebrate Indian heritage, artistry and effortless elegance.',
     url: siteUrl,
@@ -49,7 +53,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sambhavi Handloom — Timeless Handloom, Modern Elegance',
+    title: 'Sambhavi Handloom — Heritage Reimagined',
     description:
       'Beautifully crafted sarees that celebrate Indian heritage, artistry and effortless elegance.',
     images: ['/images/hero-saree.png'],

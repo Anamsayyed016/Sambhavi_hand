@@ -161,3 +161,7 @@ export const navLinks = [
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]
+
+/** Official Sambhavi Handloom brand mark */
+export const BRAND_LOGO_URL =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1787571350/logo.jpg'

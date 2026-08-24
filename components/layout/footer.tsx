@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Camera, Globe, Video, Mail, Phone, MapPin } from 'lucide-react'
+import { BrandLogo } from '@/components/layout/brand-logo'
 
 const quickLinks = [
   { label: 'Home', href: '/' },
@@ -31,10 +32,9 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* brand */}
           <div className="flex flex-col gap-4 lg:col-span-1">
-            <div className="flex flex-col leading-none">
-              <span className="font-serif text-2xl font-semibold text-ivory">Sambhavi</span>
-              <span className="text-xs uppercase tracking-luxe text-accent">Handloom</span>
-            </div>
+            <Link href="/" className="inline-flex w-fit" aria-label="Sambhavi Handloom home">
+              <BrandLogo className="h-12 md:h-14" />
+            </Link>
             <p className="max-w-xs text-sm leading-relaxed text-ivory/70">
               Celebrating the beauty of Indian handloom — one thoughtfully woven saree at a time.
             </p>
