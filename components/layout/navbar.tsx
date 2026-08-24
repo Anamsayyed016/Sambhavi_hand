@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Search, Heart, User, ShoppingBag, Menu, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { navLinks } from '@/lib/content'
 import { useCart } from '@/components/cart/cart-provider'
 import { BrandLogo } from '@/components/layout/brand-logo'
@@ -47,19 +48,23 @@ export function Navbar() {
 
         {/* Right: actions */}
         <div className="flex items-center gap-1 text-foreground sm:gap-3">
-          <button
-            type="button"
-            aria-label="Search"
-            className="rounded-full p-2 transition-colors hover:text-accent"
+          <Link
+            href="/search"
+            aria-label="Search products"
+            className="rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
-            <Search className="size-5" strokeWidth={1.5} />
-          </button>
+            <Search className="size-5" strokeWidth={1.5} aria-hidden />
+          </Link>
           <Link
             href="/wishlist"
             aria-label="Wishlist"
-            className="relative rounded-full p-2 transition-colors hover:text-accent"
+            className="relative rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
-            <Heart className="size-5" strokeWidth={1.5} />
+            <Heart
+              className={cn('size-5', wishlist.length > 0 && 'fill-primary text-primary')}
+              strokeWidth={1.5}
+              aria-hidden
+            />
             {wishlist.length > 0 ? (
               <span className="absolute right-0 top-0 flex size-4 items-center justify-center rounded-full bg-accent text-[0.6rem] font-medium text-accent-foreground">
                 {wishlist.length}
@@ -69,17 +74,17 @@ export function Navbar() {
           <Link
             href="/account"
             aria-label="Account"
-            className="hidden rounded-full p-2 transition-colors hover:text-accent sm:block"
+            className="rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
-            <User className="size-5" strokeWidth={1.5} />
+            <User className="size-5" strokeWidth={1.5} aria-hidden />
           </Link>
           <button
             type="button"
             onClick={openCart}
             aria-label="Shopping bag"
-            className="relative rounded-full p-2 transition-colors hover:text-accent"
+            className="relative rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
-            <ShoppingBag className="size-5" strokeWidth={1.5} />
+            <ShoppingBag className="size-5" strokeWidth={1.5} aria-hidden />
             {count > 0 ? (
               <span className="absolute right-0 top-0 flex size-4 items-center justify-center rounded-full bg-primary text-[0.6rem] font-medium text-primary-foreground">
                 {count}
@@ -91,9 +96,13 @@ export function Navbar() {
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
-            className="rounded-full p-2 transition-colors hover:text-accent lg:hidden"
+            className="rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 lg:hidden"
           >
-            {mobileOpen ? <X className="size-5" strokeWidth={1.5} /> : <Menu className="size-5" strokeWidth={1.5} />}
+            {mobileOpen ? (
+              <X className="size-5" strokeWidth={1.5} aria-hidden />
+            ) : (
+              <Menu className="size-5" strokeWidth={1.5} aria-hidden />
+            )}
           </button>
         </div>
       </nav>

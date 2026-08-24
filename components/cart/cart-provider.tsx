@@ -6,9 +6,12 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
   type ReactNode,
 } from 'react'
 import type { Product } from '@/lib/products'
+
+const WISHLIST_STORAGE_KEY = 'sambhavi_wishlist'
 
 export type CartItem = {
   slug: string
@@ -37,10 +40,37 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null)
 
+function readWishlistFromStorage(): string[] {
+  try {
+    const raw = localStorage.getItem(WISHLIST_STORAGE_KEY)
+    if (!raw) return []
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((item): item is string => typeof item === 'string')
+  } catch {
+    return []
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [wishlist, setWishlist] = useState<string[]>([])
+  const [wishlistReady, setWishlistReady] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+
+  useEffect(() => {
+    setWishlist(readWishlistFromStorage())
+    setWishlistReady(true)
+  }, [])
+
+  useEffect(() => {
+    if (!wishlistReady) return
+    try {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist))
+    } catch {
+      // Ignore quota / private-mode write failures
+    }
+  }, [wishlist, wishlistReady])
 
   const addItem = useCallback((product: Product, quantity = 1) => {
     setItems((prev) => {
