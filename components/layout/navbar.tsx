@@ -24,10 +24,10 @@ export function Navbar() {
         {/* Left: logo */}
         <Link
           href="/"
-          className="flex h-full shrink-0 items-center py-1.5"
+          className="flex h-full shrink-0 items-center py-1 md:py-0.5"
           aria-label="Sambhavi Handloom home"
         >
-          <BrandLogo priority className="h-12 w-auto object-contain md:h-[4.25rem]" />
+          <BrandLogo priority className="h-14 w-auto object-contain md:h-[4.9rem]" />
         </Link>
 
         {/* Center: links */}
