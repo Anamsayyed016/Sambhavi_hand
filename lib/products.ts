@@ -129,6 +129,24 @@ export const products: Product[] = [
     description:
       'A celebratory emerald silk saree with an opulent gold zari pallu. Rich, radiant and made for festivities and milestone moments.',
   },
+  {
+    slug: 'product-7',
+    name: 'Product 7 — Details Coming Soon',
+    // PLACEHOLDER: replace with real price (do not use as sale price)
+    price: 0,
+    image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1787740181/8.png',
+    images: ['https://res.cloudinary.com/tcjtyr02/image/upload/v1787740181/8.png'],
+    category: 'Saree',
+    collections: ['new-arrivals'],
+    fabric: 'PLACEHOLDER',
+    weave: 'PLACEHOLDER',
+    length: 'PLACEHOLDER',
+    blouse: 'PLACEHOLDER',
+    care: 'PLACEHOLDER',
+    availability: 'In Stock',
+    isNew: true,
+    description: 'PLACEHOLDER — product details coming soon.',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
@@ -143,7 +161,7 @@ export function getRelatedProducts(slug: string, limit = 3): Product[] {
     .slice(0, limit)
 }
 
-export const categories = ['Silk', 'Banarasi', 'Kanjeevaram', 'Cotton', 'Chanderi']
+export const categories = ['Silk', 'Banarasi', 'Kanjeevaram', 'Cotton', 'Chanderi', 'Saree']
 
 export function formatINR(value: number): string {
   return new Intl.NumberFormat('en-IN', {
