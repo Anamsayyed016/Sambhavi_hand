@@ -50,21 +50,22 @@ export function ProductDetail({ product }: { product: Product }) {
                     activeImage === i ? 'border-primary' : 'border-border',
                   )}
                 >
-                  <Image src={img || '/placeholder.svg'} alt="" fill sizes="80px" className="object-cover" />
+                  <Image src={img || '/placeholder.svg'} alt="" fill sizes="80px" className="object-contain object-center" />
                 </button>
               ))}
             </div>
           ) : null}
-          <div className="relative aspect-3/4 flex-1 overflow-hidden rounded-md bg-muted">
-            <Image
-              src={gallery[activeImage] || '/placeholder.svg'}
-              alt={product.name}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 45vw"
-              className="object-cover"
-            />
-            {discount > 0 ? (
+          <div className="relative aspect-[2/3] flex-1 overflow-hidden rounded-md bg-ivory p-4 sm:p-6">
+            <div className="relative h-full w-full">
+              <Image
+                src={gallery[activeImage] || '/placeholder.svg'}
+                alt={product.name}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                className="object-contain object-center"
+              />
+            </div>            {discount > 0 ? (
               <span className="absolute left-4 top-4 bg-primary px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-luxe text-primary-foreground">
                 Save {discount}%
               </span>

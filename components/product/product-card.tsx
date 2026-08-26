@@ -24,20 +24,26 @@ export function ProductCard({
 
   return (
     <div className="group flex flex-col">
-      <div className="relative aspect-3/4 overflow-hidden rounded-sm bg-muted">
-        <Link href={`/product/${product.slug}`} aria-label={product.name} className="absolute inset-0">
-          <Image
-            src={product.image || '/placeholder.svg'}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            priority={priority}
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
+      <div className="relative aspect-[2/3] overflow-hidden rounded-sm bg-ivory">
+        <Link
+          href={`/product/${product.slug}`}
+          aria-label={product.name}
+          className="absolute inset-0 p-3 sm:p-4"
+        >
+          <span className="relative block h-full w-full">
+            <Image
+              src={product.image || '/placeholder.svg'}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={priority}
+              className="object-contain object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+            />
+          </span>
         </Link>
 
         {/* badges */}
-        <div className="pointer-events-none absolute left-3 top-3 flex flex-col gap-1.5">
+        <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5">
           {product.isNew ? (
             <span className="w-fit bg-charcoal px-2 py-1 text-[0.6rem] font-medium uppercase tracking-luxe text-ivory">
               New
@@ -56,7 +62,7 @@ export function ProductCard({
           onClick={() => toggleWishlist(product.slug)}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           aria-pressed={wishlisted}
-          className="absolute right-3 top-3 flex size-9 items-center justify-center rounded-full bg-background/80 text-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background"
+          className="absolute right-3 top-3 z-10 flex size-9 items-center justify-center rounded-full bg-background/80 text-foreground backdrop-blur-sm transition-all duration-300 hover:bg-background"
         >
           <Heart
             className={cn('size-4 transition-all', wishlisted && 'scale-110 fill-primary text-primary')}
@@ -65,7 +71,7 @@ export function ProductCard({
         </button>
 
         {/* quick actions */}
-        <div className="absolute inset-x-3 bottom-3 flex translate-y-3 gap-2 opacity-0 transition-all duration-400 group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="absolute inset-x-3 bottom-3 z-10 flex translate-y-3 gap-2 opacity-0 transition-all duration-400 group-hover:translate-y-0 group-hover:opacity-100">
           <button
             type="button"
             onClick={() => addItem(product)}

@@ -57,14 +57,16 @@ export function QuickViewModal({
               >
                 <X className="size-5" />
               </button>
-              <div className="relative aspect-3/4 bg-muted sm:aspect-auto">
-                <Image
-                  src={product.image || '/placeholder.svg'}
-                  alt={product.name}
-                  fill
-                  sizes="(max-width: 640px) 100vw, 384px"
-                  className="object-cover"
-                />
+              <div className="relative aspect-[2/3] bg-ivory p-4 sm:aspect-auto sm:min-h-[28rem] sm:p-6">
+                <div className="relative h-full min-h-[18rem] w-full sm:min-h-full">
+                  <Image
+                    src={product.image || '/placeholder.svg'}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 384px"
+                    className="object-contain object-center"
+                  />
+                </div>
               </div>
               <div className="flex flex-col gap-4 overflow-y-auto p-6 sm:p-8">
                 <span className="text-xs uppercase tracking-luxe text-accent">
