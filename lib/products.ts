@@ -147,6 +147,24 @@ export const products: Product[] = [
     isNew: true,
     description: 'PLACEHOLDER — product details coming soon.',
   },
+  {
+    slug: 'product-8',
+    name: 'Product 8 — Details Coming Soon',
+    // PLACEHOLDER: replace with real price (do not use as sale price)
+    price: 0,
+    image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1787740181/2.png',
+    images: ['https://res.cloudinary.com/tcjtyr02/image/upload/v1787740181/2.png'],
+    category: 'Saree',
+    collections: ['new-arrivals'],
+    fabric: 'PLACEHOLDER',
+    weave: 'PLACEHOLDER',
+    length: 'PLACEHOLDER',
+    blouse: 'PLACEHOLDER',
+    care: 'PLACEHOLDER',
+    availability: 'In Stock',
+    isNew: true,
+    description: 'PLACEHOLDER — product details coming soon.',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
