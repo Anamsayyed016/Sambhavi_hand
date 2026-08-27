@@ -45,7 +45,7 @@ export default async function CollectionDetailPage({
           { label: collection.name },
         ]}
       />
-      <section className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+      <section className="mx-auto max-w-[88rem] px-5 py-12 md:px-8 md:py-16">
         {items.length > 0 ? (
           <ProductGrid products={items} columns="three" />
         ) : (

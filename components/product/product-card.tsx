@@ -35,7 +35,7 @@ export function ProductCard({
               src={product.image || '/placeholder.svg'}
               alt={product.name}
               fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1408px) 30vw, 28vw"
               priority={priority}
               className="object-contain object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
             />

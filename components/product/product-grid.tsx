@@ -25,7 +25,13 @@ export function ProductGrid({
 
   return (
     <>
-      <div className={cn('grid gap-x-4 gap-y-10 sm:gap-x-6', cols, className)}>
+      <div
+        className={cn(
+          'grid gap-x-4 gap-y-10 sm:gap-x-6 lg:gap-x-8 lg:gap-y-12',
+          cols,
+          className,
+        )}
+      >
         {products.map((product, i) => (
           <motion.div
             key={product.slug}

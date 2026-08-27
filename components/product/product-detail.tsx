@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
+import { BackButton } from '@/components/layout/back-button'
 
 const detailRows = (product: Product) => [
   { label: 'Fabric', value: product.fabric },
@@ -34,6 +35,7 @@ export function ProductDetail({ product }: { product: Product }) {
 
   return (
     <section className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-14">
+      <BackButton fallbackHref="/shop" />
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
         {/* gallery */}
         <div className="flex flex-col-reverse gap-4 sm:flex-row">

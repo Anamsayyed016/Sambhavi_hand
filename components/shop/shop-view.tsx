@@ -98,8 +98,8 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
   )
 
   return (
-    <section className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
-      <div className="grid gap-10 lg:grid-cols-[220px_1fr]">
+    <section className="mx-auto max-w-[88rem] px-5 py-12 md:px-8 md:py-16">
+      <div className="grid gap-10 lg:grid-cols-[200px_1fr] lg:gap-12">
         {/* desktop filters */}
         <aside className="hidden lg:block">
           <div className="sticky top-28">{FilterPanel}</div>
