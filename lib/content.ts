@@ -122,6 +122,7 @@ export const reels: Reel[] = [
   },
   {
     poster: '/images/reel-3.png',
+    video: 'https://res.cloudinary.com/tcjtyr02/video/upload/v1787822223/1.mp4',
     caption: 'Handloom stories.',
     productSlug: 'soft-cotton-handloom-saree',
   },
