@@ -110,6 +110,7 @@ export type Reel = {
 export const reels: Reel[] = [
   {
     poster: '/images/reel-1.png',
+    video: 'https://res.cloudinary.com/tcjtyr02/video/upload/v1787822226/2.mp4',
     caption: 'Elegance in every weave.',
     productSlug: 'handwoven-silk-saree',
   },
