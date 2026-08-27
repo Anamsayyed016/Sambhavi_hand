@@ -116,6 +116,7 @@ export const reels: Reel[] = [
   },
   {
     poster: '/images/reel-2.png',
+    video: 'https://res.cloudinary.com/tcjtyr02/video/upload/v1787822223/3.mp4',
     caption: 'Your festive drape, reimagined.',
     productSlug: 'festive-silk-collection-saree',
   },
