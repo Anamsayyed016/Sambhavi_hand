@@ -20,7 +20,10 @@ import { products } from '@/lib/products'
 
 export function generateStaticParams() {
   const groupSlugs = categoryGroups.map((g) => ({ slug: g.slug }))
-  const categorySlugs = sareeCategories.map((c) => ({ slug: c.slug }))
+  const categorySlugs = [
+    ...sareeCategories.map((c) => ({ slug: c.slug })),
+    { slug: 'kota' },
+  ]
   const legacySlugs = legacyCollectionSlugs.map((slug) => ({ slug }))
   return [...groupSlugs, ...categorySlugs, ...legacySlugs]
 }

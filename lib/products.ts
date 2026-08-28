@@ -194,9 +194,9 @@ export const products: Product[] = [
     price: 4700,
     originalPrice: 5400,
     image:
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916349/WhatsApp_Image_2026-08-28_at_4.03.22_PM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916347/WhatsApp_Image_2026-08-28_at_4.03.21_PM_1.jpg',
     images: [
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916349/WhatsApp_Image_2026-08-28_at_4.03.22_PM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916347/WhatsApp_Image_2026-08-28_at_4.03.21_PM_1.jpg',
     ],
     category: 'Kota Handloom',
     collections: ['new-arrivals'],
@@ -216,9 +216,9 @@ export const products: Product[] = [
     price: 4700,
     originalPrice: 5400,
     image:
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916347/WhatsApp_Image_2026-08-28_at_4.03.20_PM.jpg',
     images: [
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916347/WhatsApp_Image_2026-08-28_at_4.03.20_PM.jpg',
     ],
     category: 'Kota Handloom',
     collections: ['new-arrivals'],
@@ -238,9 +238,9 @@ export const products: Product[] = [
     price: 4700,
     originalPrice: 5400,
     image:
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM_2.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916347/WhatsApp_Image_2026-08-28_at_4.03.20_PM_2.jpg',
     images: [
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM_2.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916347/WhatsApp_Image_2026-08-28_at_4.03.20_PM_2.jpg',
     ],
     category: 'Kota Handloom',
     collections: ['new-arrivals'],

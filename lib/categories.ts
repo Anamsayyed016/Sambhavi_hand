@@ -14,7 +14,7 @@ export type CategoryGroup = {
   primary?: boolean
 }
 
-const prominentCategorySlugs = new Set(['digital-print', 'kota'])
+const prominentCategorySlugs = new Set(['digital-print', 'kota-handloom'])
 
 const groupDefs: {
   slug: string
@@ -123,7 +123,12 @@ export function getCategoryGroup(slug: string): CategoryGroup | undefined {
 }
 
 export function getSareeCategory(slug: string): SareeCategory | undefined {
-  return sareeCategories.find((c) => c.slug === slug)
+  const resolved = slug === 'kota' ? 'kota-handloom' : slug
+  return sareeCategories.find((c) => c.slug === resolved)
+}
+
+export function isKotaCategorySlug(slug: string): boolean {
+  return slug === 'kota' || slug === 'kota-handloom'
 }
 
 export function getSareeCategoryByName(name: string): SareeCategory | undefined {

@@ -2,6 +2,7 @@ import type { Product } from '@/lib/products'
 import {
   getCategoryGroup,
   getSareeCategory,
+  isKotaCategorySlug,
   isLegacyCollectionSlug,
   type SareeCategory,
 } from '@/lib/categories'
@@ -19,7 +20,7 @@ export function productMatchesCategory(product: Product, categoryName: string): 
 export function getProductsForCatalogSlug(slug: string, products: Product[]): Product[] {
   const category = getSareeCategory(slug)
   if (category) {
-    if (category.slug === 'kota') {
+    if (isKotaCategorySlug(category.slug)) {
       return products.filter((p) => productMatchesCategory(p, 'Kota Handloom'))
     }
     return products.filter((p) => p.category === category.name)
