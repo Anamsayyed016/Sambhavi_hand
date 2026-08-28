@@ -167,6 +167,27 @@ export const products: Product[] = [
     isNew: true,
     description: 'PLACEHOLDER — product details coming soon.',
   },
+  {
+    slug: 'masterpiece-embroidery-pure-cotton-kota-handloom-saree',
+    name: 'Masterpiece Embroidery Pure Cotton Kota Handloom Saree',
+    price: 4700,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916349/WhatsApp_Image_2026-08-28_at_4.03.22_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916349/WhatsApp_Image_2026-08-28_at_4.03.22_PM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM_2.jpg',
+    ],
+    category: 'Kota',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: 'With Blouse',
+    care: '—',
+    availability: 'In Stock',
+    description: 'With Blouse. Free Shipping.',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
