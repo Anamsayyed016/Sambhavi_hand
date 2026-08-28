@@ -8,12 +8,35 @@ export type CategoryGroup = {
   slug: string
   name: string
   categories: SareeCategory[]
+  /** Spotlight top-level categories (e.g. Digital Print, Kota). */
+  featured?: boolean
+  /** Main catalog section with extensive subcategories. */
+  primary?: boolean
 }
 
-const groupDefs: { slug: string; name: string; names: string[] }[] = [
+const groupDefs: {
+  slug: string
+  name: string
+  names: string[]
+  featured?: boolean
+  primary?: boolean
+}[] = [
   {
-    slug: 'handloom',
-    name: 'HANDLOOM',
+    slug: 'digital-print',
+    name: 'DIGITAL PRINT',
+    names: ['Digital Print'],
+    featured: true,
+  },
+  {
+    slug: 'kota',
+    name: 'KOTA',
+    names: ['Kota'],
+    featured: true,
+  },
+  {
+    slug: 'handloom-powerloom',
+    name: 'HANDLOOM & POWERLOOM',
+    primary: true,
     names: [
       'Banarasi',
       'Kanjivaram / Kanchipuram',
@@ -25,17 +48,10 @@ const groupDefs: { slug: string; name: string; names: string[] }[] = [
       'Jamdani',
       'Baluchari',
       'Tussar / Kosa Silk',
-      'Kota Doria',
       'Pochampally',
       'Muga Silk',
       'Venkatagiri',
       'Gadwal',
-    ],
-  },
-  {
-    slug: 'powerloom',
-    name: 'POWERLOOM',
-    names: [
       'Georgette',
       'Chiffon',
       'Cotton Prints',
@@ -47,17 +63,6 @@ const groupDefs: { slug: string; name: string; names: string[] }[] = [
     ],
   },
   {
-    slug: 'kids-ethnic-wear',
-    name: 'KIDS ETHNIC WEAR',
-    names: [
-      'Mini Lehenga-Saree Sets',
-      'Ready-to-Wear Pre-Draped Sarees',
-      'Half-Sarees / Langa Voni',
-      'Mother-Daughter Sets',
-      'Festive Frocks with Dupatta',
-    ],
-  },
-  {
     slug: 'festive-edition',
     name: 'FESTIVE EDITION',
     names: [
@@ -66,6 +71,17 @@ const groupDefs: { slug: string; name: string; names: string[] }[] = [
       'Durga Puja / Bengal Special',
       'Navratri Collection',
       'Raksha Bandhan / Family Sets',
+    ],
+  },
+  {
+    slug: 'kids-ethnic-wear',
+    name: 'KIDS ETHNIC WEAR',
+    names: [
+      'Mini Lehenga-Saree Sets',
+      'Ready-to-Wear Pre-Draped Sarees',
+      'Half-Sarees / Langa Voni',
+      'Mother-Daughter Sets',
+      'Festive Frocks with Dupatta',
     ],
   },
   {
@@ -92,6 +108,8 @@ function nameToSlug(name: string): string {
 export const categoryGroups: CategoryGroup[] = groupDefs.map((group) => ({
   slug: group.slug,
   name: group.name,
+  featured: group.featured,
+  primary: group.primary,
   categories: group.names.map((name) => ({
     slug: nameToSlug(name),
     name,
@@ -102,6 +120,14 @@ export const categoryGroups: CategoryGroup[] = groupDefs.map((group) => ({
 export const sareeCategories: SareeCategory[] = categoryGroups.flatMap((g) => g.categories)
 
 export const categoryNames = sareeCategories.map((c) => c.name)
+
+export const featuredCategoryGroups = categoryGroups.filter((g) => g.featured)
+export const primaryCategoryGroup = categoryGroups.find((g) => g.primary)
+export const secondaryCategoryGroups = categoryGroups.filter((g) => !g.featured && !g.primary)
+
+export function isStandaloneCategoryGroup(group: CategoryGroup): boolean {
+  return group.categories.length === 1 && group.categories[0]?.slug === group.slug
+}
 
 export function getCategoryGroup(slug: string): CategoryGroup | undefined {
   return categoryGroups.find((g) => g.slug === slug)

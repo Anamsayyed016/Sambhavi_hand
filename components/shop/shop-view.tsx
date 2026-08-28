@@ -56,7 +56,16 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
     <div className="flex flex-col gap-8">
       {categoryGroups.map((group) => (
         <div key={group.slug}>
-          <h3 className="mb-3 font-serif text-base text-foreground">{group.name}</h3>
+          <h3
+            className={cn(
+              'mb-3 font-serif uppercase tracking-[0.12em]',
+              group.featured && 'text-base text-primary',
+              group.primary && 'text-lg text-primary',
+              !group.featured && !group.primary && 'text-base text-foreground',
+            )}
+          >
+            {group.name}
+          </h3>
           <ul className="flex flex-col gap-2.5">
             {group.categories.map((cat) => {
               const active = activeCategories.includes(cat.name)

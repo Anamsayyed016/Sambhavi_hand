@@ -5,17 +5,22 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { categoryGroups } from '@/lib/categories'
-
-const handloomGroup = categoryGroups.find((g) => g.slug === 'handloom')!
-const otherGroups = categoryGroups.filter((g) => g.slug !== 'handloom')
+import {
+  categoryGroups,
+  featuredCategoryGroups,
+  isStandaloneCategoryGroup,
+  primaryCategoryGroup,
+  secondaryCategoryGroups,
+  type CategoryGroup,
+  type SareeCategory,
+} from '@/lib/categories'
 
 function CategoryLinks({
   categories,
   onNavigate,
   className,
 }: {
-  categories: typeof handloomGroup.categories
+  categories: SareeCategory[]
   onNavigate?: () => void
   className?: string
 }) {
@@ -39,21 +44,24 @@ function CategoryLinks({
 function GroupHeading({
   group,
   onNavigate,
-  prominent = false,
+  variant = 'default',
 }: {
-  group: (typeof categoryGroups)[number]
+  group: CategoryGroup
   onNavigate?: () => void
-  prominent?: boolean
+  variant?: 'featured' | 'primary' | 'default'
 }) {
   return (
     <Link
       href={`/collections/${group.slug}`}
       onClick={onNavigate}
       className={cn(
-        'font-serif uppercase tracking-[0.14em] transition-colors duration-300 hover:text-primary',
-        prominent
-          ? 'text-2xl text-primary md:text-[1.65rem]'
-          : 'text-base text-foreground/85 md:text-lg',
+        'font-serif uppercase transition-colors duration-300 hover:text-primary',
+        variant === 'featured' &&
+          'text-lg tracking-[0.16em] text-primary md:text-xl',
+        variant === 'primary' &&
+          'text-2xl tracking-[0.12em] text-primary md:text-[1.75rem]',
+        variant === 'default' &&
+          'text-base tracking-[0.14em] text-foreground/85 md:text-lg',
       )}
     >
       {group.name}
@@ -61,10 +69,25 @@ function GroupHeading({
   )
 }
 
+function FeaturedCategoryColumn({
+  group,
+  onNavigate,
+}: {
+  group: CategoryGroup
+  onNavigate: () => void
+}) {
+  return (
+    <div className="flex min-w-0 flex-col justify-start lg:pt-1">
+      <GroupHeading group={group} onNavigate={onNavigate} variant="featured" />
+    </div>
+  )
+}
+
 export function CategoriesMegaMenu() {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const primaryGroup = primaryCategoryGroup!
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimer.current) {
@@ -150,20 +173,26 @@ export function CategoriesMegaMenu() {
             onMouseLeave={scheduleClose}
           >
             <div className="mx-auto max-h-[min(78vh,720px)] max-w-7xl overflow-y-auto px-6 py-10 md:px-8 md:py-12">
-              <div className="grid gap-10 lg:grid-cols-[minmax(0,1.35fr)_repeat(4,minmax(0,1fr))] lg:gap-x-10 xl:gap-x-12">
-                <div className="space-y-5 border-border/40 lg:border-r lg:pr-10">
-                  <GroupHeading group={handloomGroup} onNavigate={closeMenu} prominent />
+              <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,0.95fr)_minmax(0,2.35fr)_repeat(3,minmax(0,1fr))] lg:gap-x-8 xl:gap-x-10">
+                {featuredCategoryGroups.map((group) => (
+                  <FeaturedCategoryColumn key={group.slug} group={group} onNavigate={closeMenu} />
+                ))}
+
+                <div className="space-y-5 border-border/40 lg:border-r lg:pr-8 xl:pr-10">
+                  <GroupHeading group={primaryGroup} onNavigate={closeMenu} variant="primary" />
                   <CategoryLinks
-                    categories={handloomGroup.categories}
+                    categories={primaryGroup.categories}
                     onNavigate={closeMenu}
                     className="sm:grid sm:grid-cols-2 sm:gap-x-8 sm:gap-y-2.5"
                   />
                 </div>
 
-                {otherGroups.map((group) => (
+                {secondaryCategoryGroups.map((group) => (
                   <div key={group.slug} className="space-y-4">
                     <GroupHeading group={group} onNavigate={closeMenu} />
-                    <CategoryLinks categories={group.categories} onNavigate={closeMenu} />
+                    {!isStandaloneCategoryGroup(group) ? (
+                      <CategoryLinks categories={group.categories} onNavigate={closeMenu} />
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -187,7 +216,7 @@ export function CategoriesMegaMenu() {
 
 export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => void }) {
   const [expanded, setExpanded] = useState(false)
-  const [openGroup, setOpenGroup] = useState<string | null>(handloomGroup.slug)
+  const [openGroup, setOpenGroup] = useState<string | null>(primaryCategoryGroup?.slug ?? null)
 
   const handleNavigate = () => {
     setExpanded(false)
@@ -223,61 +252,83 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
             <div className="space-y-1 pb-4 pl-1">
               {categoryGroups.map((group) => {
                 const isOpen = openGroup === group.slug
-                const isHandloom = group.slug === 'handloom'
+                const isFeatured = group.featured
+                const isPrimary = group.primary
+                const standalone = isStandaloneCategoryGroup(group)
+
                 return (
                   <div key={group.slug} className="border-t border-border/25 first:border-t-0">
-                    <button
-                      type="button"
-                      aria-expanded={isOpen}
-                      onClick={() => setOpenGroup(isOpen ? null : group.slug)}
-                      className={cn(
-                        'flex w-full items-center justify-between py-3 text-left font-serif uppercase tracking-[0.12em] transition-colors hover:text-primary',
-                        isHandloom ? 'text-base text-primary' : 'text-sm text-foreground/85',
-                      )}
-                    >
-                      {group.name}
-                      <ChevronDown
+                    {standalone ? (
+                      <Link
+                        href={`/collections/${group.slug}`}
+                        onClick={handleNavigate}
                         className={cn(
-                          'size-3.5 shrink-0 transition-transform duration-300',
-                          isOpen && 'rotate-180',
+                          'block py-3 font-serif uppercase tracking-[0.12em] transition-colors hover:text-primary',
+                          isFeatured ? 'text-base text-primary' : 'text-sm text-foreground/85',
                         )}
-                        strokeWidth={1.5}
-                        aria-hidden
-                      />
-                    </button>
-                    <AnimatePresence initial={false}>
-                      {isOpen ? (
-                        <motion.ul
-                          key={`${group.slug}-list`}
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                          className="space-y-2.5 overflow-hidden pb-3 pl-2"
+                      >
+                        {group.name}
+                      </Link>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          aria-expanded={isOpen}
+                          onClick={() => setOpenGroup(isOpen ? null : group.slug)}
+                          className={cn(
+                            'flex w-full items-center justify-between py-3 text-left font-serif uppercase tracking-[0.12em] transition-colors hover:text-primary',
+                            isPrimary
+                              ? 'text-base text-primary'
+                              : isFeatured
+                                ? 'text-base text-primary'
+                                : 'text-sm text-foreground/85',
+                          )}
                         >
-                          <li>
-                            <Link
-                              href={`/collections/${group.slug}`}
-                              onClick={handleNavigate}
-                              className="font-sans text-xs uppercase tracking-[0.14em] text-accent transition-colors hover:text-primary"
+                          {group.name}
+                          <ChevronDown
+                            className={cn(
+                              'size-3.5 shrink-0 transition-transform duration-300',
+                              isOpen && 'rotate-180',
+                            )}
+                            strokeWidth={1.5}
+                            aria-hidden
+                          />
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {isOpen ? (
+                            <motion.ul
+                              key={`${group.slug}-list`}
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                              className="space-y-2.5 overflow-hidden pb-3 pl-2"
                             >
-                              All {group.name.toLowerCase()}
-                            </Link>
-                          </li>
-                          {group.categories.map((category) => (
-                            <li key={category.slug}>
-                              <Link
-                                href={`/collections/${category.slug}`}
-                                onClick={handleNavigate}
-                                className="font-sans text-[0.9375rem] font-light leading-snug text-muted-foreground transition-colors hover:text-primary"
-                              >
-                                {category.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </motion.ul>
-                      ) : null}
-                    </AnimatePresence>
+                              <li>
+                                <Link
+                                  href={`/collections/${group.slug}`}
+                                  onClick={handleNavigate}
+                                  className="font-sans text-xs uppercase tracking-[0.14em] text-accent transition-colors hover:text-primary"
+                                >
+                                  All {group.name.toLowerCase()}
+                                </Link>
+                              </li>
+                              {group.categories.map((category) => (
+                                <li key={category.slug}>
+                                  <Link
+                                    href={`/collections/${category.slug}`}
+                                    onClick={handleNavigate}
+                                    className="font-sans text-[0.9375rem] font-light leading-snug text-muted-foreground transition-colors hover:text-primary"
+                                  >
+                                    {category.name}
+                                  </Link>
+                                </li>
+                              ))}
+                            </motion.ul>
+                          ) : null}
+                        </AnimatePresence>
+                      </>
+                    )}
                   </div>
                 )
               })}

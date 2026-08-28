@@ -6,7 +6,7 @@ import { getSareeCategory } from '@/lib/categories'
 export const metadata: Metadata = {
   title: 'Shop All Sarees',
   description:
-    'Browse the complete Sambhavi Handloom saree catalog — handloom, powerloom, festive, and budget categories.',
+    'Browse the complete Sambhavi Handloom saree catalog — digital print, kota, handloom, powerloom, and festive categories.',
 }
 
 type ShopPageProps = {

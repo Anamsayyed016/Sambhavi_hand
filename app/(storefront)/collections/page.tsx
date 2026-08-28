@@ -8,7 +8,7 @@ import { categoryGroups } from '@/lib/categories'
 export const metadata: Metadata = {
   title: 'Saree Categories',
   description:
-    'Browse Sambhavi Handloom sarees by type — handloom, powerloom, kids ethnic wear, festive edition, and budget sarees.',
+    'Browse Sambhavi Handloom sarees by type — digital print, kota, handloom & powerloom, festive edition, and more.',
 }
 
 export default function CollectionsPage() {
@@ -20,7 +20,7 @@ export default function CollectionsPage() {
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Categories' }]}
       />
       <section className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
-        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-10">
+        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 lg:gap-10">
           {categoryGroups.map((group, i) => (
             <Reveal key={group.slug} delay={(i % 5) * 0.08}>
               <CategoryGroupPanel group={group} />
