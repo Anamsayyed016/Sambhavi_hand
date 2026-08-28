@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
-import { products, categories, type Product } from '@/lib/products'
+import { categoryGroups } from '@/lib/categories'
+import { products, type Product } from '@/lib/products'
 import { ProductGrid } from '@/components/product/product-grid'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -52,39 +53,41 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
   }, [activeCategories, sort])
 
   const FilterPanel = (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h3 className="mb-4 font-serif text-lg text-foreground">Category</h3>
-        <ul className="flex flex-col gap-2.5">
-          {categories.map((cat) => {
-            const active = activeCategories.includes(cat)
-            return (
-              <li key={cat}>
-                <button
-                  type="button"
-                  onClick={() => toggleCategory(cat)}
-                  className="flex w-full items-center gap-3 text-left font-sans text-sm"
-                >
-                  <span
-                    className={cn(
-                      'flex h-4 w-4 items-center justify-center rounded-sm border transition-colors',
-                      active
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-border bg-transparent',
-                    )}
-                    aria-hidden="true"
+    <div className="flex flex-col gap-8">
+      {categoryGroups.map((group) => (
+        <div key={group.slug}>
+          <h3 className="mb-3 font-serif text-base text-foreground">{group.name}</h3>
+          <ul className="flex flex-col gap-2.5">
+            {group.categories.map((cat) => {
+              const active = activeCategories.includes(cat.name)
+              return (
+                <li key={cat.slug}>
+                  <button
+                    type="button"
+                    onClick={() => toggleCategory(cat.name)}
+                    className="flex w-full items-start gap-3 text-left font-sans text-sm"
                   >
-                    {active ? <X className="h-3 w-3" strokeWidth={3} /> : null}
-                  </span>
-                  <span className={cn(active ? 'text-foreground' : 'text-muted-foreground')}>
-                    {cat}
-                  </span>
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
+                    <span
+                      className={cn(
+                        'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors',
+                        active
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border bg-transparent',
+                      )}
+                      aria-hidden="true"
+                    >
+                      {active ? <X className="h-3 w-3" strokeWidth={3} /> : null}
+                    </span>
+                    <span className={cn(active ? 'text-foreground' : 'text-muted-foreground')}>
+                      {cat.name}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      ))}
       {activeCategories.length > 0 ? (
         <button
           type="button"
@@ -99,7 +102,7 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
 
   return (
     <section className="mx-auto max-w-[88rem] px-5 py-12 md:px-8 md:py-16">
-      <div className="grid gap-10 lg:grid-cols-[200px_1fr] lg:gap-12">
+      <div className="grid gap-10 lg:grid-cols-[240px_1fr] lg:gap-12">
         {/* desktop filters */}
         <aside className="hidden lg:block">
           <div className="sticky top-28">{FilterPanel}</div>

@@ -5,49 +5,6 @@ export type Collection = {
   image: string
 }
 
-export const collections: Collection[] = [
-  {
-    slug: 'silk-sarees',
-    name: 'Silk Sarees',
-    description: 'Lustrous handwoven silks for timeless occasions.',
-    image: '/images/product-silk.png',
-  },
-  {
-    slug: 'banarasi-sarees',
-    name: 'Banarasi Sarees',
-    description: 'Opulent brocade weaves from Varanasi.',
-    image: '/images/product-banarasi.png',
-  },
-  {
-    slug: 'cotton-handloom',
-    name: 'Cotton Handloom',
-    description: 'Breathable everyday elegance.',
-    image: '/images/product-cotton.png',
-  },
-  {
-    slug: 'festive-collection',
-    name: 'Festive Collection',
-    description: 'Radiant drapes for celebrations.',
-    image: '/images/product-festive.png',
-  },
-  {
-    slug: 'wedding-collection',
-    name: 'Wedding Collection',
-    description: 'Heirloom sarees for once-in-a-lifetime moments.',
-    image: '/images/collection-wedding.png',
-  },
-  {
-    slug: 'new-arrivals',
-    name: 'New Arrivals',
-    description: 'The latest weaves to join our atelier.',
-    image: '/images/product-kanjeevaram.png',
-  },
-]
-
-export function getCollection(slug: string): Collection | undefined {
-  return collections.find((c) => c.slug === slug)
-}
-
 export type Testimonial = {
   name: string
   location: string

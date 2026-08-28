@@ -1,31 +1,37 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { PageBanner } from '@/components/layout/page-banner'
-import { CollectionCard } from '@/components/collection/collection-card'
+import { CategoryGroupPanel } from '@/components/category/category-group-panel'
 import { Reveal } from '@/components/motion/reveal'
-import { collections } from '@/lib/content'
+import { categoryGroups } from '@/lib/categories'
 
 export const metadata: Metadata = {
-  title: 'Collections',
+  title: 'Saree Categories',
   description:
-    'Discover Sambhavi Handloom saree collections — from everyday cotton handloom to opulent wedding and festive weaves.',
+    'Browse Sambhavi Handloom sarees by type — handloom, powerloom, kids ethnic wear, festive edition, and budget sarees.',
 }
 
 export default function CollectionsPage() {
   return (
     <>
       <PageBanner
-        title="Collections"
-        subtitle="Curated edits for every occasion, mood and milestone."
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Collections' }]}
+        title="Saree Categories"
+        subtitle="Explore our full range by weave, fabric, and occasion."
+        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Categories' }]}
       />
       <section className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-          {collections.map((collection, i) => (
-            <Reveal key={collection.slug} delay={(i % 3) * 0.08}>
-              <CollectionCard collection={collection} priority={i < 3} />
+        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-10">
+          {categoryGroups.map((group, i) => (
+            <Reveal key={group.slug} delay={(i % 5) * 0.08}>
+              <CategoryGroupPanel group={group} />
             </Reveal>
           ))}
         </div>
+        <p className="mt-14 text-center font-sans text-sm text-muted-foreground">
+          <Link href="/shop" className="transition-colors hover:text-primary">
+            View all sarees
+          </Link>
+        </p>
       </section>
     </>
   )

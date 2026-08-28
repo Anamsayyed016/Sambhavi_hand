@@ -1,3 +1,5 @@
+import { categoryNames } from '@/lib/categories'
+
 export type Product = {
   slug: string
   name: string
@@ -179,7 +181,7 @@ export function getRelatedProducts(slug: string, limit = 3): Product[] {
     .slice(0, limit)
 }
 
-export const categories = ['Silk', 'Banarasi', 'Kanjeevaram', 'Cotton', 'Chanderi', 'Saree']
+export const categories = categoryNames
 
 export function formatINR(value: number): string {
   return new Intl.NumberFormat('en-IN', {
