@@ -1,7 +1,6 @@
 import { Hero } from '@/components/home/hero'
 import { WhyChoose } from '@/components/home/why-choose'
 import { FeaturedCollection } from '@/components/home/featured-collection'
-import { ShopByCollection } from '@/components/home/shop-by-collection'
 import { BrandStory } from '@/components/home/brand-story'
 import { Editorial } from '@/components/home/editorial'
 import { NewArrivals } from '@/components/home/new-arrivals'
@@ -16,7 +15,6 @@ export default function HomePage() {
       <Hero />
       <WhyChoose />
       <FeaturedCollection />
-      <ShopByCollection />
       <BrandStory />
       <Editorial />
       <NewArrivals />

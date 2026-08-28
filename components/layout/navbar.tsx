@@ -9,6 +9,10 @@ import { cn } from '@/lib/utils'
 import { navLinks } from '@/lib/content'
 import { useCart } from '@/components/cart/cart-provider'
 import { BrandLogo } from '@/components/layout/brand-logo'
+import {
+  CategoriesMegaMenu,
+  CategoriesMobileAccordion,
+} from '@/components/layout/categories-mega-menu'
 
 export function Navbar() {
   const pathname = usePathname()
@@ -33,17 +37,23 @@ export function Navbar() {
 
         {/* Center: links */}
         <ul className="hidden items-center gap-8 lg:flex">
-          {navLinks.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className="group relative text-sm font-light tracking-wide text-foreground transition-colors hover:text-primary"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
-              </Link>
-            </li>
-          ))}
+          {navLinks.flatMap((link) => {
+            const item = (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="group relative text-sm font-light tracking-wide text-foreground transition-colors hover:text-primary"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
+                </Link>
+              </li>
+            )
+            if (link.href === '/shop') {
+              return [item, <li key="categories"><CategoriesMegaMenu /></li>]
+            }
+            return [item]
+          })}
         </ul>
 
         {/* Right: actions */}
@@ -116,24 +126,40 @@ export function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-border/40 bg-ivory lg:hidden"
+            className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border/40 bg-ivory lg:hidden"
           >
             <ul className="flex flex-col px-4 py-4">
-              {navLinks.map((link, i) => (
-                <motion.li
-                  key={link.href}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 * i + 0.05 }}
-                >
-                  <Link
-                    href={link.href}
-                    className="block border-b border-border/40 py-3 font-serif text-lg text-foreground transition-colors hover:text-primary"
+              {navLinks.flatMap((link, i) => {
+                const item = (
+                  <motion.li
+                    key={link.href}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 * i + 0.05 }}
                   >
-                    {link.label}
-                  </Link>
-                </motion.li>
-              ))}
+                    <Link
+                      href={link.href}
+                      className="block border-b border-border/40 py-3 font-serif text-lg text-foreground transition-colors hover:text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.li>
+                )
+                if (link.href === '/shop') {
+                  return [
+                    item,
+                    <motion.li
+                      key="categories"
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 * (i + 1) + 0.05 }}
+                    >
+                      <CategoriesMobileAccordion onNavigate={() => setMobileOpen(false)} />
+                    </motion.li>,
+                  ]
+                }
+                return [item]
+              })}
             </ul>
           </motion.div>
         ) : null}
