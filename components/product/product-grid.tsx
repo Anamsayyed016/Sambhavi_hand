@@ -1,22 +1,53 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import type { Product } from '@/lib/products'
 import { ProductCard } from '@/components/product/product-card'
 import { QuickViewModal } from '@/components/product/quick-view-modal'
 
+export type ProductGridItem = {
+  product: Product
+  displayImage: string
+  key: string
+}
+
+export function expandProductsForGrid(products: Product[]): ProductGridItem[] {
+  return products.flatMap((product) => {
+    const images = product.images?.filter(Boolean) ?? []
+    const gallery =
+      images.length > 0 ? images : [product.image || '/placeholder.svg']
+    return gallery.map((displayImage, imageIndex) => ({
+      product,
+      displayImage,
+      key: `${product.slug}-${imageIndex}-${displayImage}`,
+    }))
+  })
+}
+
 export function ProductGrid({
   products,
   className,
   columns = 'four',
+  expandImages = false,
 }: {
   products: Product[]
   className?: string
   columns?: 'three' | 'four'
+  /** When true, each entry in product.images[] renders as its own card. */
+  expandImages?: boolean
 }) {
   const [quickView, setQuickView] = useState<Product | null>(null)
+
+  const items = useMemo(
+    () => (expandImages ? expandProductsForGrid(products) : products.map((product) => ({
+        product,
+        displayImage: product.image || product.images?.[0] || '/placeholder.svg',
+        key: product.slug,
+      }))),
+    [products, expandImages],
+  )
 
   const cols =
     columns === 'four'
@@ -32,15 +63,20 @@ export function ProductGrid({
           className,
         )}
       >
-        {products.map((product, i) => (
+        {items.map((item, i) => (
           <motion.div
-            key={product.slug}
+            key={item.key}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.6, delay: (i % 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
           >
-            <ProductCard product={product} onQuickView={setQuickView} priority={i < 4} />
+            <ProductCard
+              product={item.product}
+              displayImage={item.displayImage}
+              onQuickView={setQuickView}
+              priority={i < 4}
+            />
           </motion.div>
         ))}
       </div>

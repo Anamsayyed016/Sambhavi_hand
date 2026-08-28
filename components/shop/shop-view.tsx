@@ -158,7 +158,7 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
           </div>
 
           {filtered.length > 0 ? (
-            <ProductGrid products={filtered} columns="three" />
+            <ProductGrid products={filtered} columns="three" expandImages />
           ) : (
             <p className="py-20 text-center font-serif text-xl text-muted-foreground">
               No sarees match your filters.

@@ -92,7 +92,7 @@ export default async function CollectionDetailPage({
         ) : null}
 
         {items.length > 0 ? (
-          <ProductGrid products={items} columns="three" />
+          <ProductGrid products={items} columns="three" expandImages />
         ) : (
           <p className="py-20 text-center font-serif text-xl text-muted-foreground">
             {category || isLegacyCollectionSlug(slug)
