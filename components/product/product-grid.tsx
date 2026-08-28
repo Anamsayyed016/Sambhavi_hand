@@ -66,10 +66,10 @@ export function ProductGrid({
         {items.map((item, i) => (
           <motion.div
             key={item.key}
-            initial={{ opacity: 0, y: 24 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.6, delay: (i % 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5, delay: (i % 4) * 0.06, ease: [0.22, 1, 0.36, 1] }}
           >
             <ProductCard
               product={item.product}

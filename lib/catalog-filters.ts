@@ -10,6 +10,16 @@ import {
 /** Legacy + current labels for the Kota category slug. */
 export const KOTA_CATEGORY_LABELS = ['Kota', 'Kota Handloom'] as const
 
+export const KOTA_COLLECTION_SLUG = 'kota-collection'
+
+/** True when a product belongs on Kota Handloom collection pages. */
+export function isKotaProduct(product: Product): boolean {
+  return (
+    (KOTA_CATEGORY_LABELS as readonly string[]).includes(product.category) ||
+    product.collections.includes(KOTA_COLLECTION_SLUG)
+  )
+}
+
 export function productMatchesCategory(product: Product, categoryName: string): boolean {
   if (categoryName === 'Kota Handloom') {
     return (KOTA_CATEGORY_LABELS as readonly string[]).includes(product.category)
@@ -21,7 +31,7 @@ export function getProductsForCatalogSlug(slug: string, products: Product[]): Pr
   const category = getSareeCategory(slug)
   if (category) {
     if (isKotaCategorySlug(category.slug)) {
-      return products.filter((p) => productMatchesCategory(p, 'Kota Handloom'))
+      return products.filter(isKotaProduct)
     }
     return products.filter((p) => p.category === category.name)
   }
