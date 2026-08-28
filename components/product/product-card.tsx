@@ -24,23 +24,22 @@ export function ProductCard({
 
   return (
     <div className="group flex flex-col">
-      <div className="relative aspect-[2/3] overflow-hidden rounded-sm bg-ivory">
+      <div className="relative aspect-[2/3] overflow-hidden rounded-sm bg-ivory p-4 sm:p-5">
+        <div className="relative h-full w-full">
+          <Image
+            src={product.image || '/placeholder.svg'}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1408px) 30vw, 28vw"
+            priority={priority}
+            className="object-contain object-center"
+          />
+        </div>
         <Link
           href={`/product/${product.slug}`}
           aria-label={product.name}
-          className="absolute inset-0 p-3 sm:p-4"
-        >
-          <span className="relative block h-full w-full">
-            <Image
-              src={product.image || '/placeholder.svg'}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1408px) 30vw, 28vw"
-              priority={priority}
-              className="object-contain object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-            />
-          </span>
-        </Link>
+          className="absolute inset-0 z-[1]"
+        />
 
         {/* badges */}
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5">
