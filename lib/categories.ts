@@ -28,7 +28,7 @@ const groupDefs: {
     primary: true,
     names: [
       'Digital Print',
-      'Kota',
+      'Kota Handloom',
       'Banarasi',
       'Kanjivaram / Kanchipuram',
       'Chanderi',

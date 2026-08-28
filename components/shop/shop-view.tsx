@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { categoryGroups } from '@/lib/categories'
+import { productMatchesCategory } from '@/lib/catalog-filters'
 import { products, type Product } from '@/lib/products'
 import { ProductGrid } from '@/components/product/product-grid'
 import { Button } from '@/components/ui/button'
@@ -34,7 +35,9 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
     let result: Product[] =
       activeCategories.length === 0
         ? [...products]
-        : products.filter((p) => activeCategories.includes(p.category))
+        : products.filter((p) =>
+            activeCategories.some((cat) => productMatchesCategory(p, cat)),
+          )
 
     switch (sort) {
       case 'price-asc':

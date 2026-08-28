@@ -188,6 +188,72 @@ export const products: Product[] = [
     availability: 'In Stock',
     description: 'With Blouse. Free Shipping.',
   },
+  {
+    slug: 'masterpiece-embroidery-kota-handloom-saree-sky-blue-floral',
+    name: 'Masterpiece Embroidery Pure Cotton Kota Handloom Saree — Sky Blue Floral',
+    price: 4700,
+    originalPrice: 5400,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916349/WhatsApp_Image_2026-08-28_at_4.03.22_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916349/WhatsApp_Image_2026-08-28_at_4.03.22_PM.jpg',
+    ],
+    category: 'Kota Handloom',
+    collections: ['new-arrivals'],
+    fabric: 'Pure Cotton Kota Handloom',
+    weave: '—',
+    length: '—',
+    blouse: 'With Blouse',
+    care: '—',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Masterpiece embroidery pure cotton Kota handloom saree featuring elegant floral embroidery and a lightweight breathable weave. Perfect for festive occasions, office wear, and elegant everyday styling.',
+  },
+  {
+    slug: 'masterpiece-embroidery-kota-handloom-saree-beige-floral',
+    name: 'Masterpiece Embroidery Pure Cotton Kota Handloom Saree — Beige Floral',
+    price: 4700,
+    originalPrice: 5400,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM.jpg',
+    ],
+    category: 'Kota Handloom',
+    collections: ['new-arrivals'],
+    fabric: 'Pure Cotton Kota Handloom',
+    weave: '—',
+    length: '—',
+    blouse: 'With Blouse',
+    care: '—',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Elegant beige Kota handloom saree with intricate embroidery, soft cotton texture, and timeless handcrafted detailing.',
+  },
+  {
+    slug: 'masterpiece-embroidery-kota-handloom-saree-lavender-floral',
+    name: 'Masterpiece Embroidery Pure Cotton Kota Handloom Saree — Lavender Floral',
+    price: 4700,
+    originalPrice: 5400,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM_2.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916348/WhatsApp_Image_2026-08-28_at_4.03.21_PM_2.jpg',
+    ],
+    category: 'Kota Handloom',
+    collections: ['new-arrivals'],
+    fabric: 'Pure Cotton Kota Handloom',
+    weave: '—',
+    length: '—',
+    blouse: 'With Blouse',
+    care: '—',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Soft lavender pure cotton Kota handloom saree with premium floral embroidery and lightweight festive drape.',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {

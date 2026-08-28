@@ -6,16 +6,33 @@ import {
   type SareeCategory,
 } from '@/lib/categories'
 
+/** Legacy + current labels for the Kota category slug. */
+export const KOTA_CATEGORY_LABELS = ['Kota', 'Kota Handloom'] as const
+
+export function productMatchesCategory(product: Product, categoryName: string): boolean {
+  if (categoryName === 'Kota Handloom') {
+    return (KOTA_CATEGORY_LABELS as readonly string[]).includes(product.category)
+  }
+  return product.category === categoryName
+}
+
 export function getProductsForCatalogSlug(slug: string, products: Product[]): Product[] {
   const category = getSareeCategory(slug)
   if (category) {
+    if (category.slug === 'kota') {
+      return products.filter((p) => productMatchesCategory(p, 'Kota Handloom'))
+    }
     return products.filter((p) => p.category === category.name)
   }
 
   const group = getCategoryGroup(slug)
   if (group) {
     const names = new Set(group.categories.map((c) => c.name))
-    return products.filter((p) => names.has(p.category))
+    return products.filter(
+      (p) =>
+        names.has(p.category) ||
+        (names.has('Kota Handloom') && (KOTA_CATEGORY_LABELS as readonly string[]).includes(p.category)),
+    )
   }
 
   if (slug === 'new-arrivals') {
