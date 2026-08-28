@@ -59,9 +59,8 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
           <h3
             className={cn(
               'mb-3 font-serif uppercase tracking-[0.12em]',
-              group.featured && 'text-base text-primary',
               group.primary && 'text-lg text-primary',
-              !group.featured && !group.primary && 'text-base text-foreground',
+              !group.primary && 'text-base text-foreground',
             )}
           >
             {group.name}
@@ -87,7 +86,12 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
                     >
                       {active ? <X className="h-3 w-3" strokeWidth={3} /> : null}
                     </span>
-                    <span className={cn(active ? 'text-foreground' : 'text-muted-foreground')}>
+                    <span
+                      className={cn(
+                        active ? 'text-foreground' : cat.prominent ? 'text-foreground/90' : 'text-muted-foreground',
+                        cat.prominent && 'font-normal',
+                      )}
+                    >
                       {cat.name}
                     </span>
                   </button>

@@ -2,42 +2,33 @@ export type SareeCategory = {
   slug: string
   name: string
   groupSlug: string
+  /** Key catalog types shown with subtle emphasis in navigation. */
+  prominent?: boolean
 }
 
 export type CategoryGroup = {
   slug: string
   name: string
   categories: SareeCategory[]
-  /** Spotlight top-level categories (e.g. Digital Print, Kota). */
-  featured?: boolean
   /** Main catalog section with extensive subcategories. */
   primary?: boolean
 }
+
+const prominentCategorySlugs = new Set(['digital-print', 'kota'])
 
 const groupDefs: {
   slug: string
   name: string
   names: string[]
-  featured?: boolean
   primary?: boolean
 }[] = [
-  {
-    slug: 'digital-print',
-    name: 'DIGITAL PRINT',
-    names: ['Digital Print'],
-    featured: true,
-  },
-  {
-    slug: 'kota',
-    name: 'KOTA',
-    names: ['Kota'],
-    featured: true,
-  },
   {
     slug: 'handloom-powerloom',
     name: 'HANDLOOM & POWERLOOM',
     primary: true,
     names: [
+      'Digital Print',
+      'Kota',
       'Banarasi',
       'Kanjivaram / Kanchipuram',
       'Chanderi',
@@ -108,26 +99,24 @@ function nameToSlug(name: string): string {
 export const categoryGroups: CategoryGroup[] = groupDefs.map((group) => ({
   slug: group.slug,
   name: group.name,
-  featured: group.featured,
   primary: group.primary,
-  categories: group.names.map((name) => ({
-    slug: nameToSlug(name),
-    name,
-    groupSlug: group.slug,
-  })),
+  categories: group.names.map((name) => {
+    const slug = nameToSlug(name)
+    return {
+      slug,
+      name,
+      groupSlug: group.slug,
+      prominent: prominentCategorySlugs.has(slug),
+    }
+  }),
 }))
 
 export const sareeCategories: SareeCategory[] = categoryGroups.flatMap((g) => g.categories)
 
 export const categoryNames = sareeCategories.map((c) => c.name)
 
-export const featuredCategoryGroups = categoryGroups.filter((g) => g.featured)
 export const primaryCategoryGroup = categoryGroups.find((g) => g.primary)
-export const secondaryCategoryGroups = categoryGroups.filter((g) => !g.featured && !g.primary)
-
-export function isStandaloneCategoryGroup(group: CategoryGroup): boolean {
-  return group.categories.length === 1 && group.categories[0]?.slug === group.slug
-}
+export const secondaryCategoryGroups = categoryGroups.filter((g) => !g.primary)
 
 export function getCategoryGroup(slug: string): CategoryGroup | undefined {
   return categoryGroups.find((g) => g.slug === slug)
