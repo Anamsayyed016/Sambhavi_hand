@@ -12,7 +12,7 @@
  */
 import { PrismaClient, ProductAvailability } from '@prisma/client'
 import { products } from '../lib/products'
-import { collections } from '../lib/content'
+import { categoryGroups, legacyCollectionSlugs } from '../lib/categories'
 
 const prisma = new PrismaClient()
 
@@ -48,7 +48,69 @@ function skuFor(slug: string): string {
   return `SH-${slug.toUpperCase()}`
 }
 
+function titleFromSlug(slug: string): string {
+  return slug
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+/** Collections for admin DB — derived from categories + product collection tags. */
+function buildSeedCollections(): {
+  slug: string
+  name: string
+  description: string
+  image: string
+}[] {
+  const bySlug = new Map<string, { slug: string; name: string; description: string; image: string }>()
+
+  for (const group of categoryGroups) {
+    bySlug.set(group.slug, {
+      slug: group.slug,
+      name: group.name,
+      description: `${group.name} sarees.`,
+      image: '/images/collection-silk.png',
+    })
+    for (const category of group.categories) {
+      bySlug.set(category.slug, {
+        slug: category.slug,
+        name: category.name,
+        description: `Browse ${category.name} sarees.`,
+        image: '/images/collection-silk.png',
+      })
+    }
+  }
+
+  for (const slug of legacyCollectionSlugs) {
+    if (!bySlug.has(slug)) {
+      bySlug.set(slug, {
+        slug,
+        name: titleFromSlug(slug),
+        description: `${titleFromSlug(slug)} collection.`,
+        image: '/images/collection-silk.png',
+      })
+    }
+  }
+
+  for (const product of products) {
+    for (const slug of product.collections) {
+      if (!bySlug.has(slug)) {
+        bySlug.set(slug, {
+          slug,
+          name: titleFromSlug(slug),
+          description: `${titleFromSlug(slug)} collection.`,
+          image: product.image,
+        })
+      }
+    }
+  }
+
+  return [...bySlug.values()]
+}
+
 async function main() {
+  const collections = buildSeedCollections()
+
   for (const collection of collections) {
     await prisma.collection.upsert({
       where: { slug: collection.slug },
