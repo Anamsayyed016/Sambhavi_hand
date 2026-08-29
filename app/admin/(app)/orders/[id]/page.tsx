@@ -83,13 +83,28 @@ export default async function AdminOrderDetailPage({ params }: Params) {
           <h2 className="text-sm font-medium uppercase tracking-[0.1em] text-muted-foreground">
             Shipping address
           </h2>
-          <p className="mt-3 text-sm leading-relaxed text-charcoal">
-            {order.shippingAddress}
-            <br />
-            {order.city}, {order.state} {order.postalCode}
-            <br />
-            {order.country}
-          </p>
+          <dl className="mt-3 space-y-2 text-sm">
+            <div>
+              <dt className="text-muted-foreground">Address</dt>
+              <dd className="whitespace-pre-line font-medium text-charcoal">{order.shippingAddress}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">City</dt>
+              <dd className="font-medium text-charcoal">{order.city}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">State</dt>
+              <dd className="font-medium text-charcoal">{order.state}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">PIN</dt>
+              <dd className="font-medium text-charcoal">{order.postalCode}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Country</dt>
+              <dd className="font-medium text-charcoal">{order.country}</dd>
+            </div>
+          </dl>
         </section>
       </div>
 

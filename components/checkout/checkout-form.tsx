@@ -7,10 +7,18 @@ import { useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/components/cart/cart-provider'
 import {
+  ShippingAddressFields,
+  type ShippingFormValues,
+} from '@/components/checkout/shipping-address-fields'
+import {
   SHIPPING_FLAT_INR,
   FREE_SHIPPING_THRESHOLD_INR,
   calculateOrderTotal,
 } from '@/lib/checkout/shipping'
+import {
+  checkoutCustomerSchema,
+  checkoutShippingSchema,
+} from '@/lib/checkout/validation'
 import { productOffersFreeShipping } from '@/lib/payment-test-mode'
 import { loadRazorpayScript, type RazorpaySuccessResponse } from '@/lib/payments/load-razorpay'
 import { formatINR, getProduct } from '@/lib/products'
@@ -22,12 +30,9 @@ type FormState = {
   name: string
   email: string
   phone: string
-  address: string
-  city: string
-  state: string
-  postalCode: string
-  country: string
-}
+} & ShippingFormValues
+
+type FieldErrors = Partial<Record<keyof FormState, string>>
 
 export function CheckoutForm() {
   const router = useRouter()
@@ -48,6 +53,7 @@ export function CheckoutForm() {
     postalCode: '',
     country: 'India',
   })
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
   const processing = useRef(false)
@@ -68,7 +74,57 @@ export function CheckoutForm() {
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
     setError(null)
+  }
+
+  function patchShipping(patch: Partial<ShippingFormValues>) {
+    setForm((prev) => ({ ...prev, ...patch }))
+    setFieldErrors((prev) => {
+      const next = { ...prev }
+      for (const key of Object.keys(patch) as (keyof ShippingFormValues)[]) {
+        delete next[key]
+      }
+      return next
+    })
+    setError(null)
+  }
+
+  function validateForm(): boolean {
+    const customer = checkoutCustomerSchema.safeParse({
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+    })
+    const shipping = checkoutShippingSchema.safeParse({
+      address: form.address,
+      city: form.city,
+      state: form.state,
+      postalCode: form.postalCode,
+      country: form.country,
+    })
+
+    const next: FieldErrors = {}
+    if (!customer.success) {
+      for (const issue of customer.error.issues) {
+        const key = issue.path[0] as keyof FormState | undefined
+        if (key && !next[key]) next[key] = issue.message
+      }
+    }
+    if (!shipping.success) {
+      for (const issue of shipping.error.issues) {
+        const key = issue.path[0] as keyof FormState | undefined
+        if (key && !next[key]) next[key] = issue.message
+      }
+    }
+
+    setFieldErrors(next)
+    return Object.keys(next).length === 0
   }
 
   async function verifyPayment(orderNumber: string, response: RazorpaySuccessResponse) {
@@ -94,6 +150,11 @@ export function CheckoutForm() {
       setError('Your cart is empty.')
       return
     }
+    if (!validateForm()) {
+      setStatus('error')
+      setError('Please correct the highlighted fields and try again.')
+      return
+    }
     if (processing.current) return
     processing.current = true
 
@@ -110,6 +171,7 @@ export function CheckoutForm() {
 
       const checkoutLines = priced.items
 
+      // Final customer-edited values only — location suggestions never override on submit
       const checkoutRes = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -257,7 +319,7 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-10 lg:grid-cols-[1fr_380px] lg:items-start">
+    <form onSubmit={onSubmit} className="grid gap-10 lg:grid-cols-[1fr_380px] lg:items-start" noValidate>
       <div className="space-y-8">
         <div>
           <h1 className="font-serif text-3xl text-foreground md:text-4xl">Checkout</h1>
@@ -280,7 +342,13 @@ export function CheckoutForm() {
                 onChange={(e) => updateField('name', e.target.value)}
                 className={inputClass}
                 autoComplete="name"
+                aria-invalid={Boolean(fieldErrors.name)}
               />
+              {fieldErrors.name ? (
+                <p className="text-xs text-destructive" role="alert">
+                  {fieldErrors.name}
+                </p>
+              ) : null}
             </div>
             <div className="flex flex-col gap-2">
               <label htmlFor="checkout-email" className="text-sm font-medium">
@@ -294,7 +362,13 @@ export function CheckoutForm() {
                 onChange={(e) => updateField('email', e.target.value)}
                 className={inputClass}
                 autoComplete="email"
+                aria-invalid={Boolean(fieldErrors.email)}
               />
+              {fieldErrors.email ? (
+                <p className="text-xs text-destructive" role="alert">
+                  {fieldErrors.email}
+                </p>
+              ) : null}
             </div>
             <div className="flex flex-col gap-2">
               <label htmlFor="checkout-phone" className="text-sm font-medium">
@@ -308,86 +382,35 @@ export function CheckoutForm() {
                 onChange={(e) => updateField('phone', e.target.value)}
                 className={inputClass}
                 autoComplete="tel"
+                aria-invalid={Boolean(fieldErrors.phone)}
               />
+              {fieldErrors.phone ? (
+                <p className="text-xs text-destructive" role="alert">
+                  {fieldErrors.phone}
+                </p>
+              ) : null}
             </div>
           </div>
         </section>
 
-        <section className="space-y-4 rounded-md border border-border bg-card p-6">
-          <h2 className="font-serif text-xl text-foreground">Shipping address</h2>
-          <div className="grid gap-4">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="checkout-address" className="text-sm font-medium">
-                Address
-              </label>
-              <textarea
-                id="checkout-address"
-                required
-                rows={3}
-                value={form.address}
-                onChange={(e) => updateField('address', e.target.value)}
-                className={`${inputClass} h-auto py-3`}
-                autoComplete="street-address"
-              />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="checkout-city" className="text-sm font-medium">
-                  City
-                </label>
-                <input
-                  id="checkout-city"
-                  required
-                  value={form.city}
-                  onChange={(e) => updateField('city', e.target.value)}
-                  className={inputClass}
-                  autoComplete="address-level2"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="checkout-state" className="text-sm font-medium">
-                  State
-                </label>
-                <input
-                  id="checkout-state"
-                  required
-                  value={form.state}
-                  onChange={(e) => updateField('state', e.target.value)}
-                  className={inputClass}
-                  autoComplete="address-level1"
-                />
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="checkout-postal" className="text-sm font-medium">
-                  Postal code
-                </label>
-                <input
-                  id="checkout-postal"
-                  required
-                  value={form.postalCode}
-                  onChange={(e) => updateField('postalCode', e.target.value)}
-                  className={inputClass}
-                  autoComplete="postal-code"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="checkout-country" className="text-sm font-medium">
-                  Country
-                </label>
-                <input
-                  id="checkout-country"
-                  required
-                  value={form.country}
-                  onChange={(e) => updateField('country', e.target.value)}
-                  className={inputClass}
-                  autoComplete="country-name"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
+        <ShippingAddressFields
+          values={{
+            address: form.address,
+            city: form.city,
+            state: form.state,
+            postalCode: form.postalCode,
+            country: form.country,
+          }}
+          errors={{
+            address: fieldErrors.address,
+            city: fieldErrors.city,
+            state: fieldErrors.state,
+            postalCode: fieldErrors.postalCode,
+            country: fieldErrors.country,
+          }}
+          onChange={updateField}
+          onPatch={patchShipping}
+        />
 
         {error ? (
           <p className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive" role="alert">

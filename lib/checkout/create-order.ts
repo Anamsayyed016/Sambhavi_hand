@@ -134,7 +134,7 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
         city: input.shipping.city,
         state: input.shipping.state,
         postalCode: input.shipping.postalCode,
-        country: input.shipping.country || 'IN',
+        country: input.shipping.country || 'India',
         items: {
           create: lineItems.map((line) => ({
             productId: line.productId,

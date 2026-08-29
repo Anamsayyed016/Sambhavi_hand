@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { INDIA_PIN_REGEX, isIndiaCountry } from '@/lib/checkout/india-locations'
 
 export const MAX_LINE_QUANTITY = 10
 export const MAX_CART_LINES = 20
@@ -19,13 +20,23 @@ export const checkoutCustomerSchema = z.object({
     .regex(/^[0-9+\s()-]+$/, 'Enter a valid phone number'),
 })
 
-export const checkoutShippingSchema = z.object({
-  address: z.string().trim().min(5, 'Address is required').max(500),
-  city: z.string().trim().min(2, 'City is required').max(120),
-  state: z.string().trim().min(2, 'State is required').max(120),
-  postalCode: z.string().trim().min(4, 'Postal code is required').max(20),
-  country: z.string().trim().min(2).max(120).default('IN'),
-})
+export const checkoutShippingSchema = z
+  .object({
+    address: z.string().trim().min(5, 'Address is required').max(500),
+    city: z.string().trim().min(2, 'City is required').max(120),
+    state: z.string().trim().min(2, 'State is required').max(120),
+    postalCode: z.string().trim().min(4, 'Enter a valid postal / PIN code').max(20),
+    country: z.string().trim().min(2).max(120).default('India'),
+  })
+  .superRefine((data, ctx) => {
+    if (isIndiaCountry(data.country) && !INDIA_PIN_REGEX.test(data.postalCode.trim())) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['postalCode'],
+        message: 'Enter a valid 6-digit Indian PIN code',
+      })
+    }
+  })
 
 export const checkoutRequestSchema = z.object({
   idempotencyKey: z.string().trim().min(8).max(64),
