@@ -19,7 +19,9 @@ export default async function CollectionsPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-serif text-3xl text-charcoal">Collections</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Manage catalog collections. Storefront still uses static fallback until wired.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage catalog collections used across the store.
+          </p>
         </div>
         <Link href="/admin/collections/new" className="rounded-md bg-wine px-3 py-2 text-sm text-primary-foreground">Add Collection</Link>
       </div>

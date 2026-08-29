@@ -29,7 +29,7 @@ export default async function AnalyticsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-serif text-3xl text-charcoal">Analytics</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Last 30 days · real order data</p>
+        <p className="mt-1 text-sm text-muted-foreground">Last 30 days · paid orders only</p>
       </div>
 
       {!hasData ? (

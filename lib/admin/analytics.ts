@@ -4,6 +4,11 @@ import { LOW_STOCK_THRESHOLD } from '@/lib/admin/products'
 
 export type DateRangeKey = 'today' | '7d' | '30d' | '90d' | 'year' | 'month'
 
+const paidOrderWhere = {
+  paymentStatus: PaymentStatus.PAID,
+  status: { not: OrderStatus.CANCELLED },
+} as const
+
 function rangeStart(key: DateRangeKey): Date {
   const now = new Date()
   const d = new Date(now)
@@ -33,45 +38,53 @@ function rangeStart(key: DateRangeKey): Date {
 
 export async function getAnalyticsSummary(range: DateRangeKey = '30d') {
   const since = rangeStart(range)
+  const where = { ...paidOrderWhere, createdAt: { gte: since } }
 
-  const [orders, revenueAgg, paidAgg, customers, productsSold] = await Promise.all([
-    prisma.order.count({ where: { createdAt: { gte: since } } }),
+  const [orders, paidAgg, customers, productsSold] = await Promise.all([
+    prisma.order.count({ where }),
     prisma.order.aggregate({
-      where: { createdAt: { gte: since } },
-      _sum: { total: true },
-    }),
-    prisma.order.aggregate({
-      where: { createdAt: { gte: since }, paymentStatus: PaymentStatus.PAID },
+      where,
       _sum: { total: true },
     }),
     prisma.order.findMany({
-      where: { createdAt: { gte: since } },
+      where,
       select: { customerEmail: true },
       distinct: ['customerEmail'],
     }),
     prisma.orderItem.aggregate({
-      where: { order: { createdAt: { gte: since } } },
+      where: { order: where },
       _sum: { quantity: true },
     }),
   ])
 
-  const revenue = revenueAgg._sum.total ?? 0
   const paidRevenue = paidAgg._sum.total ?? 0
   const orderCount = orders
   const customerCount = customers.length
   const unitsSold = productsSold._sum.quantity ?? 0
-  const aov = orderCount > 0 ? Math.round(revenue / orderCount) : 0
+  const aov = orderCount > 0 ? Math.round(paidRevenue / orderCount) : 0
 
-  return { revenue, paidRevenue, orderCount, customerCount, unitsSold, aov, since }
+  return {
+    revenue: paidRevenue,
+    paidRevenue,
+    orderCount,
+    customerCount,
+    unitsSold,
+    aov,
+    since,
+  }
 }
 
+/** Daily paid-order series for revenue / order charts. */
 export async function getDailySeries(days = 30) {
   const since = new Date()
   since.setDate(since.getDate() - days)
   since.setHours(0, 0, 0, 0)
 
   const orders = await prisma.order.findMany({
-    where: { createdAt: { gte: since } },
+    where: {
+      ...paidOrderWhere,
+      createdAt: { gte: since },
+    },
     select: { createdAt: true, total: true },
     orderBy: { createdAt: 'asc' },
   })
@@ -99,6 +112,7 @@ export async function getDailySeries(days = 30) {
 export async function getTopProductsAnalytics(limit = 10) {
   const grouped = await prisma.orderItem.groupBy({
     by: ['productSlug', 'productName'],
+    where: { order: paidOrderWhere },
     _sum: { quantity: true, subtotal: true },
     orderBy: { _sum: { subtotal: 'desc' } },
     take: limit,
@@ -118,7 +132,10 @@ export async function getTopCategoriesAnalytics(limit = 10) {
       subtotal: true,
       product: { select: { category: true } },
     },
-    where: { productId: { not: null } },
+    where: {
+      productId: { not: null },
+      order: paidOrderWhere,
+    },
   })
 
   const map = new Map<string, { units: number; revenue: number }>()

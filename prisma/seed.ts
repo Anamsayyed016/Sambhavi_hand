@@ -159,9 +159,23 @@ async function main() {
         ...data,
       },
       update: {
-        ...data,
-        // Do not overwrite stock/sku on re-seed if you later manage them in DB —
-        // for Phase 2 we sync stock/sku from documented defaults for consistency.
+        sku: data.sku,
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        originalPrice: data.originalPrice,
+        image: data.image,
+        images: data.images,
+        category: data.category,
+        collections: data.collections,
+        fabric: data.fabric,
+        weave: data.weave,
+        length: data.length,
+        blouse: data.blouse,
+        care: data.care,
+        availability: data.availability,
+        isNew: data.isNew,
+        // Preserve admin-managed inventory/active/featured on re-seed
       },
     })
   }

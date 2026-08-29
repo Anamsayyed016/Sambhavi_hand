@@ -1,3 +1,4 @@
+import { OrderStatus, PaymentStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
 export type CustomerSummary = {
@@ -16,20 +17,32 @@ export type CustomerListParams = {
   pageSize?: number
 }
 
+const paidOrderWhere = {
+  paymentStatus: PaymentStatus.PAID,
+  status: { not: OrderStatus.CANCELLED },
+} as const
+
+/**
+ * Customers are buyers with at least one PAID order.
+ * totalSpent sums only verified PAID order totals.
+ */
 export async function listCustomers(params: CustomerListParams = {}) {
   const page = Math.max(1, params.page ?? 1)
   const pageSize = Math.min(50, Math.max(1, params.pageSize ?? 20))
 
   const orders = await prisma.order.findMany({
-    where: params.q?.trim()
-      ? {
-          OR: [
-            { customerEmail: { contains: params.q.trim(), mode: 'insensitive' } },
-            { customerName: { contains: params.q.trim(), mode: 'insensitive' } },
-            { customerPhone: { contains: params.q.trim(), mode: 'insensitive' } },
-          ],
-        }
-      : undefined,
+    where: {
+      ...paidOrderWhere,
+      ...(params.q?.trim()
+        ? {
+            OR: [
+              { customerEmail: { contains: params.q.trim(), mode: 'insensitive' as const } },
+              { customerName: { contains: params.q.trim(), mode: 'insensitive' as const } },
+              { customerPhone: { contains: params.q.trim(), mode: 'insensitive' as const } },
+            ],
+          }
+        : {}),
+    },
     select: {
       customerEmail: true,
       customerName: true,
@@ -53,7 +66,7 @@ export async function listCustomers(params: CustomerListParams = {}) {
         orderCount: 1,
         totalSpent: o.total,
         lastOrderAt: o.createdAt,
-        active: o.status !== 'CANCELLED',
+        active: true,
       })
     } else {
       existing.orderCount += 1
@@ -84,7 +97,9 @@ export async function listCustomers(params: CustomerListParams = {}) {
 export async function getCustomerByEmail(email: string) {
   const normalized = email.trim().toLowerCase()
   const orders = await prisma.order.findMany({
-    where: { customerEmail: { equals: normalized, mode: 'insensitive' } },
+    where: {
+      customerEmail: { equals: normalized, mode: 'insensitive' },
+    },
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -101,7 +116,10 @@ export async function getCustomerByEmail(email: string) {
 
   if (orders.length === 0) return null
 
-  const totalSpent = orders.reduce((s, o) => s + o.total, 0)
+  const paidOrders = orders.filter(
+    (o) => o.paymentStatus === PaymentStatus.PAID && o.status !== OrderStatus.CANCELLED,
+  )
+  const totalSpent = paidOrders.reduce((s, o) => s + o.total, 0)
   const latest = orders[0]
 
   return {
@@ -109,15 +127,19 @@ export async function getCustomerByEmail(email: string) {
     name: latest.customerName,
     phone: latest.customerPhone,
     orderCount: orders.length,
+    paidOrderCount: paidOrders.length,
     totalSpent,
-    averageOrderValue: Math.round(totalSpent / orders.length),
+    averageOrderValue:
+      paidOrders.length > 0 ? Math.round(totalSpent / paidOrders.length) : 0,
     lastOrderAt: latest.createdAt,
     orders,
   }
 }
 
+/** Unique emails with at least one PAID, non-cancelled order. */
 export async function getCustomerCount(): Promise<number> {
   const rows = await prisma.order.findMany({
+    where: paidOrderWhere,
     select: { customerEmail: true },
     distinct: ['customerEmail'],
   })

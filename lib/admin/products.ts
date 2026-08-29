@@ -186,5 +186,9 @@ export async function getProductFilterOptions() {
 }
 
 export function isLowStock(product: Pick<Product, 'stock' | 'availability'>): boolean {
-  return product.availability === ProductAvailability.LOW_STOCK || product.stock <= LOW_STOCK_THRESHOLD
+  if (product.availability === ProductAvailability.MADE_TO_ORDER) return false
+  return (
+    product.availability === ProductAvailability.LOW_STOCK ||
+    product.stock <= LOW_STOCK_THRESHOLD
+  )
 }

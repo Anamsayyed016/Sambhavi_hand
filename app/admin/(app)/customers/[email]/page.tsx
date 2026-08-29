@@ -38,6 +38,7 @@ export default async function CustomerDetailPage({ params }: Params) {
           <h2 className="text-sm font-medium uppercase tracking-[0.1em] text-muted-foreground">Summary</h2>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between"><dt>Total orders</dt><dd>{customer.orderCount}</dd></div>
+            <div className="flex justify-between"><dt>Paid orders</dt><dd>{customer.paidOrderCount}</dd></div>
             <div className="flex justify-between"><dt>Total spent</dt><dd>{formatINR(customer.totalSpent)}</dd></div>
             <div className="flex justify-between"><dt>Average order</dt><dd>{formatINR(customer.averageOrderValue)}</dd></div>
             <div className="flex justify-between"><dt>Last order</dt><dd>{formatDate(customer.lastOrderAt)}</dd></div>

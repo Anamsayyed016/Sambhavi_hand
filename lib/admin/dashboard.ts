@@ -4,10 +4,22 @@ import { LOW_STOCK_THRESHOLD } from '@/lib/admin/products'
 import { getCustomerCount } from '@/lib/admin/customers'
 import { getDailySeries } from '@/lib/admin/analytics'
 
+/** Orders that count toward commerce (excludes cancelled). */
+const realOrderWhere = {
+  status: { not: OrderStatus.CANCELLED },
+} as const
+
+/** Revenue / sales charts — only server-verified paid checkouts. */
+const paidOrderWhere = {
+  paymentStatus: PaymentStatus.PAID,
+  status: { not: OrderStatus.CANCELLED },
+} as const
+
 export type DashboardStats = {
   revenue: number
   paidRevenue: number
   orderCount: number
+  paidOrderCount: number
   productCount: number
   activeProductCount: number
   lowStockCount: number
@@ -17,6 +29,7 @@ export type DashboardStats = {
   shippedOrders: number
   deliveredOrders: number
   hasOrders: boolean
+  hasPaidSales: boolean
   salesToday: number
   sales7d: number
   sales30d: number
@@ -53,13 +66,23 @@ function startOfYear() {
   return d
 }
 
-async function sumOrdersSince(since: Date) {
+async function sumPaidOrdersSince(since: Date) {
+  const where = { ...paidOrderWhere, createdAt: { gte: since } }
   const [agg, count] = await Promise.all([
-    prisma.order.aggregate({ where: { createdAt: { gte: since } }, _sum: { total: true } }),
-    prisma.order.count({ where: { createdAt: { gte: since } } }),
+    prisma.order.aggregate({ where, _sum: { total: true } }),
+    prisma.order.count({ where }),
   ])
   return { revenue: agg._sum.total ?? 0, orders: count }
 }
+
+const lowStockWhere = {
+  active: true,
+  availability: { not: ProductAvailability.MADE_TO_ORDER },
+  OR: [
+    { availability: ProductAvailability.LOW_STOCK },
+    { stock: { lte: LOW_STOCK_THRESHOLD } },
+  ],
+} as const
 
 export async function getDashboardStats(): Promise<DashboardStats> {
   const today = startOfToday()
@@ -69,9 +92,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const year = startOfYear()
 
   const [
-    revenueAgg,
     paidAgg,
     orderCount,
+    paidOrderCount,
     productCount,
     activeProductCount,
     lowStockCount,
@@ -86,39 +109,34 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     monthStats,
     yearStats,
   ] = await Promise.all([
-    prisma.order.aggregate({ _sum: { total: true } }),
     prisma.order.aggregate({
-      where: { paymentStatus: PaymentStatus.PAID },
+      where: paidOrderWhere,
       _sum: { total: true },
     }),
-    prisma.order.count(),
+    prisma.order.count({ where: realOrderWhere }),
+    prisma.order.count({ where: paidOrderWhere }),
     prisma.product.count(),
     prisma.product.count({ where: { active: true } }),
-    prisma.product.count({
-      where: {
-        active: true,
-        OR: [
-          { availability: ProductAvailability.LOW_STOCK },
-          { stock: { lte: LOW_STOCK_THRESHOLD } },
-        ],
-      },
-    }),
+    prisma.product.count({ where: lowStockWhere }),
     getCustomerCount(),
     prisma.order.count({ where: { status: OrderStatus.PENDING } }),
     prisma.order.count({ where: { status: OrderStatus.PROCESSING } }),
     prisma.order.count({ where: { status: OrderStatus.SHIPPED } }),
     prisma.order.count({ where: { status: OrderStatus.DELIVERED } }),
-    sumOrdersSince(today),
-    sumOrdersSince(d7),
-    sumOrdersSince(d30),
-    sumOrdersSince(month),
-    sumOrdersSince(year),
+    sumPaidOrdersSince(today),
+    sumPaidOrdersSince(d7),
+    sumPaidOrdersSince(d30),
+    sumPaidOrdersSince(month),
+    sumPaidOrdersSince(year),
   ])
 
+  const paidRevenue = paidAgg._sum.total ?? 0
+
   return {
-    revenue: revenueAgg._sum.total ?? 0,
-    paidRevenue: paidAgg._sum.total ?? 0,
+    revenue: paidRevenue,
+    paidRevenue,
     orderCount,
+    paidOrderCount,
     productCount,
     activeProductCount,
     lowStockCount,
@@ -128,6 +146,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     shippedOrders,
     deliveredOrders,
     hasOrders: orderCount > 0,
+    hasPaidSales: paidOrderCount > 0,
     salesToday: todayStats.revenue,
     sales7d: stats7d.revenue,
     sales30d: stats30d.revenue,
@@ -145,6 +164,7 @@ export async function getDashboardCharts() {
 
 export async function getRecentOrders(limit = 5) {
   return prisma.order.findMany({
+    where: realOrderWhere,
     orderBy: { createdAt: 'desc' },
     take: limit,
     select: {
@@ -162,6 +182,9 @@ export async function getRecentOrders(limit = 5) {
 export async function getTopProducts(limit = 5) {
   const grouped = await prisma.orderItem.groupBy({
     by: ['productId', 'productName', 'productSlug'],
+    where: {
+      order: paidOrderWhere,
+    },
     _sum: { quantity: true, subtotal: true },
     orderBy: { _sum: { quantity: 'desc' } },
     take: limit,
@@ -178,13 +201,7 @@ export async function getTopProducts(limit = 5) {
 
 export async function getLowStockProducts(limit = 8) {
   return prisma.product.findMany({
-    where: {
-      active: true,
-      OR: [
-        { availability: ProductAvailability.LOW_STOCK },
-        { stock: { lte: LOW_STOCK_THRESHOLD } },
-      ],
-    },
+    where: lowStockWhere,
     orderBy: { stock: 'asc' },
     take: limit,
     select: {

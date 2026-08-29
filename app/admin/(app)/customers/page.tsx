@@ -24,7 +24,9 @@ export default async function CustomersPage({ searchParams }: { searchParams: SP
     <div className="space-y-6">
       <div>
         <h1 className="font-serif text-3xl text-charcoal">Customers</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Guest customers from order history.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Buyers with at least one paid order.
+        </p>
       </div>
 
       <form className="flex gap-2">
@@ -38,7 +40,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: SP
       </form>
 
       {result.total === 0 ? (
-        <AdminEmptyState title="No customers yet" description="Customers appear after their first order." />
+        <AdminEmptyState title="No customers yet" description="Customers appear after a successful paid checkout." />
       ) : (
         <>
           <div className="overflow-x-auto rounded-md border border-border bg-[#faf8f4]">

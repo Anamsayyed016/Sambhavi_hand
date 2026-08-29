@@ -87,14 +87,14 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <AdminStatCard
           label="Revenue"
-          value={stats.hasOrders ? formatINR(stats.paidRevenue) : '—'}
-          hint={stats.hasOrders ? 'Paid orders' : 'No sales yet'}
+          value={stats.hasPaidSales ? formatINR(stats.paidRevenue) : '₹0'}
+          hint={stats.hasPaidSales ? 'Paid orders' : 'No sales yet'}
           icon={IndianRupee}
         />
         <AdminStatCard
           label="Orders"
-          value={stats.hasOrders ? String(stats.orderCount) : '—'}
-          hint={stats.hasOrders ? 'All time' : 'No orders yet'}
+          value={String(stats.orderCount)}
+          hint={stats.hasOrders ? `${stats.paidOrderCount} paid` : 'No orders yet'}
           icon={ShoppingBag}
         />
         <AdminStatCard
@@ -105,14 +105,14 @@ export default async function AdminDashboardPage() {
         />
         <AdminStatCard
           label="Customers"
-          value={stats.customerCount > 0 ? String(stats.customerCount) : '—'}
-          hint={stats.customerCount > 0 ? 'Unique buyers' : 'No customer data yet'}
+          value={stats.customerCount > 0 ? String(stats.customerCount) : '0'}
+          hint={stats.customerCount > 0 ? 'Unique paid buyers' : 'No customers yet'}
           icon={Users}
         />
         <AdminStatCard
           label="Low stock"
           value={String(stats.lowStockCount)}
-          hint="Active products needing attention"
+          hint={stats.lowStockCount > 0 ? 'Active products needing attention' : 'No low-stock products'}
           icon={AlertTriangle}
         />
       </div>
@@ -121,7 +121,7 @@ export default async function AdminDashboardPage() {
         <h2 className="text-sm font-medium uppercase tracking-[0.12em] text-muted-foreground">
           Sales overview
         </h2>
-        {stats.hasOrders ? (
+        {stats.hasPaidSales ? (
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {salesPeriods.map((p) => (
               <div key={p.label} className="rounded border border-border/60 bg-white/60 px-3 py-2">
@@ -138,16 +138,14 @@ export default async function AdminDashboardPage() {
         )}
       </section>
 
-      {stats.hasOrders ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-            <SimpleBarChart data={chartData} metric="revenue" label="Revenue over time (30 days)" />
-          </section>
-          <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-            <SimpleBarChart data={chartData} metric="orders" label="Orders over time (30 days)" />
-          </section>
-        </div>
-      ) : null}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="rounded-md border border-border bg-[#faf8f4] p-5">
+          <SimpleBarChart data={chartData} metric="revenue" label="Revenue over time (30 days)" />
+        </section>
+        <section className="rounded-md border border-border bg-[#faf8f4] p-5">
+          <SimpleBarChart data={chartData} metric="orders" label="Orders over time (30 days)" />
+        </section>
+      </div>
 
       <section className="rounded-md border border-border bg-[#faf8f4] p-5">
         <h2 className="text-sm font-medium uppercase tracking-[0.12em] text-muted-foreground">
@@ -193,7 +191,9 @@ export default async function AdminDashboardPage() {
                   </div>
                   <div className="text-right">
                     <p>{formatINR(order.total)}</p>
-                    <p className="text-xs text-muted-foreground">{order.status}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {order.paymentStatus} · {order.status}
+                    </p>
                   </div>
                 </li>
               ))}
