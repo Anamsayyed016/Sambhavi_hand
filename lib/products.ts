@@ -380,7 +380,7 @@ export const products: Product[] = [
   },
   {
     slug: 'digital-print-saree-01',
-    name: 'Soft Silk Digital Print Saree',
+    name: 'Green Floral Soft Silk Digital Print Saree',
     price: 1,
     image:
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916480/WhatsApp_Image_2026-08-28_at_4.02.45_PM.jpg',
