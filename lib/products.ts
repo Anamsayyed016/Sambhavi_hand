@@ -854,6 +854,66 @@ export const products: Product[] = [
     availability: 'In Stock',
     description: 'Details coming soon.',
   },
+  {
+    slug: 'digital-print-saree-25',
+    name: 'Digital Print Saree 25',
+    // PLACEHOLDER: replace with real price when provided
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916459/WhatsApp_Image_2026-08-28_at_4.02.37_PM_1.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916459/WhatsApp_Image_2026-08-28_at_4.02.37_PM_1.jpg',
+    ],
+    category: 'Digital Print',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    description: 'Details coming soon.',
+  },
+  {
+    slug: 'digital-print-saree-26',
+    name: 'Digital Print Saree 26',
+    // PLACEHOLDER: replace with real price when provided
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916458/WhatsApp_Image_2026-08-28_at_4.02.36_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916458/WhatsApp_Image_2026-08-28_at_4.02.36_PM.jpg',
+    ],
+    category: 'Digital Print',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    description: 'Details coming soon.',
+  },
+  {
+    slug: 'digital-print-saree-27',
+    name: 'Digital Print Saree 27',
+    // PLACEHOLDER: replace with real price when provided
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916457/WhatsApp_Image_2026-08-28_at_4.02.36_PM_2.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916457/WhatsApp_Image_2026-08-28_at_4.02.36_PM_2.jpg',
+    ],
+    category: 'Digital Print',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    description: 'Details coming soon.',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
