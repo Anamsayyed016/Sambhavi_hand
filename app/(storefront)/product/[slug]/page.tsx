@@ -4,7 +4,14 @@ import { PageBanner } from '@/components/layout/page-banner'
 import { ProductDetail } from '@/components/product/product-detail'
 import { ProductGrid } from '@/components/product/product-grid'
 import { SectionHeader } from '@/components/layout/section-header'
-import { getRelatedProducts, getStorefrontProduct, getStorefrontProducts } from '@/lib/products'
+import {
+  applyDbPricesToProducts,
+  getPricedStorefrontProduct,
+} from '@/lib/catalog/db-pricing'
+import { getRelatedProducts, getStorefrontProducts } from '@/lib/products'
+
+/** Always read current selling prices from the database. */
+export const dynamic = 'force-dynamic'
 
 export function generateStaticParams() {
   return getStorefrontProducts().map((p) => ({ slug: p.slug }))
@@ -16,7 +23,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const product = getStorefrontProduct(slug)
+  const product = await getPricedStorefrontProduct(slug)
   if (!product) return { title: 'Saree Not Found' }
   return {
     title: product.name,
@@ -35,10 +42,10 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const product = getStorefrontProduct(slug)
+  const product = await getPricedStorefrontProduct(slug)
   if (!product) notFound()
 
-  const related = getRelatedProducts(slug, 3)
+  const related = await applyDbPricesToProducts(getRelatedProducts(slug, 3))
 
   const jsonLd = {
     '@context': 'https://schema.org',

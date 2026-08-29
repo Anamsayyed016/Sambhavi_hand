@@ -31,7 +31,7 @@ type FormState = {
 
 export function CheckoutForm() {
   const router = useRouter()
-  const { items, subtotal, clearCart } = useCart()
+  const { items, subtotal, clearCart, revalidatePrices } = useCart()
   const idempotencyKey = useRef(
     typeof crypto !== 'undefined' && crypto.randomUUID
       ? crypto.randomUUID()
@@ -101,6 +101,15 @@ export function CheckoutForm() {
     setError(null)
 
     try {
+      const priced = await revalidatePrices()
+      if (!priced.ok || !priced.items || priced.items.length === 0) {
+        setStatus('error')
+        setError(priced.error ?? 'Unable to refresh prices. Please try again.')
+        return
+      }
+
+      const checkoutLines = priced.items
+
       const checkoutRes = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -118,7 +127,7 @@ export function CheckoutForm() {
             postalCode: form.postalCode,
             country: form.country,
           },
-          items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+          items: checkoutLines.map((item) => ({ slug: item.slug, quantity: item.quantity })),
         }),
       })
 
@@ -142,6 +151,18 @@ export function CheckoutForm() {
       if (!razorpayRes.ok) {
         setStatus('error')
         setError(razorpayData.error ?? 'Payment service is temporarily unavailable. Please try again.')
+        return
+      }
+
+      const expectedPaise =
+        typeof checkoutData.total === 'number' ? checkoutData.total * 100 : null
+      if (
+        expectedPaise != null &&
+        typeof razorpayData.amount === 'number' &&
+        razorpayData.amount !== expectedPaise
+      ) {
+        setStatus('error')
+        setError('Payment amount mismatch. Please refresh and try again.')
         return
       }
 

@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import { PageBanner } from '@/components/layout/page-banner'
 import { ShopView } from '@/components/shop/shop-view'
+import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 import { getSareeCategory } from '@/lib/categories'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Shop All Sarees',
@@ -16,6 +19,7 @@ type ShopPageProps = {
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const { category: categorySlug } = await searchParams
   const category = categorySlug ? getSareeCategory(categorySlug) : undefined
+  const products = await getPricedStorefrontProducts()
 
   return (
     <>
@@ -24,7 +28,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         subtitle="Explore our complete collection of handwoven sarees, crafted for every occasion."
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Sarees' }]}
       />
-      <ShopView initialCategory={category?.name} />
+      <ShopView initialCategory={category?.name} products={products} />
     </>
   )
 }

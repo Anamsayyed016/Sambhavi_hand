@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { Prisma } from '@prisma/client'
 import {
   assertAdminCanWrite,
@@ -57,6 +58,16 @@ export async function PATCH(request: Request, { params }: Params) {
     }
 
     const product = await updateProduct(id, parsed.data)
+
+    revalidatePath('/shop')
+    revalidatePath('/collections')
+    revalidatePath(`/product/${product.slug}`)
+    if (existing.slug !== product.slug) {
+      revalidatePath(`/product/${existing.slug}`)
+    }
+    revalidatePath('/admin/products')
+    revalidatePath(`/admin/products/${product.id}`)
+
     return NextResponse.json({ product })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
@@ -80,6 +91,8 @@ export async function DELETE(request: Request, { params }: Params) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
     const product = await archiveProduct(id)
+    revalidatePath('/shop')
+    revalidatePath(`/product/${product.slug}`)
     return NextResponse.json({ product, archived: true })
   } catch (error) {
     return adminAuthErrorResponse(error)

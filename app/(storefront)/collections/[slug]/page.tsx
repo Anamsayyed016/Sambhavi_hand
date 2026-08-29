@@ -16,7 +16,10 @@ import {
   getCatalogTitle,
   getProductsForCatalogSlug,
 } from '@/lib/catalog-filters'
+import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 import { getStorefrontProducts } from '@/lib/products'
+
+export const dynamic = 'force-dynamic'
 
 export function generateStaticParams() {
   const groupSlugs = categoryGroups.map((g) => ({ slug: g.slug }))
@@ -54,7 +57,7 @@ export default async function CollectionDetailPage({
 
   const category = getSareeCategory(slug)
   const group = getCategoryGroup(slug)
-  const items = getProductsForCatalogSlug(slug, getStorefrontProducts())
+  const items = getProductsForCatalogSlug(slug, await getPricedStorefrontProducts())
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },

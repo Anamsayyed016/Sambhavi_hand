@@ -122,3 +122,7 @@ export async function createRazorpayOrder(input: {
 export async function fetchRazorpayPayment(paymentId: string): Promise<RazorpayPayment> {
   return razorpayRequest<RazorpayPayment>(`/payments/${encodeURIComponent(paymentId)}`)
 }
+
+export async function fetchRazorpayOrder(orderId: string): Promise<RazorpayOrder> {
+  return razorpayRequest<RazorpayOrder>(`/orders/${encodeURIComponent(orderId)}`)
+}

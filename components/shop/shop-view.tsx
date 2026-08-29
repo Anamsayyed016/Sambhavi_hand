@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { categoryGroups } from '@/lib/categories'
 import { productMatchesCategory } from '@/lib/catalog-filters'
-import { getStorefrontProducts, type Product } from '@/lib/products'
+import { type Product } from '@/lib/products'
 import { ProductGrid } from '@/components/product/product-grid'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -18,7 +18,13 @@ const sortOptions: { key: SortKey; label: string }[] = [
   { key: 'price-desc', label: 'Price: High to Low' },
 ]
 
-export function ShopView({ initialCategory }: { initialCategory?: string }) {
+export function ShopView({
+  initialCategory,
+  products,
+}: {
+  initialCategory?: string
+  products: Product[]
+}) {
   const [activeCategories, setActiveCategories] = useState<string[]>(
     initialCategory ? [initialCategory] : [],
   )
@@ -34,8 +40,8 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
   const filtered = useMemo(() => {
     let result: Product[] =
       activeCategories.length === 0
-        ? [...getStorefrontProducts()]
-        : getStorefrontProducts().filter((p) =>
+        ? [...products]
+        : products.filter((p) =>
             activeCategories.some((cat) => productMatchesCategory(p, cat)),
           )
 
@@ -53,7 +59,7 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
         break
     }
     return result
-  }, [activeCategories, sort])
+  }, [activeCategories, sort, products])
 
   const FilterPanel = (
     <div className="flex flex-col gap-8">

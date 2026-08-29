@@ -4,7 +4,7 @@ import { OrderStatus, PaymentStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { assertCheckoutOrigin, checkoutErrorResponse, CheckoutError } from '@/lib/checkout/errors'
 import { checkCheckoutRateLimit, getCheckoutClientIp } from '@/lib/checkout/rate-limit'
-import { createRazorpayOrder, getRazorpayKeyId } from '@/lib/payments/razorpay'
+import { createRazorpayOrder, fetchRazorpayOrder, getRazorpayKeyId } from '@/lib/payments/razorpay'
 
 const bodySchema = z.object({
   orderNumber: z.string().min(1).max(40),
@@ -59,7 +59,6 @@ export async function POST(request: Request) {
       })
     }
 
-    // Allow retry after a failed attempt without inventing a new internal order.
     if (order.paymentStatus === PaymentStatus.FAILED) {
       await prisma.order.update({
         where: { id: order.id },
@@ -68,27 +67,53 @@ export async function POST(request: Request) {
     }
 
     const keyId = getRazorpayKeyId()
+    const expectedPaise = order.total * 100
 
+    if (order.total < 1) {
+      throw new CheckoutError('Invalid order total.', 400)
+    }
+
+    // Never reuse a Razorpay order whose amount does not match the DB order total.
     if (order.razorpayOrderId) {
-      return NextResponse.json({
-        keyId,
-        orderNumber: order.orderNumber,
-        razorpayOrderId: order.razorpayOrderId,
-        amount: order.total * 100,
-        currency: 'INR',
-        customer: {
-          name: order.customerName,
-          email: order.customerEmail,
-          contact: order.customerPhone,
-        },
+      try {
+        const rpOrder = await fetchRazorpayOrder(order.razorpayOrderId)
+        if (rpOrder.amount === expectedPaise && (rpOrder.currency || 'INR') === 'INR') {
+          return NextResponse.json({
+            keyId,
+            orderNumber: order.orderNumber,
+            razorpayOrderId: order.razorpayOrderId,
+            amount: expectedPaise,
+            currency: 'INR',
+            customer: {
+              name: order.customerName,
+              email: order.customerEmail,
+              contact: order.customerPhone,
+            },
+          })
+        }
+      } catch {
+        // Fall through and create a fresh Razorpay order.
+      }
+
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { razorpayOrderId: null },
       })
     }
 
     const razorpayOrder = await createRazorpayOrder({
-      amountPaise: order.total * 100,
+      amountPaise: expectedPaise,
       receipt: order.orderNumber,
-      notes: { orderNumber: order.orderNumber, orderId: order.id },
+      notes: {
+        orderNumber: order.orderNumber,
+        orderId: order.id,
+        amountInr: String(order.total),
+      },
     })
+
+    if (razorpayOrder.amount !== expectedPaise) {
+      throw new CheckoutError('Payment service returned an unexpected amount.', 503)
+    }
 
     try {
       await prisma.order.update({
@@ -107,8 +132,8 @@ export async function POST(request: Request) {
         keyId,
         orderNumber: order.orderNumber,
         razorpayOrderId: again.razorpayOrderId,
-        amount: razorpayOrder.amount,
-        currency: razorpayOrder.currency || 'INR',
+        amount: expectedPaise,
+        currency: 'INR',
         customer: {
           name: order.customerName,
           email: order.customerEmail,

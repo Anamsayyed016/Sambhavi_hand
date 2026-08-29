@@ -28,3 +28,7 @@ export function saveIdempotentCheckoutResult(
 ): void {
   store.set(key, { ...result, expiresAt: Date.now() + TTL_MS })
 }
+
+export function clearIdempotentCheckoutResult(key: string): void {
+  store.delete(key)
+}

@@ -9,6 +9,8 @@ import { Testimonials } from '@/components/home/testimonials'
 import { InstagramFeed } from '@/components/home/instagram-feed'
 import { Newsletter } from '@/components/home/newsletter'
 
+export const dynamic = 'force-dynamic'
+
 export default function HomePage() {
   return (
     <>
