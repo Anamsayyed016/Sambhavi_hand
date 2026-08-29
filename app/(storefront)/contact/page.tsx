@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { MapPin, Phone, Mail, Clock } from 'lucide-react'
 import { PageBanner } from '@/components/layout/page-banner'
 import { ContactForm } from '@/components/contact/contact-form'
+import { contactDetails } from '@/lib/content'
 
 export const metadata: Metadata = {
   title: 'Contact Us',
@@ -13,17 +14,17 @@ const details = [
   {
     icon: MapPin,
     title: 'Visit Our Atelier',
-    lines: ['142 Weavers Lane, Silk Market', 'Kanchipuram, Tamil Nadu 631502'],
+    lines: [...contactDetails.addressLines],
   },
   {
     icon: Phone,
     title: 'Call Us',
-    lines: ['+91 98765 43210', 'Mon – Sat'],
+    lines: [contactDetails.phoneDisplay, 'Mon – Sat'],
   },
   {
     icon: Mail,
     title: 'Email Us',
-    lines: ['care@sambhavihandloom.com', 'orders@sambhavihandloom.com'],
+    lines: [contactDetails.email],
   },
   {
     icon: Clock,

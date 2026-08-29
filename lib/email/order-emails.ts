@@ -1,5 +1,6 @@
 import { formatINR } from '@/lib/admin/format'
 import { getStoreSettings } from '@/lib/admin/settings'
+import { contactDetails } from '@/lib/content'
 import { sendEmail } from '@/lib/email/send'
 
 export type OrderEmailPayload = {
@@ -89,7 +90,7 @@ async function resolveAdminInbox(): Promise<string | null> {
   } catch {
     // ignore
   }
-  return null
+  return contactDetails.email
 }
 
 /** Admin alert after server-verified PAID order. Never throws. */
@@ -180,9 +181,9 @@ export async function sendCustomerOrderConfirmationEmail(
     settings?.storeEmail?.trim() ||
     process.env.ADMIN_ORDER_EMAIL?.trim() ||
     process.env.ADMIN_EMAIL?.trim() ||
-    ''
+    contactDetails.email
   const storeName = settings?.storeName?.trim() || 'Sambhavi Handloom'
-  const supportPhone = settings?.storePhone?.trim() || ''
+  const supportPhone = settings?.storePhone?.trim() || contactDetails.phoneDisplay
 
   const subject = `Order Confirmed — #${order.orderNumber}`
   const text = [

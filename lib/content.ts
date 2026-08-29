@@ -125,3 +125,16 @@ export const navLinks = [
 /** Official Sambhavi Handloom brand mark */
 export const BRAND_LOGO_URL =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1787571350/logo.jpg'
+
+/** Public storefront contact details (source of truth for footer / contact page). */
+export const contactDetails = {
+  email: 'customerconnect@sambhaviheritagereimagined.com',
+  phoneDisplay: '+91 77888 47279',
+  phoneTel: '+917788847279',
+  address:
+    'Plot No. 529, Sector K-8, Kalinga Nagar, Ghatikia, Bhubaneswar, India, 751003',
+  addressLines: [
+    'Plot No. 529, Sector K-8, Kalinga Nagar',
+    'Ghatikia, Bhubaneswar, India, 751003',
+  ],
+} as const

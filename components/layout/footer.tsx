@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Camera, Globe, Video, Mail, Phone, MapPin } from 'lucide-react'
 import { BrandLogo } from '@/components/layout/brand-logo'
+import { contactDetails } from '@/lib/content'
 
 const quickLinks = [
   { label: 'Home', href: '/' },
@@ -94,19 +95,19 @@ export function Footer() {
             <ul className="flex flex-col gap-3 text-sm text-ivory/70">
               <li className="flex items-center gap-3">
                 <Mail className="size-4 shrink-0 text-accent" strokeWidth={1.5} />
-                <a href="mailto:care@sambhavihandloom.com" className="hover:text-accent">
-                  care@sambhavihandloom.com
+                <a href={`mailto:${contactDetails.email}`} className="hover:text-accent">
+                  {contactDetails.email}
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="size-4 shrink-0 text-accent" strokeWidth={1.5} />
-                <a href="tel:+919000000000" className="hover:text-accent">
-                  +91 90000 00000
+                <a href={`tel:${contactDetails.phoneTel}`} className="hover:text-accent">
+                  {contactDetails.phoneDisplay}
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-accent" strokeWidth={1.5} />
-                <span>Weavers&apos; Lane, Kanchipuram, Tamil Nadu 631501, India</span>
+                <span>{contactDetails.address}</span>
               </li>
             </ul>
           </div>
