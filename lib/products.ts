@@ -1,4 +1,8 @@
 import { categoryNames } from '@/lib/categories'
+import {
+  filterStorefrontProducts,
+  isStorefrontProductVisible,
+} from '@/lib/payment-test-mode'
 
 export type Product = {
   slug: string
@@ -1729,10 +1733,21 @@ export function getProduct(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug)
 }
 
+/** Catalog products visible on the storefront (respects temporary payment test mode). */
+export function getStorefrontProducts(): Product[] {
+  return filterStorefrontProducts(products)
+}
+
+/** Product detail lookup that hides non-test products while payment test mode is on. */
+export function getStorefrontProduct(slug: string): Product | undefined {
+  if (!isStorefrontProductVisible(slug)) return undefined
+  return getProduct(slug)
+}
+
 export function getRelatedProducts(slug: string, limit = 3): Product[] {
-  const current = getProduct(slug)
-  if (!current) return products.slice(0, limit)
-  return products
+  const current = getStorefrontProduct(slug) ?? getProduct(slug)
+  if (!current) return getStorefrontProducts().slice(0, limit)
+  return getStorefrontProducts()
     .filter((p) => p.slug !== slug && p.collections.some((c) => current.collections.includes(c)))
     .slice(0, limit)
 }

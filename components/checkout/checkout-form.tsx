@@ -6,9 +6,14 @@ import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/components/cart/cart-provider'
-import { calculateOrderTotal } from '@/lib/checkout/shipping'
+import {
+  SHIPPING_FLAT_INR,
+  FREE_SHIPPING_THRESHOLD_INR,
+  calculateOrderTotal,
+} from '@/lib/checkout/shipping'
+import { productOffersFreeShipping, PAYMENT_TEST_MODE } from '@/lib/payment-test-mode'
 import { loadRazorpayScript, type RazorpaySuccessResponse } from '@/lib/payments/load-razorpay'
-import { formatINR } from '@/lib/products'
+import { formatINR, getProduct } from '@/lib/products'
 
 const inputClass =
   'h-11 w-full rounded-md border border-border bg-background px-4 font-sans text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none'
@@ -47,7 +52,20 @@ export function CheckoutForm() {
   const [error, setError] = useState<string | null>(null)
   const processing = useRef(false)
 
-  const preview = useMemo(() => calculateOrderTotal(subtotal), [subtotal])
+  const preview = useMemo(() => {
+    const cartOffersFreeShipping =
+      PAYMENT_TEST_MODE ||
+      (items.length > 0 &&
+        items.every((item) => {
+          const product = getProduct(item.slug)
+          return product ? productOffersFreeShipping(product) : false
+        }))
+    return calculateOrderTotal(
+      subtotal,
+      cartOffersFreeShipping ? 0 : SHIPPING_FLAT_INR,
+      FREE_SHIPPING_THRESHOLD_INR,
+    )
+  }, [items, subtotal])
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))

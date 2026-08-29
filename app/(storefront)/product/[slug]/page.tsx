@@ -4,10 +4,10 @@ import { PageBanner } from '@/components/layout/page-banner'
 import { ProductDetail } from '@/components/product/product-detail'
 import { ProductGrid } from '@/components/product/product-grid'
 import { SectionHeader } from '@/components/layout/section-header'
-import { products, getProduct, getRelatedProducts } from '@/lib/products'
+import { getRelatedProducts, getStorefrontProduct, getStorefrontProducts } from '@/lib/products'
 
 export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }))
+  return getStorefrontProducts().map((p) => ({ slug: p.slug }))
 }
 
 export async function generateMetadata({
@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const product = getProduct(slug)
+  const product = getStorefrontProduct(slug)
   if (!product) return { title: 'Saree Not Found' }
   return {
     title: product.name,
@@ -35,7 +35,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const product = getProduct(slug)
+  const product = getStorefrontProduct(slug)
   if (!product) notFound()
 
   const related = getRelatedProducts(slug, 3)

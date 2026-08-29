@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
 import { reels, type Reel } from '@/lib/content'
-import { getProduct } from '@/lib/products'
+import { getStorefrontProduct } from '@/lib/products'
 import { SectionHeader } from '@/components/layout/section-header'
 
 function ReelCaption({
@@ -27,7 +27,7 @@ function ReelCaption({
 }
 
 function ReelCard({ reel, index }: { reel: Reel; index: number }) {
-  const product = getProduct(reel.productSlug)
+  const product = getStorefrontProduct(reel.productSlug)
   const productHref = product ? `/product/${product.slug}` : '/shop'
   const videoRef = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)

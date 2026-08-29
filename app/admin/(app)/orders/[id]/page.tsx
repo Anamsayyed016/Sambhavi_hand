@@ -144,7 +144,7 @@ export default async function AdminOrderDetailPage({ params }: Params) {
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">Shipping</dt>
-              <dd>{formatINR(order.shipping)}</dd>
+              <dd>{order.shipping === 0 ? 'Free' : formatINR(order.shipping)}</dd>
             </div>
             <div className="flex justify-between gap-4 border-t border-border pt-2 font-medium">
               <dt>Total</dt>

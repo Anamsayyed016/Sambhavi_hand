@@ -1,10 +1,22 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { CheckoutError } from '@/lib/checkout/errors'
 
+/** LIVE (`rzp_live_`) vs TEST (`rzp_test_`) based on KEY_ID only — never logs secrets. */
+export function getRazorpayKeyMode(): 'LIVE' | 'TEST' | 'UNKNOWN' | 'MISSING' {
+  const keyId = process.env.RAZORPAY_KEY_ID?.trim() ?? ''
+  if (!keyId) return 'MISSING'
+  if (keyId.startsWith('rzp_live_')) return 'LIVE'
+  if (keyId.startsWith('rzp_test_')) return 'TEST'
+  return 'UNKNOWN'
+}
+
 export function getRazorpayKeyId(): string {
   const keyId = process.env.RAZORPAY_KEY_ID?.trim()
   if (!keyId) {
-    throw new CheckoutError('Payment service is temporarily unavailable. Please try again.', 503)
+    throw new CheckoutError(
+      'Payment is not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET on the server.',
+      503,
+    )
   }
   return keyId
 }
@@ -12,7 +24,10 @@ export function getRazorpayKeyId(): string {
 function getRazorpayKeySecret(): string {
   const secret = process.env.RAZORPAY_KEY_SECRET?.trim()
   if (!secret) {
-    throw new CheckoutError('Payment service is temporarily unavailable. Please try again.', 503)
+    throw new CheckoutError(
+      'Payment is not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET on the server.',
+      503,
+    )
   }
   return secret
 }

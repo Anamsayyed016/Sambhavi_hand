@@ -5,14 +5,15 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { SectionHeader } from '@/components/layout/section-header'
 import { ProductCard } from '@/components/product/product-card'
 import { QuickViewModal } from '@/components/product/quick-view-modal'
-import { products, type Product } from '@/lib/products'
+import { getStorefrontProducts, type Product } from '@/lib/products'
 
 export function NewArrivals() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [quickView, setQuickView] = useState<Product | null>(null)
-  const newProducts = products.filter((p) => p.isNew)
+  const catalog = getStorefrontProducts()
+  const newProducts = catalog.filter((p) => p.isNew)
   // duplicate so the carousel feels full on wide screens
-  const items = [...newProducts, ...products].slice(0, 8)
+  const items = [...newProducts, ...catalog].slice(0, 8)
 
   const scroll = (dir: 'left' | 'right') => {
     const el = scrollRef.current

@@ -7,7 +7,13 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/components/cart/cart-provider'
-import { formatINR } from '@/lib/products'
+import { formatINR, getProduct } from '@/lib/products'
+import {
+  SHIPPING_FLAT_INR,
+  FREE_SHIPPING_THRESHOLD_INR,
+  calculateOrderTotal,
+} from '@/lib/checkout/shipping'
+import { productOffersFreeShipping, PAYMENT_TEST_MODE } from '@/lib/payment-test-mode'
 
 export function CartDrawer() {
   const { isCartOpen, closeCart, items, removeItem, updateQuantity, subtotal, count } = useCart()
@@ -23,8 +29,18 @@ export function CartDrawer() {
     }
   }, [isCartOpen])
 
-  const shipping = subtotal > 0 && subtotal < 9999 ? 149 : 0
-  const total = subtotal + shipping
+  const cartOffersFreeShipping =
+    PAYMENT_TEST_MODE ||
+    (items.length > 0 &&
+      items.every((item) => {
+        const product = getProduct(item.slug)
+        return product ? productOffersFreeShipping(product) : false
+      }))
+  const { shipping, total } = calculateOrderTotal(
+    subtotal,
+    cartOffersFreeShipping ? 0 : SHIPPING_FLAT_INR,
+    FREE_SHIPPING_THRESHOLD_INR,
+  )
 
   return (
     <AnimatePresence>

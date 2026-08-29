@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { categoryGroups } from '@/lib/categories'
 import { productMatchesCategory } from '@/lib/catalog-filters'
-import { products, type Product } from '@/lib/products'
+import { getStorefrontProducts, type Product } from '@/lib/products'
 import { ProductGrid } from '@/components/product/product-grid'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -34,8 +34,8 @@ export function ShopView({ initialCategory }: { initialCategory?: string }) {
   const filtered = useMemo(() => {
     let result: Product[] =
       activeCategories.length === 0
-        ? [...products]
-        : products.filter((p) =>
+        ? [...getStorefrontProducts()]
+        : getStorefrontProducts().filter((p) =>
             activeCategories.some((cat) => productMatchesCategory(p, cat)),
           )
 

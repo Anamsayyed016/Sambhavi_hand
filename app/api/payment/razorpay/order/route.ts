@@ -59,6 +59,14 @@ export async function POST(request: Request) {
       })
     }
 
+    // Allow retry after a failed attempt without inventing a new internal order.
+    if (order.paymentStatus === PaymentStatus.FAILED) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { paymentStatus: PaymentStatus.PENDING },
+      })
+    }
+
     const keyId = getRazorpayKeyId()
 
     if (order.razorpayOrderId) {

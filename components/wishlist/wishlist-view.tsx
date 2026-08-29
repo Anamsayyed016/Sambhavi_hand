@@ -3,13 +3,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Heart, ShoppingBag, Trash2 } from 'lucide-react'
-import { getProduct, formatINR } from '@/lib/products'
+import { getStorefrontProduct, formatINR } from '@/lib/products'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
 
 export function WishlistView() {
   const { wishlist, toggleWishlist, addItem } = useCart()
-  const items = wishlist.map((slug) => getProduct(slug)).filter(Boolean)
+  const items = wishlist.map((slug) => getStorefrontProduct(slug)).filter(Boolean)
 
   if (items.length === 0) {
     return (

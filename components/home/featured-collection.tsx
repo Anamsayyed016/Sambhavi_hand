@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { SectionHeader } from '@/components/layout/section-header'
 import { ProductGrid } from '@/components/product/product-grid'
-import { products } from '@/lib/products'
+import { getStorefrontProducts } from '@/lib/products'
 
 export function FeaturedCollection() {
   return (
@@ -13,7 +13,7 @@ export function FeaturedCollection() {
         subtitle="Handpicked sarees crafted for timeless occasions."
         className="mb-14"
       />
-      <ProductGrid products={products} columns="three" />
+      <ProductGrid products={getStorefrontProducts()} columns="three" />
       <div className="mt-14 flex justify-center">
         <Button
           size="lg"

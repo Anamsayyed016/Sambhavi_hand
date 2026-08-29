@@ -9,6 +9,11 @@ import { calculateOrderTotal, getShippingRules } from '@/lib/checkout/shipping'
 import { CheckoutError } from '@/lib/checkout/errors'
 import type { CheckoutRequest } from '@/lib/checkout/validation'
 import { notifyNewOrder } from '@/lib/admin/notifications'
+import {
+  PAYMENT_TEST_MODE,
+  PAYMENT_TEST_PRODUCT_SLUG,
+  productOffersFreeShipping,
+} from '@/lib/payment-test-mode'
 
 type Tx = Prisma.TransactionClient
 
@@ -69,6 +74,10 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
     throw new CheckoutError('Duplicate items in cart. Please refresh and try again.')
   }
 
+  if (PAYMENT_TEST_MODE && uniqueSlugs.some((slug) => slug !== PAYMENT_TEST_PRODUCT_SLUG)) {
+    throw new CheckoutError('Only the selected test product can be purchased right now.')
+  }
+
   const products = await prisma.product.findMany({
     where: { slug: { in: uniqueSlugs } },
   })
@@ -99,7 +108,15 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
 
   const subtotal = lineItems.reduce((sum, line) => sum + line.subtotal, 0)
   const { shippingFee, freeShippingThreshold } = await getShippingRules()
-  const { shipping, total } = calculateOrderTotal(subtotal, shippingFee, freeShippingThreshold)
+  // Prefer product-level free-shipping copy; during payment test mode the
+  // single test saree is always free shipping (₹0) as specified for live QA.
+  const cartQualifiesForFreeShipping =
+    PAYMENT_TEST_MODE || products.every(productOffersFreeShipping)
+  const { shipping, total } = calculateOrderTotal(
+    subtotal,
+    cartQualifiesForFreeShipping ? 0 : shippingFee,
+    freeShippingThreshold,
+  )
 
   const order = await prisma.$transaction(async (tx) => {
     const orderNumber = await generateOrderNumber(tx)
