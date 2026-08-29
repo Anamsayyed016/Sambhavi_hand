@@ -108,10 +108,7 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
 
   const subtotal = lineItems.reduce((sum, line) => sum + line.subtotal, 0)
   const { shippingFee, freeShippingThreshold } = await getShippingRules()
-  // Prefer product-level free-shipping copy; during payment test mode the
-  // single test saree is always free shipping (₹0) as specified for live QA.
-  const cartQualifiesForFreeShipping =
-    PAYMENT_TEST_MODE || products.every(productOffersFreeShipping)
+  const cartQualifiesForFreeShipping = products.every(productOffersFreeShipping)
   const { shipping, total } = calculateOrderTotal(
     subtotal,
     cartQualifiesForFreeShipping ? 0 : shippingFee,

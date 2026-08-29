@@ -13,7 +13,7 @@ import {
   FREE_SHIPPING_THRESHOLD_INR,
   calculateOrderTotal,
 } from '@/lib/checkout/shipping'
-import { productOffersFreeShipping, PAYMENT_TEST_MODE } from '@/lib/payment-test-mode'
+import { productOffersFreeShipping } from '@/lib/payment-test-mode'
 
 export function CartDrawer() {
   const { isCartOpen, closeCart, items, removeItem, updateQuantity, subtotal, count } = useCart()
@@ -30,12 +30,11 @@ export function CartDrawer() {
   }, [isCartOpen])
 
   const cartOffersFreeShipping =
-    PAYMENT_TEST_MODE ||
-    (items.length > 0 &&
-      items.every((item) => {
-        const product = getProduct(item.slug)
-        return product ? productOffersFreeShipping(product) : false
-      }))
+    items.length > 0 &&
+    items.every((item) => {
+      const product = getProduct(item.slug)
+      return product ? productOffersFreeShipping(product) : false
+    })
   const { shipping, total } = calculateOrderTotal(
     subtotal,
     cartOffersFreeShipping ? 0 : SHIPPING_FLAT_INR,
