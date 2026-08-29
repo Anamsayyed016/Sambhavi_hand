@@ -1574,6 +1574,126 @@ export const products: Product[] = [
     availability: 'In Stock',
     description: 'Details coming soon.',
   },
+  {
+    slug: 'digital-print-saree-61',
+    name: 'Digital Print Saree 61',
+    // PLACEHOLDER: replace with real price when provided
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916424/WhatsApp_Image_2026-08-28_at_4.02.25_PM_1.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916424/WhatsApp_Image_2026-08-28_at_4.02.25_PM_1.jpg',
+    ],
+    category: 'Digital Print',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    description: 'Details coming soon.',
+  },
+  {
+    slug: 'digital-print-saree-62',
+    name: 'Digital Print Saree 62',
+    // PLACEHOLDER: replace with real price when provided
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916424/WhatsApp_Image_2026-08-28_at_4.02.24_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916424/WhatsApp_Image_2026-08-28_at_4.02.24_PM.jpg',
+    ],
+    category: 'Digital Print',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    description: 'Details coming soon.',
+  },
+  {
+    slug: 'digital-print-saree-63',
+    name: 'Digital Print Saree 63',
+    // PLACEHOLDER: replace with real price when provided
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916423/WhatsApp_Image_2026-08-28_at_4.02.24_PM_2.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916423/WhatsApp_Image_2026-08-28_at_4.02.24_PM_2.jpg',
+    ],
+    category: 'Digital Print',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    description: 'Details coming soon.',
+  },
+  {
+    slug: 'digital-print-saree-64',
+    name: 'Digital Print Saree 64',
+    // PLACEHOLDER: replace with real price when provided
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916422/WhatsApp_Image_2026-08-28_at_4.02.24_PM_1.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916422/WhatsApp_Image_2026-08-28_at_4.02.24_PM_1.jpg',
+    ],
+    category: 'Digital Print',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    description: 'Details coming soon.',
+  },
+  {
+    slug: 'digital-print-saree-65',
+    name: 'Digital Print Saree 65',
+    // PLACEHOLDER: replace with real price when provided
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916421/WhatsApp_Image_2026-08-28_at_4.02.23_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916421/WhatsApp_Image_2026-08-28_at_4.02.23_PM.jpg',
+    ],
+    category: 'Digital Print',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    description: 'Details coming soon.',
+  },
+  {
+    slug: 'digital-print-saree-66',
+    name: 'Digital Print Saree 66',
+    // PLACEHOLDER: replace with real price when provided
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916420/WhatsApp_Image_2026-08-28_at_4.02.23_PM_2.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916420/WhatsApp_Image_2026-08-28_at_4.02.23_PM_2.jpg',
+    ],
+    category: 'Digital Print',
+    collections: [],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    description: 'Details coming soon.',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
