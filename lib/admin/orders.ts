@@ -12,6 +12,7 @@ export type OrderListParams = {
 
 export type OrderListItem = Order & {
   _count: { items: number }
+  items: { productName: string; quantity: number }[]
 }
 
 export type OrderListResult = {
@@ -88,6 +89,11 @@ export async function listOrders(params: OrderListParams = {}): Promise<OrderLis
       take: pageSize,
       include: {
         _count: { select: { items: true } },
+        items: {
+          select: { productName: true, quantity: true },
+          take: 2,
+          orderBy: { productName: 'asc' },
+        },
       },
     }),
   ])

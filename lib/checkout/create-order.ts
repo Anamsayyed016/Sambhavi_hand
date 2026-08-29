@@ -8,7 +8,6 @@ import { prisma } from '@/lib/prisma'
 import { calculateOrderTotal, getShippingRules } from '@/lib/checkout/shipping'
 import { CheckoutError } from '@/lib/checkout/errors'
 import type { CheckoutRequest } from '@/lib/checkout/validation'
-import { notifyNewOrder } from '@/lib/admin/notifications'
 import {
   PAYMENT_TEST_MODE,
   PAYMENT_TEST_PRODUCT_SLUG,
@@ -157,7 +156,8 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
     })
   })
 
-  await notifyNewOrder(order.orderNumber, input.customer.name, order.total).catch(() => undefined)
+  // Admin NEW_ORDER notification + emails fire only after PAID verification
+  // (see confirmPaidOrder). Pending checkout must not look like a successful sale.
 
   return {
     orderId: order.id,

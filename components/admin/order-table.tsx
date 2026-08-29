@@ -14,7 +14,7 @@ export function OrderTable({ orders }: { orders: OrderListItem[] }) {
             <th className="px-4 py-3 font-medium">Customer</th>
             <th className="px-4 py-3 font-medium">Phone</th>
             <th className="px-4 py-3 font-medium">Date</th>
-            <th className="px-4 py-3 font-medium">Items</th>
+            <th className="px-4 py-3 font-medium">Product</th>
             <th className="px-4 py-3 font-medium">Total</th>
             <th className="px-4 py-3 font-medium">Payment</th>
             <th className="px-4 py-3 font-medium">Status</th>
@@ -39,7 +39,13 @@ export function OrderTable({ orders }: { orders: OrderListItem[] }) {
               <td className="px-4 py-3 text-muted-foreground">{order.customerPhone}</td>
               <td className="px-4 py-3 text-muted-foreground">{formatDate(order.createdAt)}</td>
               <td className="px-4 py-3">
-                {order._count.items} item{order._count.items === 1 ? '' : 's'}
+                <p className="max-w-[220px] truncate font-medium">
+                  {order.items[0]?.productName ?? '—'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {order._count.items} item{order._count.items === 1 ? '' : 's'}
+                  {order.items[0] ? ` · qty ${order.items[0].quantity}` : ''}
+                </p>
               </td>
               <td className="px-4 py-3">{formatINR(order.total)}</td>
               <td className="px-4 py-3">

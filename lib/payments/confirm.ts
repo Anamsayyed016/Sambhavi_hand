@@ -2,7 +2,12 @@ import { OrderStatus, PaymentStatus, ProductAvailability } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { CheckoutError } from '@/lib/checkout/errors'
 import { fetchRazorpayPayment } from '@/lib/payments/razorpay'
-import { createNotification } from '@/lib/admin/notifications'
+import { createNotification, notifyPaidOrder } from '@/lib/admin/notifications'
+import {
+  sendAdminNewOrderEmail,
+  sendCustomerOrderConfirmationEmail,
+  type OrderEmailPayload,
+} from '@/lib/email/order-emails'
 
 export async function confirmPaidOrder(input: {
   orderNumber: string
@@ -11,7 +16,18 @@ export async function confirmPaidOrder(input: {
 }): Promise<{ orderNumber: string; alreadyPaid: boolean }> {
   const order = await prisma.order.findUnique({
     where: { orderNumber: input.orderNumber },
-    include: { items: { select: { productId: true, quantity: true, product: { select: { availability: true } } } } },
+    include: {
+      items: {
+        select: {
+          productId: true,
+          quantity: true,
+          productName: true,
+          price: true,
+          subtotal: true,
+          product: { select: { availability: true } },
+        },
+      },
+    },
   })
 
   if (!order) {
@@ -45,6 +61,8 @@ export async function confirmPaidOrder(input: {
     throw new CheckoutError('Payment could not be verified. Please try again.', 400)
   }
 
+  let newlyPaid = false
+
   await prisma.$transaction(async (tx) => {
     const updated = await tx.order.updateMany({
       where: {
@@ -64,6 +82,7 @@ export async function confirmPaidOrder(input: {
     })
 
     if (updated.count === 0) return
+    newlyPaid = true
 
     for (const item of order.items) {
       if (!item.productId) continue
@@ -84,7 +103,45 @@ export async function confirmPaidOrder(input: {
     }
   })
 
-  return { orderNumber: order.orderNumber, alreadyPaid: false }
+  if (newlyPaid) {
+    await notifyPaidOrder(order.id).catch((error) => {
+      console.error('[notify]', error instanceof Error ? error.message : 'notify failed')
+    })
+
+    const emailPayload: OrderEmailPayload = {
+      id: order.id,
+      orderNumber: order.orderNumber,
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      customerPhone: order.customerPhone,
+      shippingAddress: order.shippingAddress,
+      city: order.city,
+      state: order.state,
+      postalCode: order.postalCode,
+      country: order.country,
+      subtotal: order.subtotal,
+      shipping: order.shipping,
+      total: order.total,
+      paymentStatus: PaymentStatus.PAID,
+      paymentMethod: 'Razorpay',
+      razorpayOrderId: input.razorpayOrderId,
+      paymentId: input.razorpayPaymentId,
+      items: order.items.map((item) => ({
+        productName: item.productName,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: item.subtotal,
+      })),
+    }
+
+    // Emails must never fail the payment confirmation path.
+    await Promise.allSettled([
+      sendAdminNewOrderEmail(emailPayload),
+      sendCustomerOrderConfirmationEmail(emailPayload),
+    ])
+  }
+
+  return { orderNumber: order.orderNumber, alreadyPaid: !newlyPaid }
 }
 
 /**
