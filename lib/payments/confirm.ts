@@ -55,6 +55,7 @@ export async function confirmPaidOrder(input: {
         paymentStatus: PaymentStatus.PAID,
         paymentId: input.razorpayPaymentId,
         razorpayOrderId: input.razorpayOrderId,
+        paymentMethod: 'Razorpay',
         status:
           order.status === OrderStatus.PENDING || order.status === OrderStatus.CONFIRMED
             ? OrderStatus.CONFIRMED

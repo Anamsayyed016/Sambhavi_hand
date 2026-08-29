@@ -36,6 +36,9 @@ export default async function AdminOrderDetailPage({ params }: Params) {
             <h1 className="font-serif text-3xl text-charcoal">#{order.orderNumber}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Placed {formatDate(order.createdAt)}
+              {order.updatedAt.getTime() !== order.createdAt.getTime()
+                ? ` · Updated ${formatDate(order.updatedAt)}`
+                : null}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -100,9 +103,9 @@ export default async function AdminOrderDetailPage({ params }: Params) {
           {order.items.map((item) => (
             <li key={item.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center">
               <div className="relative size-16 shrink-0 overflow-hidden rounded bg-beige">
-                {item.product?.image ? (
+                {item.productImage || item.product?.image ? (
                   <Image
-                    src={item.product.image}
+                    src={item.productImage || item.product!.image}
                     alt=""
                     fill
                     className="object-cover"
@@ -162,13 +165,24 @@ export default async function AdminOrderDetailPage({ params }: Params) {
               </dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Payment reference</dt>
+              <dt className="text-muted-foreground">Method</dt>
+              <dd className="mt-1">{order.paymentMethod?.trim() ? order.paymentMethod : '—'}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Razorpay order ID</dt>
+              <dd className="mt-1 font-mono text-xs">
+                {order.razorpayOrderId?.trim() ? order.razorpayOrderId : '—'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Payment ID</dt>
               <dd className="mt-1 font-mono text-xs">
                 {order.paymentId?.trim() ? order.paymentId : '—'}
               </dd>
             </div>
             <p className="pt-2 text-xs text-muted-foreground">
-              Payment status is read-only until checkout/Razorpay is connected.
+              Payment status is updated automatically by Razorpay verification. Admins update
+              fulfilment status only.
             </p>
           </dl>
         </section>

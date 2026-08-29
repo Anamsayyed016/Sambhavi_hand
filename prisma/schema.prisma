@@ -95,7 +95,6 @@ model Collection {
   @@index([featured])
 }
 
-/// Order foundation only — no checkout logic in Phase 2
 model Order {
   id              String        @id @default(cuid())
   orderNumber     String        @unique
@@ -104,6 +103,7 @@ model Order {
   subtotal        Int
   shipping        Int
   total           Int
+  currency        String        @default("INR")
   customerName    String
   customerEmail   String
   customerPhone   String
@@ -112,8 +112,10 @@ model Order {
   state           String
   postalCode      String
   country         String        @default("IN")
+  paymentMethod   String?
   paymentId       String?
   razorpayOrderId String?       @unique
+  notes           String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   items           OrderItem[]
@@ -124,17 +126,19 @@ model Order {
 }
 
 model OrderItem {
-  id          String  @id @default(cuid())
-  orderId     String
-  productId   String?
-  productSlug String
-  productName String
-  /// Snapshot price in INR at time of order
-  price       Int
-  quantity    Int
-  subtotal    Int
-  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  id           String  @id @default(cuid())
+  orderId      String
+  productId    String?
+  productSlug  String
+  productName  String
+  /// Snapshot image URL at time of order (survives catalog changes)
+  productImage String?
+  /// Snapshot unit price in INR at time of order
+  price        Int
+  quantity     Int
+  subtotal     Int
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 
   @@index([orderId])
   @@index([productId])

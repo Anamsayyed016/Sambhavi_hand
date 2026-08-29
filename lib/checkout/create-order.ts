@@ -5,7 +5,7 @@ import {
   type Prisma,
 } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { calculateOrderTotal } from '@/lib/checkout/shipping'
+import { calculateOrderTotal, getShippingRules } from '@/lib/checkout/shipping'
 import { CheckoutError } from '@/lib/checkout/errors'
 import type { CheckoutRequest } from '@/lib/checkout/validation'
 import { notifyNewOrder } from '@/lib/admin/notifications'
@@ -32,12 +32,15 @@ async function generateOrderNumber(tx: Tx): Promise<string> {
   return `${prefix}${String(next).padStart(5, '0')}`
 }
 
-function assertStock(product: {
-  stock: number
-  availability: ProductAvailability
-  name: string
-  active: boolean
-}, quantity: number): void {
+function assertStock(
+  product: {
+    stock: number
+    availability: ProductAvailability
+    name: string
+    active: boolean
+  },
+  quantity: number,
+): void {
   if (!product.active) {
     throw new CheckoutError(`"${product.name}" is no longer available.`)
   }
@@ -87,6 +90,7 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
       productId: product.id,
       productSlug: product.slug,
       productName: product.name,
+      productImage: product.image,
       price,
       quantity: item.quantity,
       subtotal,
@@ -94,7 +98,8 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
   })
 
   const subtotal = lineItems.reduce((sum, line) => sum + line.subtotal, 0)
-  const { shipping, total } = calculateOrderTotal(subtotal)
+  const { shippingFee, freeShippingThreshold } = await getShippingRules()
+  const { shipping, total } = calculateOrderTotal(subtotal, shippingFee, freeShippingThreshold)
 
   const order = await prisma.$transaction(async (tx) => {
     const orderNumber = await generateOrderNumber(tx)
@@ -107,6 +112,8 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
         subtotal,
         shipping,
         total,
+        currency: 'INR',
+        paymentMethod: 'Razorpay',
         customerName: input.customer.name,
         customerEmail: input.customer.email.toLowerCase(),
         customerPhone: input.customer.phone,
@@ -120,6 +127,7 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
             productId: line.productId,
             productSlug: line.productSlug,
             productName: line.productName,
+            productImage: line.productImage,
             price: line.price,
             quantity: line.quantity,
             subtotal: line.subtotal,
@@ -152,16 +160,25 @@ export async function getPublicOrderByNumber(orderNumber: string) {
       orderNumber: true,
       customerEmail: true,
       customerName: true,
+      customerPhone: true,
+      shippingAddress: true,
+      city: true,
+      state: true,
+      postalCode: true,
+      country: true,
       subtotal: true,
       shipping: true,
       total: true,
+      currency: true,
       status: true,
       paymentStatus: true,
+      paymentMethod: true,
       createdAt: true,
       items: {
         select: {
           productName: true,
           productSlug: true,
+          productImage: true,
           price: true,
           quantity: true,
           subtotal: true,

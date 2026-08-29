@@ -41,7 +41,7 @@ export async function notifyNewOrder(orderNumber: string, customerName: string, 
     type: NotificationType.NEW_ORDER,
     title: 'New order',
     message: `${customerName} placed order #${orderNumber} (₹${total.toLocaleString('en-IN')})`,
-    link: `/admin/orders`,
+    link: `/admin/orders?q=${encodeURIComponent(orderNumber)}`,
   })
 }
 

@@ -12,6 +12,7 @@ export function OrderTable({ orders }: { orders: OrderListItem[] }) {
           <tr>
             <th className="px-4 py-3 font-medium">Order</th>
             <th className="px-4 py-3 font-medium">Customer</th>
+            <th className="px-4 py-3 font-medium">Phone</th>
             <th className="px-4 py-3 font-medium">Date</th>
             <th className="px-4 py-3 font-medium">Items</th>
             <th className="px-4 py-3 font-medium">Total</th>
@@ -35,6 +36,7 @@ export function OrderTable({ orders }: { orders: OrderListItem[] }) {
                 <p className="font-medium">{order.customerName}</p>
                 <p className="text-xs text-muted-foreground">{order.customerEmail}</p>
               </td>
+              <td className="px-4 py-3 text-muted-foreground">{order.customerPhone}</td>
               <td className="px-4 py-3 text-muted-foreground">{formatDate(order.createdAt)}</td>
               <td className="px-4 py-3">
                 {order._count.items} item{order._count.items === 1 ? '' : 's'}

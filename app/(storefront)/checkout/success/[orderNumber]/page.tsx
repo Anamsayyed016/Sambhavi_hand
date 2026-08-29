@@ -9,7 +9,7 @@ import { formatDate } from '@/lib/admin/format'
 import { formatINR } from '@/lib/products'
 
 export const metadata: Metadata = {
-  title: 'Order placed',
+  title: 'Order confirmed',
   robots: { index: false, follow: false },
 }
 
@@ -36,11 +36,11 @@ export default async function CheckoutSuccessPage({ params }: Params) {
             )}
           </span>
           <h1 className="mt-6 font-serif text-3xl text-foreground">
-            {paid ? 'Payment successful' : 'Payment pending'}
+            {paid ? 'Order confirmed' : 'Payment pending'}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {paid
-              ? `Thank you, ${order.customerName}. Your payment has been confirmed.`
+              ? `Thank you, ${order.customerName}. Your order has been successfully placed.`
               : `Thank you, ${order.customerName}. We have received your order and are waiting for payment confirmation.`}
           </p>
         </div>
@@ -55,8 +55,16 @@ export default async function CheckoutSuccessPage({ params }: Params) {
             <dd>{order.customerEmail}</dd>
           </div>
           <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Phone</dt>
+            <dd>{order.customerPhone}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Date</dt>
             <dd>{formatDate(order.createdAt)}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Payment</dt>
+            <dd className="font-medium">{paid ? 'Paid' : 'Pending'}</dd>
           </div>
           <div className="flex justify-between gap-4 border-t border-border pt-3 font-serif text-lg">
             <dt>Total</dt>
@@ -65,31 +73,59 @@ export default async function CheckoutSuccessPage({ params }: Params) {
         </dl>
 
         <div className="mt-8">
+          <h2 className="font-serif text-lg text-foreground">Delivery address</h2>
+          <p className="mt-3 text-sm leading-relaxed text-foreground/85">
+            {order.shippingAddress}
+            <br />
+            {order.city}, {order.state} {order.postalCode}
+            <br />
+            {order.country}
+          </p>
+        </div>
+
+        <div className="mt-8">
           <h2 className="font-serif text-lg text-foreground">Order summary</h2>
           <ul className="mt-4 divide-y divide-border">
-            {order.items.map((item) => (
-              <li key={`${item.productSlug}-${item.quantity}`} className="flex gap-3 py-4">
-                <div className="relative aspect-3/4 w-14 shrink-0 overflow-hidden rounded-sm bg-muted">
-                  {item.product?.image ? (
-                    <Image
-                      src={item.product.image}
-                      alt=""
-                      fill
-                      sizes="56px"
-                      className="object-cover"
-                    />
-                  ) : null}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-serif text-sm">{item.productName}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Qty {item.quantity} · {formatINR(item.price)} each
-                  </p>
-                </div>
-                <p className="text-sm">{formatINR(item.subtotal)}</p>
-              </li>
-            ))}
+            {order.items.map((item) => {
+              const imageSrc = item.productImage || item.product?.image
+              return (
+                <li key={`${item.productSlug}-${item.quantity}`} className="flex gap-3 py-4">
+                  <div className="relative aspect-3/4 w-14 shrink-0 overflow-hidden rounded-sm bg-muted">
+                    {imageSrc ? (
+                      <Image
+                        src={imageSrc}
+                        alt=""
+                        fill
+                        sizes="56px"
+                        className="object-cover"
+                      />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-serif text-sm">{item.productName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Qty {item.quantity} · {formatINR(item.price)} each
+                    </p>
+                  </div>
+                  <p className="text-sm">{formatINR(item.subtotal)}</p>
+                </li>
+              )
+            })}
           </ul>
+          <dl className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Subtotal</dt>
+              <dd>{formatINR(order.subtotal)}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Shipping</dt>
+              <dd>{order.shipping === 0 ? 'Free' : formatINR(order.shipping)}</dd>
+            </div>
+            <div className="flex justify-between gap-4 font-medium">
+              <dt>Total</dt>
+              <dd>{formatINR(order.total)}</dd>
+            </div>
+          </dl>
         </div>
 
         <p className="mt-8 text-sm leading-relaxed text-muted-foreground">
