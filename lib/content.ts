@@ -138,3 +138,86 @@ export const contactDetails = {
     'Ghatikia, Bhubaneswar, India, 751003',
   ],
 } as const
+
+export type HeroSlide = {
+  image: string
+  alt: string
+  eyebrow: string
+  headline: string
+  description: string
+  primaryLabel: string
+  primaryHref: string
+  secondaryLabel?: string
+  secondaryHref?: string
+  /** CSS object-position for responsive crop */
+  objectPosition?: string
+}
+
+/** Homepage hero carousel — real project imagery only */
+export const heroSlides: HeroSlide[] = [
+  {
+    image: '/images/hero-saree.png',
+    alt: 'Model wearing a deep maroon handloom silk saree',
+    eyebrow: 'Sambhavi Handloom',
+    headline: 'Timeless Handloom.\nModern Elegance.',
+    description:
+      'Discover beautifully crafted sarees that celebrate Indian heritage, artistry and effortless elegance.',
+    primaryLabel: 'Shop Sarees',
+    primaryHref: '/shop',
+    secondaryLabel: 'Explore Collection',
+    secondaryHref: '/collections',
+    objectPosition: 'center center',
+  },
+  {
+    image: '/images/editorial-drape.png',
+    alt: 'The art of handloom — a maroon silk saree pallu',
+    eyebrow: 'Editorial',
+    headline: 'The Art\nof Handloom',
+    description:
+      'Every thread carries a story. Every weave reflects generations of craftsmanship and quiet devotion.',
+    primaryLabel: 'Shop the Look',
+    primaryHref: '/shop',
+    secondaryLabel: 'Explore Collection',
+    secondaryHref: '/collections',
+    objectPosition: 'center 35%',
+  },
+  {
+    image: '/images/artisan-weaving.png',
+    alt: 'Artisan weaving a silk saree on a traditional handloom',
+    eyebrow: 'Our Craft',
+    headline: 'Woven by\nArtisan Hands',
+    description:
+      'Traditional techniques and the finest natural fabrics, passed down through generations of master weavers.',
+    primaryLabel: 'Discover Sarees',
+    primaryHref: '/shop',
+    secondaryLabel: 'Our Story',
+    secondaryHref: '/about',
+    objectPosition: 'center center',
+  },
+  {
+    image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1787740183/10.png',
+    alt: 'Handwoven silk saree with fine gold zari border',
+    eyebrow: 'Silk Collection',
+    headline: 'Handwoven\nSilk Saree',
+    description:
+      'A luminous silk saree with a fine gold zari border — fluid drape and understated sheen for timeless occasions.',
+    primaryLabel: 'Shop Sarees',
+    primaryHref: '/product/handwoven-silk-saree',
+    secondaryLabel: 'View Collection',
+    secondaryHref: '/collections/silk-sarees',
+    objectPosition: 'center 20%',
+  },
+  {
+    image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1787740183/9.png',
+    alt: 'Banarasi heritage saree with intricate gold brocade zari',
+    eyebrow: 'Banarasi Heritage',
+    headline: 'Opulent\nBrocade Zari',
+    description:
+      'Intricate all-over gold brocade woven on traditional pit looms — the legacy of Varanasi master craftsmen.',
+    primaryLabel: 'Shop Banarasi',
+    primaryHref: '/product/banarasi-heritage-saree',
+    secondaryLabel: 'Wedding Collection',
+    secondaryHref: '/collections/wedding-collection',
+    objectPosition: 'center 25%',
+  },
+]
