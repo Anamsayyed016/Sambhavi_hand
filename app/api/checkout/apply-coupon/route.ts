@@ -30,6 +30,10 @@ export async function POST(request: Request) {
 
     const totals = await computeServerCartTotals(parsed.data.items, parsed.data.couponCode)
 
+    if (!totals.couponCode) {
+      throw new CheckoutError('Invalid coupon code.')
+    }
+
     return NextResponse.json({
       valid: true,
       couponCode: totals.couponCode,
@@ -41,6 +45,12 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof CheckoutError) {
       return NextResponse.json({ valid: false, error: error.message }, { status: error.status })
+    }
+    if (error instanceof Error && error.message.startsWith('Unavailable:')) {
+      return NextResponse.json(
+        { valid: false, error: 'One or more products are no longer available.' },
+        { status: 400 },
+      )
     }
     return checkoutErrorResponse(error)
   }

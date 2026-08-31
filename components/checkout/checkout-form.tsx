@@ -107,6 +107,56 @@ export function CheckoutForm() {
     setError(null)
   }
 
+  async function handleApplyCoupon(
+    code: string,
+  ): Promise<{ ok: true; coupon: AppliedCoupon } | { ok: false; error: string }> {
+    if (items.length === 0) {
+      return { ok: false, error: 'Your cart is empty.' }
+    }
+
+    const priced = await revalidatePrices()
+    if (!priced.ok || !priced.items || priced.items.length === 0) {
+      return { ok: false, error: priced.error ?? 'Unable to refresh prices. Please try again.' }
+    }
+
+    const res = await fetch('/api/checkout/apply-coupon', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: priced.items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+        couponCode: code,
+      }),
+    })
+    const data = await res.json().catch(() => ({}))
+
+    if (!res.ok || !data.valid) {
+      return {
+        ok: false,
+        error: (data.error as string | undefined) ?? 'Invalid or expired coupon code.',
+      }
+    }
+
+    const discount = typeof data.discount === 'number' ? data.discount : 0
+    if (discount <= 0) {
+      return {
+        ok: false,
+        error:
+          (data.error as string | undefined) ?? 'This coupon does not reduce your order total.',
+      }
+    }
+
+    const coupon: AppliedCoupon = {
+      code: data.couponCode as string,
+      discount,
+      subtotal: data.subtotal as number,
+      shipping: data.shipping as number,
+      total: data.total as number,
+    }
+
+    handleCouponApplied(coupon)
+    return { ok: true, coupon }
+  }
+
   useEffect(() => {
     if (!appliedCoupon || !appliedForCartKey.current) return
     const cartKey = items.map((item) => `${item.slug}:${item.quantity}`).join('|')
@@ -462,9 +512,8 @@ export function CheckoutForm() {
         />
 
         <CouponSection
-          items={items.map((item) => ({ slug: item.slug, quantity: item.quantity }))}
           applied={appliedCoupon}
-          onApplied={handleCouponApplied}
+          onApply={handleApplyCoupon}
           onRemoved={handleCouponRemoved}
         />
 
@@ -511,9 +560,9 @@ export function CheckoutForm() {
             <span>Subtotal</span>
             <span className="text-foreground">{formatINR(preview.subtotal)}</span>
           </div>
-          {preview.discount > 0 ? (
+          {preview.discount > 0 && appliedCoupon ? (
             <div className="flex justify-between text-muted-foreground">
-              <span>{appliedCoupon ? `Discount (${appliedCoupon.code})` : 'Discount'}</span>
+              <span>Coupon ({appliedCoupon.code})</span>
               <span className="text-foreground">-{formatINR(preview.discount)}</span>
             </div>
           ) : null}

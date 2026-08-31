@@ -43,7 +43,7 @@ export async function createCoupon(data: CouponInput): Promise<Coupon> {
       discountType: data.discountType,
       discountValue: data.discountValue,
       minOrderValue: data.minOrderValue,
-      maxDiscount: data.maxDiscount,
+      maxDiscount: data.maxDiscount && data.maxDiscount > 0 ? data.maxDiscount : null,
       startsAt: parseDate(data.startsAt as string | undefined),
       expiresAt: parseDate(data.expiresAt as string | undefined),
       usageLimit: data.usageLimit,
@@ -58,7 +58,9 @@ export async function updateCoupon(id: string, data: Partial<CouponInput>): Prom
   if (data.discountType !== undefined) patch.discountType = data.discountType
   if (data.discountValue !== undefined) patch.discountValue = data.discountValue
   if (data.minOrderValue !== undefined) patch.minOrderValue = data.minOrderValue
-  if (data.maxDiscount !== undefined) patch.maxDiscount = data.maxDiscount
+  if (data.maxDiscount !== undefined) {
+    patch.maxDiscount = data.maxDiscount && data.maxDiscount > 0 ? data.maxDiscount : null
+  }
   if (data.startsAt !== undefined) patch.startsAt = parseDate(data.startsAt as string | undefined)
   if (data.expiresAt !== undefined) patch.expiresAt = parseDate(data.expiresAt as string | undefined)
   if (data.usageLimit !== undefined) patch.usageLimit = data.usageLimit

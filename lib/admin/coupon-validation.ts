@@ -15,7 +15,10 @@ const couponFieldsSchema = z.object({
     .transform((v) => (v === '' || v === null || v === undefined ? null : v)),
   maxDiscount: z
     .union([z.coerce.number().int().min(0), z.literal(''), z.null(), z.undefined()])
-    .transform((v) => (v === '' || v === null || v === undefined ? null : v)),
+    .transform((v) => {
+      if (v === '' || v === null || v === undefined || v === 0) return null
+      return v
+    }),
   startsAt: z.union([z.string().datetime(), z.literal(''), z.null(), z.undefined()]).optional(),
   expiresAt: z.union([z.string().datetime(), z.literal(''), z.null(), z.undefined()]).optional(),
   usageLimit: z

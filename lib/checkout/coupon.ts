@@ -15,7 +15,7 @@ export function calculateDiscountAmount(
   let discount = 0
   if (coupon.discountType === DiscountType.PERCENTAGE) {
     discount = Math.floor((subtotal * coupon.discountValue) / 100)
-    if (coupon.maxDiscount != null) {
+    if (coupon.maxDiscount != null && coupon.maxDiscount > 0) {
       discount = Math.min(discount, coupon.maxDiscount)
     }
   } else {
@@ -74,6 +74,10 @@ export async function resolveCheckoutCoupon(
   }
 
   const discount = calculateDiscountAmount(coupon, subtotal)
+  if (discount <= 0 && coupon.discountValue > 0 && subtotal > 0) {
+    throw new CheckoutError('This coupon does not apply to your current order total.')
+  }
+
   return {
     coupon,
     discount,

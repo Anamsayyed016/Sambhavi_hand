@@ -15,13 +15,12 @@ type AppliedCoupon = {
 }
 
 type CouponSectionProps = {
-  items: CartItem[]
   applied: AppliedCoupon | null
-  onApplied: (coupon: AppliedCoupon) => void
+  onApply: (code: string) => Promise<{ ok: true; coupon: AppliedCoupon } | { ok: false; error: string }>
   onRemoved: () => void
 }
 
-export function CouponSection({ items, applied, onApplied, onRemoved }: CouponSectionProps) {
+export function CouponSection({ applied, onApply, onRemoved }: CouponSectionProps) {
   const [input, setInput] = useState('')
   const [status, setStatus] = useState<'idle' | 'applying'>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -32,37 +31,22 @@ export function CouponSection({ items, applied, onApplied, onRemoved }: CouponSe
       setError('Enter a coupon code.')
       return
     }
-    if (items.length === 0) {
-      setError('Your cart is empty.')
-      return
-    }
 
     setStatus('applying')
     setError(null)
 
     try {
-      const res = await fetch('/api/checkout/apply-coupon', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
-          couponCode: code,
-        }),
-      })
-      const data = await res.json().catch(() => ({}))
-
-      if (!res.ok || !data.valid) {
-        setError(data.error ?? 'Invalid or expired coupon code.')
+      const result = await onApply(code)
+      if (!result.ok) {
+        setError(result.error)
         return
       }
 
-      onApplied({
-        code: data.couponCode as string,
-        discount: data.discount as number,
-        subtotal: data.subtotal as number,
-        shipping: data.shipping as number,
-        total: data.total as number,
-      })
+      if (result.coupon.discount <= 0) {
+        setError('This coupon does not reduce your order total.')
+        return
+      }
+
       setInput('')
     } catch {
       setError('Unable to apply coupon. Please try again.')
@@ -83,9 +67,7 @@ export function CouponSection({ items, applied, onApplied, onRemoved }: CouponSe
         <h2 className="font-serif text-xl text-foreground">Coupon</h2>
         <div className="rounded-md border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
           <p className="font-medium text-foreground">✓ {applied.code} applied</p>
-          {applied.discount > 0 ? (
-            <p className="mt-1 text-muted-foreground">You saved {formatINR(applied.discount)}</p>
-          ) : null}
+          <p className="mt-1 text-muted-foreground">You saved {formatINR(applied.discount)}</p>
         </div>
         <Button
           type="button"
@@ -135,4 +117,4 @@ export function CouponSection({ items, applied, onApplied, onRemoved }: CouponSe
   )
 }
 
-export type { AppliedCoupon }
+export type { AppliedCoupon, CartItem }
