@@ -8,9 +8,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { heroSlides } from '@/lib/content'
 
-const AUTOPLAY_MS = 6000
+const AUTOPLAY_MS = 7500
 const SLIDE_EASE = [0.22, 1, 0.36, 1] as const
-const SLIDE_DURATION = 0.75
+const SLIDE_DURATION = 0.8
 
 function padSlide(n: number): string {
   return String(n).padStart(2, '0')
@@ -20,7 +20,16 @@ export function Hero() {
   const total = heroSlides.length
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
   const touchStartX = useRef<number | null>(null)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const sync = () => setReducedMotion(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
 
   const goTo = useCallback(
     (next: number) => {
@@ -37,15 +46,30 @@ export function Hero() {
   )
 
   useEffect(() => {
-    if (paused) return
+    if (paused || reducedMotion) return
     const timer = window.setInterval(() => {
       setIndex((current) => (current + 1) % total)
     }, AUTOPLAY_MS)
     return () => window.clearInterval(timer)
-  }, [paused, total])
+  }, [paused, reducedMotion, total, index])
 
   const slide = heroSlides[index]
   const headlineLines = slide.headline.split('\n')
+  const motionDuration = reducedMotion ? 0 : SLIDE_DURATION
+  const imageMotion = reducedMotion
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : {
+        initial: { opacity: 0, x: 28 },
+        animate: { opacity: 1, x: 0 },
+        exit: { opacity: 0, x: -28 },
+      }
+  const copyMotion = reducedMotion
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : {
+        initial: { opacity: 0, y: 18 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -12 },
+      }
 
   return (
     <section
@@ -68,10 +92,10 @@ export function Hero() {
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={slide.image + index}
-          initial={{ opacity: 0, x: 28 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -28 }}
-          transition={{ duration: SLIDE_DURATION, ease: SLIDE_EASE }}
+          initial={imageMotion.initial}
+          animate={imageMotion.animate}
+          exit={imageMotion.exit}
+          transition={{ duration: motionDuration, ease: SLIDE_EASE }}
           className="absolute inset-0"
           aria-hidden={false}
         >
@@ -96,10 +120,10 @@ export function Hero() {
           <AnimatePresence mode="wait">
             <motion.div
               key={`copy-${index}`}
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.55, ease: SLIDE_EASE }}
+              initial={copyMotion.initial}
+              animate={copyMotion.animate}
+              exit={copyMotion.exit}
+              transition={{ duration: reducedMotion ? 0 : 0.55, ease: SLIDE_EASE }}
               className="flex max-w-2xl flex-col gap-6"
             >
               <span className="font-sans text-xs font-semibold uppercase tracking-luxe text-accent">
