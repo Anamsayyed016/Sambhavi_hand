@@ -221,3 +221,73 @@ export const heroSlides: HeroSlide[] = [
     objectPosition: 'center 25%',
   },
 ]
+
+export type EditorialSlide = {
+  image: string
+  alt: string
+  eyebrow: string
+  headline: string
+  description: string
+  ctaLabel: string
+  ctaHref: string
+  objectPosition?: string
+}
+
+/** Split-screen editorial carousel — imagery distinct from hero carousel */
+export const editorialSlides: EditorialSlide[] = [
+  {
+    image: '/images/reel-1.png',
+    alt: 'Elegant handloom saree drape in soft natural light',
+    eyebrow: 'Handwoven Stories',
+    headline: 'Crafted With Patience',
+    description:
+      'Every thread carries a story. Every weave reflects generations of craftsmanship and quiet devotion.',
+    ctaLabel: 'Shop the Look',
+    ctaHref: '/shop',
+    objectPosition: 'center center',
+  },
+  {
+    image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1787740182/6.png',
+    alt: 'Elegant Kanjeevaram silk saree with contrast border',
+    eyebrow: 'Timeless Craft',
+    headline: 'Woven For Generations',
+    description:
+      'Rooted in Indian heritage, designed for the modern woman — regal Kanjeevaram silks with enduring grace.',
+    ctaLabel: 'Explore Kanjeevaram',
+    ctaHref: '/product/elegant-kanjeevaram-saree',
+    objectPosition: 'center 22%',
+  },
+  {
+    image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1787740181/5.png',
+    alt: 'Traditional Chanderi saree with delicate gold buti motifs',
+    eyebrow: 'Chanderi Collection',
+    headline: 'Featherlight Grace',
+    description:
+      'Sheer, translucent Chanderi weaves scattered with delicate motifs — effortless elegance for every occasion.',
+    ctaLabel: 'Shop Chanderi',
+    ctaHref: '/product/traditional-chanderi-saree',
+    objectPosition: 'center 20%',
+  },
+  {
+    image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1787740181/3.png',
+    alt: 'Festive emerald silk saree with gold zari pallu',
+    eyebrow: 'Festive Silk',
+    headline: 'Made For Milestones',
+    description:
+      'Opulent silk sarees with radiant zari pallus — crafted for weddings, celebrations and cherished moments.',
+    ctaLabel: 'Explore Collection',
+    ctaHref: '/collections/festive-collection',
+    objectPosition: 'center 25%',
+  },
+  {
+    image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1787740182/4.png',
+    alt: 'Soft cotton handloom saree in natural tones',
+    eyebrow: 'Everyday Elegance',
+    headline: 'Breathable Beauty',
+    description:
+      'Handspun cotton sarees in natural tones — understated everyday luxury woven for comfort and poise.',
+    ctaLabel: 'Shop Cotton',
+    ctaHref: '/product/soft-cotton-handloom-saree',
+    objectPosition: 'center 30%',
+  },
+]
