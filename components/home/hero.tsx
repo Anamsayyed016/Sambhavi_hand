@@ -1,27 +1,20 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { heroSlides } from '@/lib/content'
 
-const AUTOPLAY_MS = 7500
+const AUTOPLAY_MS = 8000
 const SLIDE_EASE = [0.22, 1, 0.36, 1] as const
-const SLIDE_DURATION = 0.8
-
-function padSlide(n: number): string {
-  return String(n).padStart(2, '0')
-}
+const SLIDE_DURATION = 0.9
 
 export function Hero() {
   const total = heroSlides.length
   const [index, setIndex] = useState(0)
-  const [paused, setPaused] = useState(false)
   const [reducedMotion, setReducedMotion] = useState(false)
-  const touchStartX = useRef<number | null>(null)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -31,44 +24,29 @@ export function Hero() {
     return () => mq.removeEventListener('change', sync)
   }, [])
 
-  const goTo = useCallback(
-    (next: number) => {
-      setIndex(((next % total) + total) % total)
-    },
-    [total],
-  )
-
-  const step = useCallback(
-    (dir: -1 | 1) => {
-      goTo(index + dir)
-    },
-    [goTo, index],
-  )
-
   useEffect(() => {
-    if (paused || reducedMotion) return
     const timer = window.setInterval(() => {
       setIndex((current) => (current + 1) % total)
     }, AUTOPLAY_MS)
     return () => window.clearInterval(timer)
-  }, [paused, reducedMotion, total, index])
+  }, [total])
 
   const slide = heroSlides[index]
   const headlineLines = slide.headline.split('\n')
-  const motionDuration = reducedMotion ? 0 : SLIDE_DURATION
+  const motionDuration = reducedMotion ? 0.15 : SLIDE_DURATION
   const imageMotion = reducedMotion
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
     : {
-        initial: { opacity: 0, x: 28 },
-        animate: { opacity: 1, x: 0 },
-        exit: { opacity: 0, x: -28 },
+        initial: { opacity: 0, scale: 1.04 },
+        animate: { opacity: 1, scale: 1 },
+        exit: { opacity: 0, scale: 1.02 },
       }
   const copyMotion = reducedMotion
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
     : {
-        initial: { opacity: 0, y: 18 },
+        initial: { opacity: 0, y: 14 },
         animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: -12 },
+        exit: { opacity: 0, y: -8 },
       }
 
   return (
@@ -76,28 +54,15 @@ export function Hero() {
       className="relative min-h-[78vh] overflow-hidden bg-charcoal md:min-h-[82vh]"
       aria-roledescription="carousel"
       aria-label="Featured saree collections"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onTouchStart={(e) => {
-        touchStartX.current = e.touches[0]?.clientX ?? null
-      }}
-      onTouchEnd={(e) => {
-        if (touchStartX.current == null) return
-        const endX = e.changedTouches[0]?.clientX ?? touchStartX.current
-        const delta = endX - touchStartX.current
-        if (Math.abs(delta) > 48) step(delta > 0 ? -1 : 1)
-        touchStartX.current = null
-      }}
     >
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence initial={false}>
         <motion.div
-          key={slide.image + index}
+          key={`hero-bg-${index}`}
           initial={imageMotion.initial}
           animate={imageMotion.animate}
           exit={imageMotion.exit}
           transition={{ duration: motionDuration, ease: SLIDE_EASE }}
           className="absolute inset-0"
-          aria-hidden={false}
         >
           <Image
             src={slide.image}
@@ -114,16 +79,15 @@ export function Hero() {
         </motion.div>
       </AnimatePresence>
 
-      {/* editorial overlay */}
       <div className="relative z-10 flex min-h-[78vh] flex-col justify-center md:min-h-[82vh]">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pt-[5.5rem] pb-28 md:px-8 md:pt-28 md:pb-32">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
-              key={`copy-${index}`}
+              key={`hero-copy-${index}`}
               initial={copyMotion.initial}
               animate={copyMotion.animate}
               exit={copyMotion.exit}
-              transition={{ duration: reducedMotion ? 0 : 0.55, ease: SLIDE_EASE }}
+              transition={{ duration: reducedMotion ? 0.15 : 0.65, ease: SLIDE_EASE }}
               className="flex max-w-2xl flex-col gap-6"
             >
               <span className="font-sans text-xs font-semibold uppercase tracking-luxe text-accent">
@@ -132,7 +96,7 @@ export function Hero() {
 
               <h1 className="text-hero-display text-balance text-ivory">
                 {headlineLines.map((line, i) => (
-                  <span key={line}>
+                  <span key={`${index}-${line}`}>
                     {line}
                     {i < headlineLines.length - 1 ? <br /> : null}
                   </span>
@@ -167,35 +131,20 @@ export function Hero() {
         </div>
       </div>
 
-      {/* slide indicator */}
-      <div
-        className="pointer-events-none absolute bottom-8 left-4 z-20 flex items-center gap-3 font-sans text-xs tracking-wide text-ivory/70 md:left-8"
-        aria-live="polite"
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1.2 }}
+        className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex"
+        aria-hidden
       >
-        <span className="tabular-nums text-ivory">{padSlide(index + 1)}</span>
-        <span className="h-px w-16 bg-ivory/35 md:w-24" aria-hidden />
-        <span className="tabular-nums text-ivory/45">{padSlide(total)}</span>
-      </div>
-
-      {/* navigation */}
-      <div className="absolute bottom-8 right-4 z-20 flex items-center gap-2 md:right-8">
-        <button
-          type="button"
-          onClick={() => step(-1)}
-          aria-label="Previous slide"
-          className="flex size-10 items-center justify-center rounded-full border border-ivory/35 bg-charcoal/20 text-ivory/90 backdrop-blur-[2px] transition-colors hover:border-ivory/60 hover:bg-charcoal/35 hover:text-ivory"
-        >
-          <ChevronLeft className="size-4" strokeWidth={1.25} aria-hidden />
-        </button>
-        <button
-          type="button"
-          onClick={() => step(1)}
-          aria-label="Next slide"
-          className="flex size-10 items-center justify-center rounded-full border border-ivory/35 bg-charcoal/20 text-ivory/90 backdrop-blur-[2px] transition-colors hover:border-ivory/60 hover:bg-charcoal/35 hover:text-ivory"
-        >
-          <ChevronRight className="size-4" strokeWidth={1.25} aria-hidden />
-        </button>
-      </div>
+        <span className="font-sans text-[0.65rem] uppercase tracking-luxe text-ivory/60">Scroll</span>
+        <motion.span
+          animate={reducedMotion ? undefined : { y: [0, 8, 0] }}
+          transition={{ duration: 1.8, repeat: Number.POSITIVE_INFINITY }}
+          className="h-8 w-px bg-ivory/40"
+        />
+      </motion.div>
     </section>
   )
 }
