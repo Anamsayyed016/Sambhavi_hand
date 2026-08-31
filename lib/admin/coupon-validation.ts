@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { DiscountType } from '@prisma/client'
 
-export const couponInputSchema = z.object({
+const couponFieldsSchema = z.object({
   code: z
     .string()
     .trim()
@@ -14,7 +14,7 @@ export const couponInputSchema = z.object({
     .union([z.coerce.number().int().min(0), z.literal(''), z.null(), z.undefined()])
     .transform((v) => (v === '' || v === null || v === undefined ? null : v)),
   maxDiscount: z
-    .union([z.coerce.number().int().min(1), z.literal(''), z.null(), z.undefined()])
+    .union([z.coerce.number().int().min(0), z.literal(''), z.null(), z.undefined()])
     .transform((v) => (v === '' || v === null || v === undefined ? null : v)),
   startsAt: z.union([z.string().datetime(), z.literal(''), z.null(), z.undefined()]).optional(),
   expiresAt: z.union([z.string().datetime(), z.literal(''), z.null(), z.undefined()]).optional(),
@@ -24,6 +24,25 @@ export const couponInputSchema = z.object({
   active: z.boolean().default(true),
 })
 
+function validateDiscountValue(
+  data: { discountType?: DiscountType; discountValue?: number },
+  ctx: z.RefinementCtx,
+): void {
+  if (
+    data.discountType === DiscountType.PERCENTAGE &&
+    data.discountValue != null &&
+    data.discountValue > 100
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['discountValue'],
+      message: 'Percentage discount cannot exceed 100',
+    })
+  }
+}
+
+export const couponInputSchema = couponFieldsSchema.superRefine(validateDiscountValue)
+
 export type CouponInput = z.infer<typeof couponInputSchema>
 
-export const couponPatchSchema = couponInputSchema.partial()
+export const couponPatchSchema = couponFieldsSchema.partial().superRefine(validateDiscountValue)

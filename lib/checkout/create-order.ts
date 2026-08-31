@@ -6,6 +6,7 @@ import {
 } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { calculateOrderTotal, getShippingRules } from '@/lib/checkout/shipping'
+import { resolveCheckoutCoupon } from '@/lib/checkout/coupon'
 import { CheckoutError } from '@/lib/checkout/errors'
 import type { CheckoutRequest } from '@/lib/checkout/validation'
 import {
@@ -63,7 +64,11 @@ function assertStock(
 export type CheckoutResult = {
   orderId: string
   orderNumber: string
+  subtotal: number
+  discount: number
+  shipping: number
   total: number
+  couponCode: string | null
   customerEmail: string
 }
 
@@ -108,10 +113,13 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
   const subtotal = lineItems.reduce((sum, line) => sum + line.subtotal, 0)
   const { shippingFee, freeShippingThreshold } = await getShippingRules()
   const cartQualifiesForFreeShipping = products.every(productOffersFreeShipping)
+  const resolvedCoupon = await resolveCheckoutCoupon(input.couponCode, subtotal)
+  const discount = resolvedCoupon?.discount ?? 0
   const { shipping, total } = calculateOrderTotal(
     subtotal,
     cartQualifiesForFreeShipping ? 0 : shippingFee,
     freeShippingThreshold,
+    discount,
   )
 
   const order = await prisma.$transaction(async (tx) => {
@@ -123,8 +131,11 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
         status: OrderStatus.PENDING,
         paymentStatus: PaymentStatus.PENDING,
         subtotal,
+        discount,
         shipping,
         total,
+        couponCode: resolvedCoupon?.couponCode ?? null,
+        couponId: resolvedCoupon?.couponId ?? null,
         currency: 'INR',
         paymentMethod: 'Razorpay',
         customerName: input.customer.name,
@@ -150,7 +161,11 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
       select: {
         id: true,
         orderNumber: true,
+        subtotal: true,
+        discount: true,
+        shipping: true,
         total: true,
+        couponCode: true,
         customerEmail: true,
       },
     })
@@ -162,7 +177,11 @@ export async function createCheckoutOrder(input: CheckoutRequest): Promise<Check
   return {
     orderId: order.id,
     orderNumber: order.orderNumber,
+    subtotal: order.subtotal,
+    discount: order.discount,
+    shipping: order.shipping,
     total: order.total,
+    couponCode: order.couponCode,
     customerEmail: order.customerEmail,
   }
 }
@@ -181,8 +200,10 @@ export async function getPublicOrderByNumber(orderNumber: string) {
       postalCode: true,
       country: true,
       subtotal: true,
+      discount: true,
       shipping: true,
       total: true,
+      couponCode: true,
       currency: true,
       status: true,
       paymentStatus: true,

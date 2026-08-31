@@ -20,9 +20,15 @@ export function CouponForm({ mode, initial }: { mode: 'create' | 'edit'; initial
     active: initial?.active !== false,
   })
   const [error, setError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [success, setSuccess] = useState<string | null>(null)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
+    setSaving(true)
+    setError(null)
+    setSuccess(null)
+
     const url = mode === 'create' ? '/api/admin/coupons' : `/api/admin/coupons/${initial?.id}`
     const res = await fetch(url, {
       method: mode === 'create' ? 'POST' : 'PATCH',
@@ -37,39 +43,103 @@ export function CouponForm({ mode, initial }: { mode: 'create' | 'edit'; initial
       }),
     })
     const data = await res.json().catch(() => ({}))
-    if (!res.ok) { setError(data.error ?? 'Save failed'); return }
+    setSaving(false)
+
+    if (!res.ok) {
+      const issue = data.issues?.fieldErrors?.discountValue?.[0]
+      setError(issue ?? data.error ?? 'Save failed')
+      return
+    }
+
+    setSuccess('Coupon saved successfully.')
     router.push('/admin/marketing/coupons')
     router.refresh()
   }
 
+  const valueLabel =
+    form.discountType === DiscountType.PERCENTAGE ? 'Value (%)' : 'Value (₹ off)'
+
   return (
     <form onSubmit={submit} className="mx-auto max-w-xl space-y-4">
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {success ? <p className="text-sm text-green-700">{success}</p> : null}
       <div>
         <label className="text-xs uppercase text-muted-foreground">Code</label>
-        <input className={field} required value={form.code} onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))} />
+        <input
+          className={field}
+          required
+          value={form.code}
+          onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
+        />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="text-xs uppercase text-muted-foreground">Type</label>
-          <select className={field} value={form.discountType} onChange={(e) => setForm((f) => ({ ...f, discountType: e.target.value as DiscountType }))}>
+          <select
+            className={field}
+            value={form.discountType}
+            onChange={(e) => setForm((f) => ({ ...f, discountType: e.target.value as DiscountType }))}
+          >
             <option value={DiscountType.PERCENTAGE}>Percentage</option>
             <option value={DiscountType.FIXED}>Fixed amount</option>
           </select>
         </div>
         <div>
-          <label className="text-xs uppercase text-muted-foreground">Value</label>
-          <input className={field} type="number" required min={1} value={form.discountValue} onChange={(e) => setForm((f) => ({ ...f, discountValue: e.target.value }))} />
+          <label className="text-xs uppercase text-muted-foreground">{valueLabel}</label>
+          <input
+            className={field}
+            type="number"
+            required
+            min={1}
+            max={form.discountType === DiscountType.PERCENTAGE ? 100 : undefined}
+            value={form.discountValue}
+            onChange={(e) => setForm((f) => ({ ...f, discountValue: e.target.value }))}
+          />
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div><label className="text-xs uppercase text-muted-foreground">Min order (₹)</label><input className={field} type="number" value={form.minOrderValue} onChange={(e) => setForm((f) => ({ ...f, minOrderValue: e.target.value }))} /></div>
-        <div><label className="text-xs uppercase text-muted-foreground">Max discount (₹)</label><input className={field} type="number" value={form.maxDiscount} onChange={(e) => setForm((f) => ({ ...f, maxDiscount: e.target.value }))} /></div>
+        <div>
+          <label className="text-xs uppercase text-muted-foreground">Min order (₹)</label>
+          <input
+            className={field}
+            type="number"
+            min={0}
+            value={form.minOrderValue}
+            onChange={(e) => setForm((f) => ({ ...f, minOrderValue: e.target.value }))}
+          />
+        </div>
+        <div>
+          <label className="text-xs uppercase text-muted-foreground">Max discount (₹)</label>
+          <input
+            className={field}
+            type="number"
+            min={0}
+            value={form.maxDiscount}
+            onChange={(e) => setForm((f) => ({ ...f, maxDiscount: e.target.value }))}
+          />
+        </div>
       </div>
-      <div><label className="text-xs uppercase text-muted-foreground">Usage limit</label><input className={field} type="number" value={form.usageLimit} onChange={(e) => setForm((f) => ({ ...f, usageLimit: e.target.value }))} /></div>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))} /> Active</label>
-      <p className="text-xs text-muted-foreground">Coupons are not applied at checkout until a future integration phase.</p>
-      <Button type="submit">Save coupon</Button>
+      <div>
+        <label className="text-xs uppercase text-muted-foreground">Usage limit</label>
+        <input
+          className={field}
+          type="number"
+          min={1}
+          value={form.usageLimit}
+          onChange={(e) => setForm((f) => ({ ...f, usageLimit: e.target.value }))}
+        />
+      </div>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={form.active}
+          onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))}
+        />{' '}
+        Active
+      </label>
+      <Button type="submit" disabled={saving}>
+        {saving ? 'Saving...' : 'Save coupon'}
+      </Button>
     </form>
   )
 }

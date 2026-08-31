@@ -7,13 +7,27 @@ function parseDate(v: string | null | undefined): Date | null {
   return new Date(v)
 }
 
-export async function listCoupons(params?: { q?: string; active?: 'true' | 'false' | 'all' }) {
+export async function listCoupons(params?: {
+  q?: string
+  active?: 'true' | 'false' | 'all'
+  status?: 'active' | 'inactive' | 'expired' | 'all'
+}) {
   const where: Prisma.CouponWhereInput = {}
   if (params?.q?.trim()) {
     where.code = { contains: params.q.trim(), mode: 'insensitive' }
   }
   if (params?.active === 'true') where.active = true
   if (params?.active === 'false') where.active = false
+
+  const now = new Date()
+  if (params?.status === 'active') {
+    where.active = true
+    where.OR = [{ expiresAt: null }, { expiresAt: { gt: now } }]
+  } else if (params?.status === 'inactive') {
+    where.active = false
+  } else if (params?.status === 'expired') {
+    where.expiresAt = { lt: now }
+  }
 
   return prisma.coupon.findMany({ where, orderBy: { createdAt: 'desc' } })
 }

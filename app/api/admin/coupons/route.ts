@@ -16,6 +16,7 @@ export async function GET(request: Request) {
     const items = await listCoupons({
       q: searchParams.get('q') ?? undefined,
       active: (searchParams.get('active') as 'true' | 'false' | 'all' | null) ?? 'all',
+      status: (searchParams.get('status') as 'active' | 'inactive' | 'expired' | 'all' | null) ?? 'all',
     })
     return NextResponse.json({ items })
   } catch (error) {

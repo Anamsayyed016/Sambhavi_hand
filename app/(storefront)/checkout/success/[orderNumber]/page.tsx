@@ -117,6 +117,18 @@ export default async function CheckoutSuccessPage({ params }: Params) {
               <dt className="text-muted-foreground">Subtotal</dt>
               <dd>{formatINR(order.subtotal)}</dd>
             </div>
+            {order.discount > 0 ? (
+              <>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">Coupon</dt>
+                  <dd>{order.couponCode}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">Discount</dt>
+                  <dd>-{formatINR(order.discount)}</dd>
+                </div>
+              </>
+            ) : null}
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">Shipping</dt>
               <dd>{order.shipping === 0 ? 'Free' : formatINR(order.shipping)}</dd>

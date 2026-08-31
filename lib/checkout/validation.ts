@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { INDIA_PIN_REGEX, isIndiaCountry } from '@/lib/checkout/india-locations'
+import { normalizeCouponCode } from '@/lib/checkout/coupon'
 
 export const MAX_LINE_QUANTITY = 10
 export const MAX_CART_LINES = 20
@@ -43,6 +44,22 @@ export const checkoutRequestSchema = z.object({
   customer: checkoutCustomerSchema,
   shipping: checkoutShippingSchema,
   items: checkoutItemSchema.array().min(1, 'Your cart is empty').max(MAX_CART_LINES),
+  couponCode: z
+    .string()
+    .trim()
+    .max(40)
+    .optional()
+    .transform((value) => (value ? normalizeCouponCode(value) : undefined)),
+})
+
+export const applyCouponRequestSchema = z.object({
+  items: checkoutItemSchema.array().min(1, 'Your cart is empty').max(MAX_CART_LINES),
+  couponCode: z
+    .string()
+    .trim()
+    .min(1, 'Enter a coupon code')
+    .max(40)
+    .transform(normalizeCouponCode),
 })
 
 export type CheckoutRequest = z.infer<typeof checkoutRequestSchema>

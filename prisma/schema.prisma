@@ -101,8 +101,14 @@ model Order {
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
   subtotal        Int
+  /// Snapshot discount in INR applied at checkout (0 if none)
+  discount        Int           @default(0)
   shipping        Int
   total           Int
+  /// Snapshot coupon code at time of order (survives coupon edits/deletion)
+  couponCode      String?
+  couponId        String?
+  coupon          Coupon?       @relation(fields: [couponId], references: [id], onDelete: SetNull)
   currency        String        @default("INR")
   customerName    String
   customerEmail   String
@@ -207,6 +213,7 @@ model Coupon {
   active          Boolean      @default(true)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+  orders          Order[]
 
   @@index([active])
   @@index([expiresAt])

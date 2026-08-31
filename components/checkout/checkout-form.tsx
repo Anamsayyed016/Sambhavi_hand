@@ -3,9 +3,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/components/cart/cart-provider'
+import {
+  CouponSection,
+  type AppliedCoupon,
+} from '@/components/checkout/coupon-section'
 import {
   ShippingAddressFields,
   type ShippingFormValues,
@@ -56,21 +60,65 @@ export function CheckoutForm() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null)
+  const appliedForCartKey = useRef<string | null>(null)
   const processing = useRef(false)
 
   const preview = useMemo(() => {
+    if (appliedCoupon) {
+      return {
+        subtotal: appliedCoupon.subtotal,
+        discount: appliedCoupon.discount,
+        shipping: appliedCoupon.shipping,
+        total: appliedCoupon.total,
+      }
+    }
     const cartOffersFreeShipping =
       items.length > 0 &&
       items.every((item) => {
         const product = getProduct(item.slug)
         return product ? productOffersFreeShipping(product) : false
       })
-    return calculateOrderTotal(
+    const base = calculateOrderTotal(
       subtotal,
       cartOffersFreeShipping ? 0 : SHIPPING_FLAT_INR,
       FREE_SHIPPING_THRESHOLD_INR,
     )
-  }, [items, subtotal])
+    return { ...base, discount: 0 }
+  }, [appliedCoupon, items, subtotal])
+
+  function handleCouponApplied(coupon: AppliedCoupon) {
+    setAppliedCoupon(coupon)
+    appliedForCartKey.current = items.map((item) => `${item.slug}:${item.quantity}`).join('|')
+    idempotencyKey.current =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `ck-${Date.now()}`
+    setError(null)
+  }
+
+  function handleCouponRemoved() {
+    setAppliedCoupon(null)
+    appliedForCartKey.current = null
+    idempotencyKey.current =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `ck-${Date.now()}`
+    setError(null)
+  }
+
+  useEffect(() => {
+    if (!appliedCoupon || !appliedForCartKey.current) return
+    const cartKey = items.map((item) => `${item.slug}:${item.quantity}`).join('|')
+    if (cartKey !== appliedForCartKey.current) {
+      setAppliedCoupon(null)
+      appliedForCartKey.current = null
+      idempotencyKey.current =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `ck-${Date.now()}`
+    }
+  }, [appliedCoupon, items])
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -190,6 +238,7 @@ export function CheckoutForm() {
             country: form.country,
           },
           items: checkoutLines.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
         }),
       })
 
@@ -412,6 +461,13 @@ export function CheckoutForm() {
           onPatch={patchShipping}
         />
 
+        <CouponSection
+          items={items.map((item) => ({ slug: item.slug, quantity: item.quantity }))}
+          applied={appliedCoupon}
+          onApplied={handleCouponApplied}
+          onRemoved={handleCouponRemoved}
+        />
+
         {error ? (
           <p className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive" role="alert">
             {error}
@@ -455,6 +511,12 @@ export function CheckoutForm() {
             <span>Subtotal</span>
             <span className="text-foreground">{formatINR(preview.subtotal)}</span>
           </div>
+          {preview.discount > 0 ? (
+            <div className="flex justify-between text-muted-foreground">
+              <span>{appliedCoupon ? `Discount (${appliedCoupon.code})` : 'Discount'}</span>
+              <span className="text-foreground">-{formatINR(preview.discount)}</span>
+            </div>
+          ) : null}
           <div className="flex justify-between text-muted-foreground">
             <span>Shipping</span>
             <span className="text-foreground">

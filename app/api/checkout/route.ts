@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       throw new CheckoutError(first, 400)
     }
 
-    const expected = await computeServerCartTotals(parsed.data.items)
+    const expected = await computeServerCartTotals(parsed.data.items, parsed.data.couponCode)
 
     const existing = getIdempotentCheckoutResult(parsed.data.idempotencyKey)
     if (existing) {
@@ -52,29 +52,36 @@ export async function POST(request: Request) {
           orderNumber: true,
           total: true,
           subtotal: true,
+          discount: true,
           shipping: true,
+          couponCode: true,
           paymentStatus: true,
           razorpayOrderId: true,
         },
       })
 
-      // Reuse only when the unpaid order still matches current DB pricing.
+      // Reuse only when the unpaid order still matches current DB pricing and coupon.
       if (
         prior &&
         prior.paymentStatus !== PaymentStatus.PAID &&
-        prior.total === expected.total
+        prior.total === expected.total &&
+        prior.subtotal === expected.subtotal &&
+        prior.discount === expected.discount &&
+        (prior.couponCode ?? null) === (expected.couponCode ?? null)
       ) {
         return NextResponse.json({
           orderNumber: prior.orderNumber,
           orderId: prior.id,
           subtotal: prior.subtotal,
+          discount: prior.discount,
           shipping: prior.shipping,
           total: prior.total,
+          couponCode: prior.couponCode,
           idempotent: true,
         })
       }
 
-      // Stale pending order (e.g. price changed 2460 → 1) — force a fresh order.
+      // Stale pending order (e.g. price or coupon changed) — force a fresh order.
       clearIdempotentCheckoutResult(parsed.data.idempotencyKey)
     }
 
@@ -86,17 +93,14 @@ export async function POST(request: Request) {
       total: result.total,
     })
 
-    const created = await prisma.order.findUnique({
-      where: { id: result.orderId },
-      select: { subtotal: true, shipping: true, total: true },
-    })
-
     return NextResponse.json({
       orderNumber: result.orderNumber,
       orderId: result.orderId,
-      subtotal: created?.subtotal ?? expected.subtotal,
-      shipping: created?.shipping ?? expected.shipping,
-      total: created?.total ?? result.total,
+      subtotal: result.subtotal,
+      discount: result.discount,
+      shipping: result.shipping,
+      total: result.total,
+      couponCode: result.couponCode,
       customerEmail: result.customerEmail,
     })
   } catch (error) {

@@ -15,8 +15,10 @@ export type OrderEmailPayload = {
   postalCode: string
   country: string
   subtotal: number
+  discount: number
   shipping: number
   total: number
+  couponCode: string | null
   paymentStatus: string
   paymentMethod: string | null
   razorpayOrderId: string | null
@@ -69,6 +71,29 @@ function itemsHtml(order: OrderEmailPayload): string {
     .join('')
 }
 
+function pricingSummaryText(order: OrderEmailPayload): string {
+  const lines = [`Subtotal: ${formatINR(order.subtotal)}`]
+  if (order.discount > 0) {
+    lines.push(`Coupon: ${order.couponCode ?? '—'}`)
+    lines.push(`Discount: -${formatINR(order.discount)}`)
+  }
+  lines.push(`Shipping: ${order.shipping === 0 ? 'FREE' : formatINR(order.shipping)}`)
+  lines.push(`Total: ${formatINR(order.total)}`)
+  return lines.join('\n')
+}
+
+function pricingSummaryHtml(order: OrderEmailPayload): string {
+  const discount =
+    order.discount > 0
+      ? `Coupon: ${escapeHtml(order.couponCode ?? '—')}<br/>
+        Discount: -${formatINR(order.discount)}<br/>`
+      : ''
+  return `Subtotal: ${formatINR(order.subtotal)}<br/>
+        ${discount}
+        Shipping: ${order.shipping === 0 ? 'FREE' : formatINR(order.shipping)}<br/>
+        <strong>Total: ${formatINR(order.total)}</strong>`
+}
+
 function escapeHtml(value: string): string {
   return value
     .replaceAll('&', '&amp;')
@@ -119,9 +144,7 @@ export async function sendAdminNewOrderEmail(order: OrderEmailPayload): Promise<
     'Products:',
     itemsText(order),
     '',
-    `Subtotal: ${formatINR(order.subtotal)}`,
-    `Shipping: ${order.shipping === 0 ? 'FREE' : formatINR(order.shipping)}`,
-    `Total: ${formatINR(order.total)}`,
+    pricingSummaryText(order),
     '',
     `Payment Status: ${order.paymentStatus}`,
     `Payment Method: ${order.paymentMethod ?? 'Razorpay'}`,
@@ -152,11 +175,7 @@ export async function sendAdminNewOrderEmail(order: OrderEmailPayload): Promise<
         </thead>
         <tbody>${itemsHtml(order)}</tbody>
       </table>
-      <p>
-        Subtotal: ${formatINR(order.subtotal)}<br/>
-        Shipping: ${order.shipping === 0 ? 'FREE' : formatINR(order.shipping)}<br/>
-        <strong>Total: ${formatINR(order.total)}</strong>
-      </p>
+      <p>${pricingSummaryHtml(order)}</p>
       <p>
         Payment: ${escapeHtml(order.paymentStatus)} · ${escapeHtml(order.paymentMethod ?? 'Razorpay')}<br/>
         Razorpay Order: ${escapeHtml(order.razorpayOrderId ?? '—')}<br/>
@@ -195,9 +214,7 @@ export async function sendCustomerOrderConfirmationEmail(
     'Items:',
     itemsText(order),
     '',
-    `Subtotal: ${formatINR(order.subtotal)}`,
-    `Shipping: ${order.shipping === 0 ? 'FREE' : formatINR(order.shipping)}`,
-    `Total: ${formatINR(order.total)}`,
+    pricingSummaryText(order),
     '',
     'Shipping to:',
     formatAddress(order),
@@ -223,11 +240,7 @@ export async function sendCustomerOrderConfirmationEmail(
         </thead>
         <tbody>${itemsHtml(order)}</tbody>
       </table>
-      <p>
-        Subtotal: ${formatINR(order.subtotal)}<br/>
-        Shipping: ${order.shipping === 0 ? 'FREE' : formatINR(order.shipping)}<br/>
-        <strong>Total: ${formatINR(order.total)}</strong>
-      </p>
+      <p>${pricingSummaryHtml(order)}</p>
       <p style="white-space:pre-line;"><strong>Shipping address</strong><br/>${escapeHtml(formatAddress(order))}</p>
       ${
         supportEmail || supportPhone

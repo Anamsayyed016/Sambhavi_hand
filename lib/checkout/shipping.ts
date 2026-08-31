@@ -18,16 +18,21 @@ export function calculateOrderTotal(
   subtotalInr: number,
   shippingFee = SHIPPING_FLAT_INR,
   freeShippingThreshold = FREE_SHIPPING_THRESHOLD_INR,
+  discountInr = 0,
 ): {
   subtotal: number
+  discount: number
   shipping: number
   total: number
 } {
   const shipping = calculateShipping(subtotalInr, shippingFee, freeShippingThreshold)
+  const discount = Math.min(Math.max(0, discountInr), subtotalInr)
+  const total = Math.max(0, subtotalInr - discount + shipping)
   return {
     subtotal: subtotalInr,
+    discount,
     shipping,
-    total: subtotalInr + shipping,
+    total,
   }
 }
 

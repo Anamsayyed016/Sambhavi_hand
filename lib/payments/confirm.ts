@@ -1,6 +1,7 @@
 import { OrderStatus, PaymentStatus, ProductAvailability } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { CheckoutError } from '@/lib/checkout/errors'
+import { incrementCouponUsageOnPaidOrder } from '@/lib/checkout/coupon'
 import { fetchRazorpayPayment } from '@/lib/payments/razorpay'
 import { createNotification, notifyPaidOrder } from '@/lib/admin/notifications'
 import {
@@ -84,6 +85,8 @@ export async function confirmPaidOrder(input: {
     if (updated.count === 0) return
     newlyPaid = true
 
+    await incrementCouponUsageOnPaidOrder(tx, order.couponId)
+
     for (const item of order.items) {
       if (!item.productId) continue
       if (item.product?.availability === ProductAvailability.MADE_TO_ORDER) continue
@@ -120,8 +123,10 @@ export async function confirmPaidOrder(input: {
       postalCode: order.postalCode,
       country: order.country,
       subtotal: order.subtotal,
+      discount: order.discount,
       shipping: order.shipping,
       total: order.total,
+      couponCode: order.couponCode,
       paymentStatus: PaymentStatus.PAID,
       paymentMethod: 'Razorpay',
       razorpayOrderId: input.razorpayOrderId,
