@@ -4,6 +4,7 @@ import { calculateOrderTotal, getShippingRules } from '@/lib/checkout/shipping'
 import { productOffersFreeShipping } from '@/lib/payment-test-mode'
 import type { Product } from '@/lib/products'
 import { getProduct, getStorefrontProduct, getStorefrontProducts } from '@/lib/products'
+import { mapDbProductToStorefront } from '@/lib/catalog/storefront-search'
 
 export type DbProductPrice = {
   slug: string
@@ -64,6 +65,12 @@ export async function getPricedStorefrontProducts(): Promise<Product[]> {
 }
 
 export async function getPricedStorefrontProduct(slug: string): Promise<Product | undefined> {
+  if (!getStorefrontProduct(slug) && !getProduct(slug)) {
+    const row = await prisma.product.findUnique({ where: { slug } })
+    if (!row || !row.active) return undefined
+    return mapDbProductToStorefront(row)
+  }
+
   const base = getStorefrontProduct(slug) ?? getProduct(slug)
   if (!base) return undefined
   const [priced] = await applyDbPricesToProducts([base])

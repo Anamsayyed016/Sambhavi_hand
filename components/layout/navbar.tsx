@@ -4,11 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Search, Heart, User, ShoppingBag, Menu, X } from 'lucide-react'
+import { Heart, User, ShoppingBag, Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { navLinks } from '@/lib/content'
 import { useCart } from '@/components/cart/cart-provider'
 import { BrandLogo } from '@/components/layout/brand-logo'
+import { NavbarSearch } from '@/components/layout/navbar-search'
 import {
   CategoriesMegaMenu,
   CategoriesMobileAccordion,
@@ -62,9 +63,7 @@ export function Navbar() {
 
         {/* Right: actions */}
         <div className="flex items-center gap-0.5 text-foreground sm:gap-1.5">
-          <Link href="/search" aria-label="Search products" className={iconButtonClass}>
-            <Search className={iconClass} strokeWidth={1.5} aria-hidden />
-          </Link>
+          <NavbarSearch />
           <Link
             href="/wishlist"
             aria-label="Wishlist"

@@ -1,26 +1,49 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Search } from 'lucide-react'
-import { searchProducts } from '@/lib/search-products'
+import type { StorefrontSearchResult } from '@/lib/catalog/storefront-search'
 import { ProductGrid } from '@/components/product/product-grid'
 
-export function SearchView({ initialQuery = '' }: { initialQuery?: string }) {
+const SEARCH_HINTS = ['silk', 'cotton', 'Banarasi', 'handloom', 'digital print']
+
+export function SearchView({
+  initialQuery = '',
+  initialResults = null,
+}: {
+  initialQuery?: string
+  initialResults?: StorefrontSearchResult | null
+}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(initialQuery)
+  const [results, setResults] = useState<StorefrontSearchResult | null>(initialResults)
 
   useEffect(() => {
-    setQuery(searchParams.get('q') ?? '')
+    const nextQuery = searchParams.get('q')?.trim() ?? ''
+    setQuery(nextQuery)
   }, [searchParams])
 
-  const results = useMemo(() => searchProducts(query), [query])
+  useEffect(() => {
+    setResults(initialResults)
+  }, [initialResults])
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     const next = query.trim()
-    router.replace(next ? `/search?q=${encodeURIComponent(next)}` : '/search')
+    router.push(next ? `/search?q=${encodeURIComponent(next)}` : '/search')
+  }
+
+  const activeQuery = results?.query ?? query.trim()
+  const page = results?.page ?? 1
+
+  function pageHref(nextPage: number) {
+    const params = new URLSearchParams()
+    params.set('q', activeQuery)
+    if (nextPage > 1) params.set('page', String(nextPage))
+    return `/search?${params.toString()}`
   }
 
   return (
@@ -58,20 +81,50 @@ export function SearchView({ initialQuery = '' }: { initialQuery?: string }) {
       </form>
 
       <div className="mt-10">
-        {!query.trim() ? (
+        {!activeQuery ? (
           <p className="text-center text-sm text-muted-foreground">
             Enter a term to search the Sambhavi Handloom catalog.
           </p>
-        ) : results.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground">
-            No products found for &ldquo;{query.trim()}&rdquo;.
-          </p>
+        ) : !results || results.items.length === 0 ? (
+          <div className="mx-auto max-w-lg text-center">
+            <p className="text-sm text-foreground">
+              No products found for &ldquo;{activeQuery}&rdquo;.
+            </p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Try searching for {SEARCH_HINTS.join(', ')}…
+            </p>
+          </div>
         ) : (
           <>
             <p className="mb-6 text-sm text-muted-foreground">
-              {results.length} result{results.length === 1 ? '' : 's'} for &ldquo;{query.trim()}&rdquo;
+              Search results for &ldquo;{activeQuery}&rdquo; — {results.total} result
+              {results.total === 1 ? '' : 's'}
             </p>
-            <ProductGrid products={results} />
+            <ProductGrid products={results.items} />
+            {results.pageCount > 1 ? (
+              <nav
+                className="mt-10 flex items-center justify-center gap-4 text-sm"
+                aria-label="Search results pagination"
+              >
+                {page > 1 ? (
+                  <Link href={pageHref(page - 1)} className="text-foreground hover:text-primary">
+                    Previous
+                  </Link>
+                ) : (
+                  <span className="text-muted-foreground">Previous</span>
+                )}
+                <span className="text-muted-foreground">
+                  Page {page} of {results.pageCount}
+                </span>
+                {page < results.pageCount ? (
+                  <Link href={pageHref(page + 1)} className="text-foreground hover:text-primary">
+                    Next
+                  </Link>
+                ) : (
+                  <span className="text-muted-foreground">Next</span>
+                )}
+              </nav>
+            ) : null}
           </>
         )}
       </div>
