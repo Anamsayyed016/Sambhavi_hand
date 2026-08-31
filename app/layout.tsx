@@ -1,13 +1,14 @@
 import type React from 'react'
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { DM_Serif_Display, Manrope } from 'next/font/google'
+import { Bodoni_Moda, Manrope } from 'next/font/google'
 import './globals.css'
 
-const dmSerif = DM_Serif_Display({
+const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-dm-serif',
+  weight: 'variable',
+  axes: ['opsz'],
+  variable: '--font-bodoni-moda',
   display: 'swap',
 })
 
@@ -71,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`light ${dmSerif.variable} ${manrope.variable} bg-background`}>
+    <html lang="en" className={`light ${bodoniModa.variable} ${manrope.variable} bg-background`}>
       <body className="antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

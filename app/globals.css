@@ -32,9 +32,9 @@
   --color-beige: var(--beige);
   --color-charcoal: var(--charcoal);
 
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-dm-serif), ui-serif, Georgia, serif;
-  --font-display: var(--font-dm-serif), ui-serif, Georgia, serif;
+  --font-sans: var(--font-manrope), sans-serif;
+  --font-serif: var(--font-bodoni-moda), serif;
+  --font-display: var(--font-bodoni-moda), serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -89,12 +89,19 @@
   h2,
   h3,
   h4 {
-    @apply font-serif;
-    letter-spacing: -0.01em;
+    @apply font-display;
+    font-optical-sizing: auto;
+    letter-spacing: 0;
   }
 }
 
 @layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-optical-sizing: auto;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
   .tracking-luxe {
     letter-spacing: 0.18em;
   }
@@ -102,7 +109,7 @@
     letter-spacing: 0.01em;
   }
   .tracking-btn {
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
   }
   .text-nav {
     font-size: 0.9375rem;
@@ -110,10 +117,21 @@
     letter-spacing: 0.01em;
   }
   .text-hero-display {
+    font-family: var(--font-display);
     font-size: clamp(2.25rem, 3.6vw + 1rem, 4.375rem);
-    line-height: 1.08;
+    line-height: 1.06;
     font-weight: 400;
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
+    font-optical-sizing: auto;
+    font-variation-settings: 'opsz' 72;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
+  .text-editorial-serif {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-optical-sizing: auto;
+    font-variation-settings: 'opsz' 28;
+    font-feature-settings: 'kern' 1, 'liga' 1;
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;

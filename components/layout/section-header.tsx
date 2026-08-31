@@ -27,7 +27,7 @@ export function SectionHeader({
           {eyebrow}
         </span>
       ) : null}
-      <h2 className="text-balance font-serif text-[clamp(1.75rem,2.5vw+1rem,3rem)] font-normal leading-tight tracking-[-0.01em] text-foreground">
+      <h2 className="text-editorial-serif text-balance text-[clamp(1.75rem,2.5vw+1rem,3rem)] leading-tight text-foreground">
         {title}
       </h2>
       {subtitle ? (

@@ -49,7 +49,7 @@ export function BrandStory() {
           <span className="text-xs font-medium uppercase tracking-luxe text-accent">
             Our Story
           </span>
-          <h2 className="text-balance font-serif text-3xl font-normal leading-tight text-foreground sm:text-4xl md:text-5xl">
+          <h2 className="text-editorial-serif text-balance text-3xl leading-tight text-foreground sm:text-4xl md:text-5xl">
             Where Tradition Meets Timeless Beauty
           </h2>
           <p className="text-pretty leading-relaxed text-muted-foreground">

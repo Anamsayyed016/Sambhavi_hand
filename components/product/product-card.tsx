@@ -108,12 +108,12 @@ export function ProductCard({
         </span>
         <Link
           href={`/product/${product.slug}`}
-          className="font-serif text-[1.0625rem] font-normal leading-snug text-foreground transition-colors hover:text-primary md:text-lg"
+          className="text-editorial-serif text-[1.0625rem] leading-snug text-foreground transition-colors hover:text-primary md:text-lg"
         >
           {product.name}
         </Link>
         <div className="flex items-center gap-2 pt-0.5">
-          <span className="font-sans text-[0.9375rem] font-medium text-foreground">{formatINR(product.price)}</span>
+          <span className="font-sans text-[0.9375rem] font-semibold text-foreground">{formatINR(product.price)}</span>
           {product.originalPrice ? (
             <span className="font-sans text-sm text-muted-foreground line-through">
               {formatINR(product.originalPrice)}

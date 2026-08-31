@@ -36,7 +36,7 @@ export function Editorial() {
           <span className="text-xs font-medium uppercase tracking-luxe text-accent">
             Editorial
           </span>
-          <h2 className="text-balance font-serif text-3xl font-normal leading-tight text-ivory sm:text-4xl md:text-5xl">
+          <h2 className="text-editorial-serif text-balance text-3xl leading-tight text-ivory sm:text-4xl md:text-5xl">
             The Art of Handloom
           </h2>
           <p className="text-pretty text-lg leading-relaxed text-ivory/80">

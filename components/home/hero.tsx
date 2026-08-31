@@ -44,7 +44,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="text-hero-display max-w-2xl text-balance font-serif text-ivory"
+          className="text-hero-display max-w-2xl text-balance text-ivory"
         >
           Timeless Handloom.
           <br />
