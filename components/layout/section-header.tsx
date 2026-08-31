@@ -23,11 +23,11 @@ export function SectionHeader({
       )}
     >
       {eyebrow ? (
-        <span className="text-xs font-medium uppercase tracking-luxe text-accent">
+        <span className="font-sans text-xs font-semibold uppercase tracking-luxe text-accent">
           {eyebrow}
         </span>
       ) : null}
-      <h2 className="text-balance font-serif text-[clamp(1.75rem,2.5vw+1rem,3rem)] font-medium leading-tight tracking-[-0.01em] text-foreground">
+      <h2 className="text-balance font-serif text-[clamp(1.75rem,2.5vw+1rem,3rem)] font-normal leading-tight tracking-[-0.01em] text-foreground">
         {title}
       </h2>
       {subtitle ? (

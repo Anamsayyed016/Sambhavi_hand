@@ -1,20 +1,20 @@
 import type React from 'react'
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Cormorant_Garamond, Jost } from 'next/font/google'
+import { DM_Serif_Display, Manrope } from 'next/font/google'
 import './globals.css'
 
-const cormorant = Cormorant_Garamond({
+const dmSerif = DM_Serif_Display({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-cormorant',
+  weight: ['400'],
+  variable: '--font-dm-serif',
   display: 'swap',
 })
 
-const jost = Jost({
+const manrope = Manrope({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
-  variable: '--font-jost',
+  weight: ['400', '500', '600'],
+  variable: '--font-manrope',
   display: 'swap',
 })
 
@@ -71,7 +71,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`light ${cormorant.variable} ${jost.variable} bg-background`}>
+    <html lang="en" className={`light ${dmSerif.variable} ${manrope.variable} bg-background`}>
       <body className="antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

@@ -103,12 +103,12 @@ export function ProductCard({
 
       {/* info */}
       <div className="flex flex-col gap-1.5 pt-4">
-        <span className="font-sans text-[0.6875rem] font-medium uppercase tracking-luxe text-accent">
+        <span className="font-sans text-[0.6875rem] font-semibold uppercase tracking-luxe text-accent">
           {product.category}
         </span>
         <Link
           href={`/product/${product.slug}`}
-          className="font-serif text-[1.0625rem] font-medium leading-snug text-foreground transition-colors hover:text-primary md:text-lg"
+          className="font-serif text-[1.0625rem] font-normal leading-snug text-foreground transition-colors hover:text-primary md:text-lg"
         >
           {product.name}
         </Link>

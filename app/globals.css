@@ -32,8 +32,9 @@
   --color-beige: var(--beige);
   --color-charcoal: var(--charcoal);
 
-  --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-dm-serif), ui-serif, Georgia, serif;
+  --font-display: var(--font-dm-serif), ui-serif, Georgia, serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -98,7 +99,7 @@
     letter-spacing: 0.18em;
   }
   .tracking-nav {
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
   }
   .tracking-btn {
     letter-spacing: 0.12em;
@@ -106,13 +107,13 @@
   .text-nav {
     font-size: 0.9375rem;
     font-weight: 500;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
   }
   .text-hero-display {
     font-size: clamp(2.25rem, 3.6vw + 1rem, 4.375rem);
     line-height: 1.08;
-    font-weight: 500;
-    letter-spacing: -0.015em;
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;

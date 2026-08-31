@@ -35,7 +35,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="font-sans text-xs font-medium uppercase tracking-luxe text-accent"
+          className="font-sans text-xs font-semibold uppercase tracking-luxe text-accent"
         >
           Sambhavi Handloom
         </motion.span>
@@ -55,7 +55,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.5 }}
-          className="max-w-md text-pretty font-sans text-sm leading-relaxed text-ivory/80 sm:text-[0.9375rem] sm:leading-relaxed"
+          className="max-w-md text-pretty font-sans text-sm font-normal leading-relaxed text-ivory/80 sm:text-[0.9375rem] sm:leading-relaxed"
         >
           Discover beautifully crafted sarees that celebrate Indian heritage, artistry and
           effortless elegance.
@@ -70,7 +70,7 @@ export function Hero() {
           <Button
             size="lg"
             render={<Link href="/shop" />}
-            className="h-12 rounded-none bg-ivory px-8 font-sans text-xs font-medium uppercase tracking-btn text-charcoal hover:bg-ivory/90"
+            className="h-12 rounded-none bg-ivory px-8 font-sans text-xs font-semibold uppercase tracking-btn text-charcoal hover:bg-ivory/90"
           >
             Shop Sarees
           </Button>
@@ -78,7 +78,7 @@ export function Hero() {
             size="lg"
             variant="outline"
             render={<Link href="/collections" />}
-            className="h-12 rounded-none border-ivory/50 bg-transparent px-8 font-sans text-xs font-medium uppercase tracking-btn text-ivory hover:bg-ivory/10 hover:text-ivory"
+            className="h-12 rounded-none border-ivory/50 bg-transparent px-8 font-sans text-xs font-semibold uppercase tracking-btn text-ivory hover:bg-ivory/10 hover:text-ivory"
           >
             Explore Collection
           </Button>
