@@ -128,7 +128,7 @@ export function CategoriesMegaMenu() {
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((v) => !v)}
-        className="group relative inline-flex items-center gap-1.5 font-sans text-nav text-foreground transition-colors hover:text-primary"
+        className="group relative inline-flex items-center gap-1.5 text-nav text-foreground transition-colors hover:text-primary"
       >
         Categories
         <ChevronDown
@@ -210,7 +210,7 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
         type="button"
         aria-expanded={expanded}
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between py-3.5 font-sans text-[0.9375rem] font-medium tracking-nav text-foreground transition-colors hover:text-primary"
+        className="flex w-full items-center justify-between py-3.5 text-nav text-foreground transition-colors hover:text-primary"
       >
         Categories
         <ChevronDown

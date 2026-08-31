@@ -15,7 +15,7 @@ import {
 } from '@/components/layout/categories-mega-menu'
 
 const navLinkClass =
-  'group relative font-sans text-nav text-foreground transition-colors duration-300 hover:text-primary'
+  'group relative text-nav text-foreground transition-colors duration-300 hover:text-primary'
 
 const iconClass = 'size-[1.375rem]'
 const iconButtonClass =
@@ -135,7 +135,7 @@ export function Navbar() {
                   >
                     <Link
                       href={link.href}
-                      className="block border-b border-border/40 py-3.5 font-sans text-[0.9375rem] font-medium tracking-nav text-foreground transition-colors hover:text-primary"
+                      className="block border-b border-border/40 py-3.5 text-nav text-foreground transition-colors hover:text-primary"
                     >
                       {link.label}
                     </Link>
