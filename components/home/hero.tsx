@@ -30,12 +30,12 @@ export function Hero() {
       <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent" />
 
       {/* content */}
-      <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pt-24 md:px-8">
+      <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pt-[5.5rem] md:px-8 md:pt-28">
         <motion.span
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-xs font-medium uppercase tracking-luxe text-accent"
+          className="font-sans text-xs font-medium uppercase tracking-luxe text-accent"
         >
           Sambhavi Handloom
         </motion.span>
@@ -44,7 +44,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-2xl text-balance font-serif text-4xl font-medium leading-[1.05] text-ivory sm:text-6xl md:text-7xl"
+          className="text-hero-display max-w-2xl text-balance font-serif text-ivory"
         >
           Timeless Handloom.
           <br />
@@ -55,7 +55,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.5 }}
-          className="max-w-md text-pretty text-sm leading-relaxed text-ivory/80 sm:text-base"
+          className="max-w-md text-pretty font-sans text-sm leading-relaxed text-ivory/80 sm:text-[0.9375rem] sm:leading-relaxed"
         >
           Discover beautifully crafted sarees that celebrate Indian heritage, artistry and
           effortless elegance.
@@ -70,7 +70,7 @@ export function Hero() {
           <Button
             size="lg"
             render={<Link href="/shop" />}
-            className="h-12 rounded-none bg-ivory px-8 text-xs uppercase tracking-luxe text-charcoal hover:bg-ivory/90"
+            className="h-12 rounded-none bg-ivory px-8 font-sans text-xs font-medium uppercase tracking-btn text-charcoal hover:bg-ivory/90"
           >
             Shop Sarees
           </Button>
@@ -78,7 +78,7 @@ export function Hero() {
             size="lg"
             variant="outline"
             render={<Link href="/collections" />}
-            className="h-12 rounded-none border-ivory/50 bg-transparent px-8 text-xs uppercase tracking-luxe text-ivory hover:bg-ivory/10 hover:text-ivory"
+            className="h-12 rounded-none border-ivory/50 bg-transparent px-8 font-sans text-xs font-medium uppercase tracking-btn text-ivory hover:bg-ivory/10 hover:text-ivory"
           >
             Explore Collection
           </Button>

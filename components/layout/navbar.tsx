@@ -14,6 +14,13 @@ import {
   CategoriesMobileAccordion,
 } from '@/components/layout/categories-mega-menu'
 
+const navLinkClass =
+  'group relative font-sans text-nav text-foreground transition-colors duration-300 hover:text-primary'
+
+const iconClass = 'size-[1.375rem]'
+const iconButtonClass =
+  'rounded-full p-2.5 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40'
+
 export function Navbar() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -25,27 +32,24 @@ export function Navbar() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-ivory transition-colors duration-500">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:h-20 md:px-8">
+      <nav className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 md:h-[5.625rem] md:px-8">
         {/* Left: logo */}
         <Link
           href="/"
-          className="flex h-full shrink-0 items-center py-1 md:py-0.5"
+          className="flex h-full shrink-0 items-center py-1 md:py-1.5"
           aria-label="Sambhavi Handloom home"
         >
-          <BrandLogo priority className="h-14 w-auto object-contain md:h-[4.9rem]" />
+          <BrandLogo priority className="h-16 w-auto object-contain md:h-[5.375rem]" />
         </Link>
 
         {/* Center: links */}
-        <ul className="hidden items-center gap-8 lg:flex">
+        <ul className="hidden items-center gap-9 xl:gap-10 lg:flex">
           {navLinks.flatMap((link) => {
             const item = (
               <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="group relative text-sm font-light tracking-wide text-foreground transition-colors hover:text-primary"
-                >
+                <Link href={link.href} className={navLinkClass}>
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute -bottom-1.5 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full" />
                 </Link>
               </li>
             )
@@ -57,46 +61,38 @@ export function Navbar() {
         </ul>
 
         {/* Right: actions */}
-        <div className="flex items-center gap-1 text-foreground sm:gap-3">
-          <Link
-            href="/search"
-            aria-label="Search products"
-            className="rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-          >
-            <Search className="size-5" strokeWidth={1.5} aria-hidden />
+        <div className="flex items-center gap-0.5 text-foreground sm:gap-1.5">
+          <Link href="/search" aria-label="Search products" className={iconButtonClass}>
+            <Search className={iconClass} strokeWidth={1.5} aria-hidden />
           </Link>
           <Link
             href="/wishlist"
             aria-label="Wishlist"
-            className="relative rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className={cn('relative', iconButtonClass)}
           >
             <Heart
-              className={cn('size-5', wishlist.length > 0 && 'fill-primary text-primary')}
+              className={cn(iconClass, wishlist.length > 0 && 'fill-primary text-primary')}
               strokeWidth={1.5}
               aria-hidden
             />
             {wishlist.length > 0 ? (
-              <span className="absolute right-0 top-0 flex size-4 items-center justify-center rounded-full bg-accent text-[0.6rem] font-medium text-accent-foreground">
+              <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-accent text-[0.6rem] font-medium text-accent-foreground">
                 {wishlist.length}
               </span>
             ) : null}
           </Link>
-          <Link
-            href="/account"
-            aria-label="Account"
-            className="rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-          >
-            <User className="size-5" strokeWidth={1.5} aria-hidden />
+          <Link href="/account" aria-label="Account" className={iconButtonClass}>
+            <User className={iconClass} strokeWidth={1.5} aria-hidden />
           </Link>
           <button
             type="button"
             onClick={openCart}
             aria-label="Shopping bag"
-            className="relative rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className={cn('relative', iconButtonClass)}
           >
-            <ShoppingBag className="size-5" strokeWidth={1.5} aria-hidden />
+            <ShoppingBag className={iconClass} strokeWidth={1.5} aria-hidden />
             {count > 0 ? (
-              <span className="absolute right-0 top-0 flex size-4 items-center justify-center rounded-full bg-primary text-[0.6rem] font-medium text-primary-foreground">
+              <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[0.6rem] font-medium text-primary-foreground">
                 {count}
               </span>
             ) : null}
@@ -106,12 +102,12 @@ export function Navbar() {
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
-            className="rounded-full p-2 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 lg:hidden"
+            className={cn(iconButtonClass, 'lg:hidden')}
           >
             {mobileOpen ? (
-              <X className="size-5" strokeWidth={1.5} aria-hidden />
+              <X className={iconClass} strokeWidth={1.5} aria-hidden />
             ) : (
-              <Menu className="size-5" strokeWidth={1.5} aria-hidden />
+              <Menu className={iconClass} strokeWidth={1.5} aria-hidden />
             )}
           </button>
         </div>
@@ -126,7 +122,7 @@ export function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border/40 bg-ivory lg:hidden"
+            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-border/40 bg-ivory lg:hidden"
           >
             <ul className="flex flex-col px-4 py-4">
               {navLinks.flatMap((link, i) => {
@@ -139,7 +135,7 @@ export function Navbar() {
                   >
                     <Link
                       href={link.href}
-                      className="block border-b border-border/40 py-3 font-serif text-lg text-foreground transition-colors hover:text-primary"
+                      className="block border-b border-border/40 py-3.5 font-sans text-[0.9375rem] font-medium tracking-nav text-foreground transition-colors hover:text-primary"
                     >
                       {link.label}
                     </Link>

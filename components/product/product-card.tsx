@@ -83,7 +83,7 @@ export function ProductCard({
           <button
             type="button"
             onClick={() => addItem(product)}
-            className="flex h-10 flex-1 items-center justify-center gap-2 bg-primary text-xs font-medium uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary/90"
+            className="flex h-10 flex-1 items-center justify-center gap-2 bg-primary font-sans text-xs font-medium uppercase tracking-btn text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <ShoppingBag className="size-4" strokeWidth={1.5} />
             Add to Bag
@@ -102,20 +102,20 @@ export function ProductCard({
       </div>
 
       {/* info */}
-      <div className="flex flex-col gap-1 pt-4">
-        <span className="text-[0.65rem] uppercase tracking-luxe text-accent">
+      <div className="flex flex-col gap-1.5 pt-4">
+        <span className="font-sans text-[0.6875rem] font-medium uppercase tracking-luxe text-accent">
           {product.category}
         </span>
         <Link
           href={`/product/${product.slug}`}
-          className="font-serif text-lg leading-tight text-foreground transition-colors hover:text-primary"
+          className="font-serif text-[1.0625rem] font-medium leading-snug text-foreground transition-colors hover:text-primary md:text-lg"
         >
           {product.name}
         </Link>
         <div className="flex items-center gap-2 pt-0.5">
-          <span className="text-sm font-medium text-foreground">{formatINR(product.price)}</span>
+          <span className="font-sans text-[0.9375rem] font-medium text-foreground">{formatINR(product.price)}</span>
           {product.originalPrice ? (
-            <span className="text-sm text-muted-foreground line-through">
+            <span className="font-sans text-sm text-muted-foreground line-through">
               {formatINR(product.originalPrice)}
             </span>
           ) : null}

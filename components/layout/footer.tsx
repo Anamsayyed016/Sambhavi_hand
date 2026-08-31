@@ -34,7 +34,7 @@ export function Footer() {
           {/* brand */}
           <div className="flex flex-col gap-4 lg:col-span-1">
             <Link href="/" className="inline-flex w-fit" aria-label="Sambhavi Handloom home">
-              <BrandLogo className="h-12 md:h-14" />
+              <BrandLogo className="h-[3.25rem] md:h-[3.75rem]" />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-ivory/70">
               Celebrating the beauty of Indian handloom — one thoughtfully woven saree at a time.

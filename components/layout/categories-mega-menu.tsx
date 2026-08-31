@@ -30,10 +30,10 @@ function CategoryLinks({
             href={`/collections/${category.slug}`}
             onClick={onNavigate}
             className={cn(
-              'font-sans leading-snug tracking-[0.02em] transition-colors duration-300 hover:text-primary',
+              'font-sans leading-snug tracking-nav transition-colors duration-300 hover:text-primary',
               category.prominent
-                ? 'text-[0.96875rem] font-normal text-foreground/90'
-                : 'text-[0.9375rem] font-light text-muted-foreground',
+                ? 'text-[0.9375rem] font-medium text-foreground/90'
+                : 'text-[0.9375rem] font-normal text-muted-foreground',
             )}
           >
             {category.name}
@@ -128,7 +128,7 @@ export function CategoriesMegaMenu() {
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((v) => !v)}
-        className="group relative inline-flex items-center gap-1.5 text-sm font-light tracking-wide text-foreground transition-colors hover:text-primary"
+        className="group relative inline-flex items-center gap-1.5 font-sans text-nav text-foreground transition-colors hover:text-primary"
       >
         Categories
         <ChevronDown
@@ -155,7 +155,7 @@ export function CategoriesMegaMenu() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-x-0 top-16 z-40 border-b border-border/30 bg-ivory/98 shadow-[0_24px_48px_-24px_rgba(40,28,24,0.18)] backdrop-blur-sm md:top-20 lg:z-[49]"
+            className="fixed inset-x-0 top-[4.5rem] z-40 border-b border-border/30 bg-ivory/98 shadow-[0_24px_48px_-24px_rgba(40,28,24,0.18)] backdrop-blur-sm md:top-[5.625rem] lg:z-[49]"
             onMouseEnter={openMenu}
             onMouseLeave={scheduleClose}
           >
@@ -210,7 +210,7 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
         type="button"
         aria-expanded={expanded}
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between py-3 font-serif text-lg text-foreground transition-colors hover:text-primary"
+        className="flex w-full items-center justify-between py-3.5 font-sans text-[0.9375rem] font-medium tracking-nav text-foreground transition-colors hover:text-primary"
       >
         Categories
         <ChevronDown
@@ -242,8 +242,8 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                       aria-expanded={isOpen}
                       onClick={() => setOpenGroup(isOpen ? null : group.slug)}
                       className={cn(
-                        'flex w-full items-center justify-between py-3 text-left font-serif uppercase tracking-[0.12em] transition-colors hover:text-primary',
-                        isPrimary ? 'text-base text-primary' : 'text-sm text-foreground/85',
+                        'flex w-full items-center justify-between py-3 text-left font-serif uppercase tracking-[0.1em] transition-colors hover:text-primary',
+                        isPrimary ? 'text-[0.9375rem] font-medium text-primary' : 'text-sm font-normal text-foreground/85',
                       )}
                     >
                       {group.name}
@@ -281,10 +281,10 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                                 href={`/collections/${category.slug}`}
                                 onClick={handleNavigate}
                                 className={cn(
-                                  'font-sans leading-snug transition-colors hover:text-primary',
+                                  'font-sans leading-snug tracking-nav transition-colors hover:text-primary',
                                   category.prominent
-                                    ? 'text-[0.96875rem] font-normal text-foreground/90'
-                                    : 'text-[0.9375rem] font-light text-muted-foreground',
+                                    ? 'text-[0.9375rem] font-medium text-foreground/90'
+                                    : 'text-[0.9375rem] font-normal text-muted-foreground',
                                 )}
                               >
                                 {category.name}

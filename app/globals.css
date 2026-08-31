@@ -82,18 +82,37 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'kern' 1, 'liga' 1;
   }
   h1,
   h2,
   h3,
   h4 {
     @apply font-serif;
+    letter-spacing: -0.01em;
   }
 }
 
 @layer utilities {
   .tracking-luxe {
-    letter-spacing: 0.22em;
+    letter-spacing: 0.18em;
+  }
+  .tracking-nav {
+    letter-spacing: 0.02em;
+  }
+  .tracking-btn {
+    letter-spacing: 0.12em;
+  }
+  .text-nav {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .text-hero-display {
+    font-size: clamp(2.25rem, 3.6vw + 1rem, 4.375rem);
+    line-height: 1.08;
+    font-weight: 500;
+    letter-spacing: -0.015em;
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
