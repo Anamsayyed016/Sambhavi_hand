@@ -1777,8 +1777,9 @@ export const products: Product[] = [
     name: 'CHHABILI',
     price: 3999,
     image:
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.50_AM_1.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.46_AM_2.jpg',
     images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.46_AM_2.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.50_AM_1.jpg',
     ],
     category: 'CHHABILI',
