@@ -64,10 +64,10 @@ export async function getNewArrivalsCatalogCards(): Promise<NewArrivalsCatalogCa
           primaryFromProduct ||
           '/placeholder.svg'
       } else {
-        image =
-          (isUsableCover(collection?.image) ? collection!.image : null) ||
-          primaryFromProduct ||
-          '/placeholder.svg'
+        // Digital Print / Kota: always use a real product primary image.
+        // Admin collection covers / missing /images/* placeholders often render
+        // as empty dark wells and are not suitable as New Arrivals covers.
+        image = primaryFromProduct || '/placeholder.svg'
       }
 
       return {
