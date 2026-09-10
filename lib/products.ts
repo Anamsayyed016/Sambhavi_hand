@@ -1854,8 +1854,7 @@ export const products: Product[] = [
   {
     slug: 'lehanga-02',
     name: 'LEHANGA',
-    // Details not provided yet — do not invent price/copy.
-    price: 0,
+    price: 2690,
     image:
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041229/WhatsApp_Image_2026-09-10_at_11.18.13_AM_2.jpg',
     images: [
@@ -1866,14 +1865,15 @@ export const products: Product[] = [
     ],
     category: 'LEHANGA',
     collections: ['lehanga'],
-    fabric: 'PLACEHOLDER',
-    weave: 'PLACEHOLDER',
-    length: 'PLACEHOLDER',
-    blouse: 'PLACEHOLDER',
-    care: 'PLACEHOLDER',
+    fabric: 'Pure Kanjiveram Silk',
+    weave: 'Lehenga Set · Jacquard Border · Maggam Work Blouse',
+    length: '42" · 4 mtr flair with canvas patta',
+    blouse: 'Full stitched Rangoli · Free size · Designer work sleeves',
+    care: 'Package: Lehenga, Blouse, Dupatta',
     availability: 'In Stock',
     isNew: true,
-    description: 'PLACEHOLDER — product details coming soon.',
+    description:
+      'Launch New Exclusive Designer premium Quality pure Kanjiveram silk full stitched Lehenga with Full stitched Designer maggam work blouse with embroidered work Dupatta.\n\nProduct Details:\n✦ Lehenga: Full stitched Kanjiveram silk with big Jacquard Border attached with canvas patta\n✦ Length: 42"\n✦ Flair: 4 mtr\n\n✦ Blouse: Full stitched Rangoli with heavy designer work on back and front with designer work sleeve\n✦ Size: Free size\n\n✦ Dupatta: Premium Quality Rangoli silk with beautiful embroidery cutwork border',
   },
 ]
 
