@@ -17,18 +17,18 @@ function HeroBreadcrumbs({
 }) {
   return (
     <nav aria-label="Breadcrumb" className={className}>
-      <ol className="flex flex-wrap items-center gap-1.5 font-sans text-[0.65rem] uppercase tracking-[0.14em] text-ivory/65 sm:text-xs">
+      <ol className="flex flex-wrap items-center justify-center gap-1 font-sans text-[0.625rem] uppercase tracking-[0.16em] text-ivory/55">
         {breadcrumbs.map((crumb, i) => (
-          <li key={`${crumb.label}-${i}`} className="flex items-center gap-1.5">
+          <li key={`${crumb.label}-${i}`} className="flex items-center gap-1">
             {crumb.href ? (
               <Link href={crumb.href} className="transition-colors hover:text-accent">
                 {crumb.label}
               </Link>
             ) : (
-              <span className="text-ivory">{crumb.label}</span>
+              <span className="text-ivory/85">{crumb.label}</span>
             )}
             {i < breadcrumbs.length - 1 ? (
-              <ChevronRight className="h-3 w-3 text-ivory/40" aria-hidden="true" />
+              <ChevronRight className="h-2.5 w-2.5 text-ivory/35" aria-hidden="true" />
             ) : null}
           </li>
         ))}
@@ -39,72 +39,79 @@ function HeroBreadcrumbs({
 
 function HeroCopy({ className }: { className?: string }) {
   return (
-    <div className={cn('flex flex-col gap-3', className)}>
-      <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-accent">
+    <div className={cn('mx-auto flex max-w-xl flex-col items-center text-center', className)}>
+      <p className="font-sans text-[0.625rem] font-medium uppercase tracking-[0.22em] text-accent sm:text-[0.6875rem]">
         NEW · NAVRATRI 2026
       </p>
-      <h1 className="text-hero-display text-balance text-ivory">CHHABILI</h1>
-      <p className="font-sans text-xs font-medium uppercase tracking-[0.16em] text-ivory/75">
+
+      <span
+        className="mt-4 h-px w-10 bg-accent/70"
+        aria-hidden="true"
+      />
+
+      <h1 className="mt-4 font-serif text-[2.35rem] font-normal tracking-[0.08em] text-ivory sm:text-5xl md:text-[3.35rem] md:tracking-[0.1em]">
+        CHHABILI
+      </h1>
+
+      <p className="mt-3 font-sans text-[0.625rem] font-medium uppercase tracking-[0.28em] text-ivory/70 sm:text-[0.6875rem]">
         Festive Edition
       </p>
-      <p className="max-w-md font-sans text-sm leading-relaxed text-ivory/70 text-pretty md:text-[0.9375rem]">
+
+      <span
+        className="mt-4 h-px w-6 bg-ivory/25"
+        aria-hidden="true"
+      />
+
+      <p className="mt-4 max-w-sm font-sans text-[0.8125rem] leading-relaxed text-ivory/65 text-pretty sm:text-sm">
         Explore the Chhabili festive collection.
       </p>
     </div>
   )
 }
 
+function CollageImage({ className }: { className?: string }) {
+  return (
+    // Native img preserves full Cloudinary resolution + natural aspect (no forced crop).
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={CHHABILI_HERO_IMAGE}
+      alt="CHHABILI Navratri 2026 festive collection"
+      className={cn(
+        'mx-auto h-auto w-full object-contain object-center',
+        className,
+      )}
+      decoding="async"
+      fetchPriority="high"
+    />
+  )
+}
+
 /**
- * Replaces the plain category PageBanner for CHHABILI —
- * collage lives inside the category-title hero, not as a separate section.
+ * Refined CHHABILI category hero —
+ * narrower centered collage, shorter banner height, decorative editorial type.
  */
 export function ChhabiliCollectionHero({ breadcrumbs }: { breadcrumbs: Crumb[] }) {
   return (
     <section
       aria-label="CHHABILI collection"
-      className="relative overflow-hidden border-b border-border/30 bg-charcoal"
+      className="relative overflow-hidden border-b border-border/30 bg-[#1a1410]"
     >
-      {/* —— Mobile: title stack, then full collage (no crop / no overflow) —— */}
-      <div className="md:hidden">
-        <div className="px-5 pb-6 pt-28">
-          <HeroBreadcrumbs breadcrumbs={breadcrumbs} />
-          <HeroCopy className="mt-7" />
-        </div>
-        <div className="bg-[#241c18] px-4 pb-10">
-          <div className="overflow-hidden rounded-sm">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={CHHABILI_HERO_IMAGE}
-              alt="CHHABILI Navratri 2026 festive collection"
-              className="h-auto w-full object-contain"
-              decoding="async"
-              fetchPriority="high"
-            />
-          </div>
-        </div>
-      </div>
+      {/* Soft warm charcoal field — intentional campaign negative space */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(58,42,36,0.55)_0%,_transparent_68%)]"
+        aria-hidden="true"
+      />
 
-      {/* —— Desktop: collage is the category hero; copy sits in a soft top veil —— */}
-      <div className="relative hidden md:block">
-        <div className="mx-auto max-w-[88rem] px-8 pb-14 pt-32 lg:px-10">
-          <div className="relative overflow-hidden rounded-sm bg-[#241c18]">
-            <div className="flex justify-center px-6 pb-8 pt-2 lg:px-10 lg:pb-10">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={CHHABILI_HERO_IMAGE}
-                alt="CHHABILI Navratri 2026 festive collection"
-                className="mx-auto h-auto max-h-[min(72vh,54rem)] w-auto max-w-full object-contain"
-                decoding="async"
-                fetchPriority="high"
-              />
-            </div>
+      <div className="relative mx-auto flex max-w-[88rem] flex-col items-center px-5 pb-10 pt-28 md:px-8 md:pb-12 md:pt-32">
+        <HeroBreadcrumbs breadcrumbs={breadcrumbs} />
 
-            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-charcoal/92 via-charcoal/55 to-transparent pb-28 pt-8 lg:pb-32 lg:pt-10">
-              <div className="pointer-events-auto px-8 lg:px-12">
-                <HeroBreadcrumbs breadcrumbs={breadcrumbs} />
-                <HeroCopy className="mt-8 max-w-xl" />
-              </div>
-            </div>
+        {/* Copy sits in the dark field above the collage — never over faces */}
+        <HeroCopy className="mt-7 md:mt-8" />
+
+        {/* Centered editorial still: ~900–1050px max, shorter banner height, aspect preserved */}
+        <div className="mt-8 flex w-full justify-center md:mt-9">
+          <div className="w-full max-w-[min(100%,980px)] px-1 sm:px-2">
+            <CollageImage className="max-h-[17rem] sm:max-h-[19rem] md:max-h-[22rem] lg:max-h-[24rem]" />
           </div>
         </div>
       </div>
