@@ -1860,6 +1860,9 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041229/WhatsApp_Image_2026-09-10_at_11.18.13_AM_2.jpg',
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041229/WhatsApp_Image_2026-09-10_at_11.18.13_AM_2.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041224/WhatsApp_Image_2026-09-10_at_11.18.11_AM_1.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041222/WhatsApp_Image_2026-09-10_at_11.18.10_AM_1.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041218/WhatsApp_Image_2026-09-10_at_11.18.07_AM_2.jpg',
     ],
     category: 'LEHANGA',
     collections: ['lehanga'],
