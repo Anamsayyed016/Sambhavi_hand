@@ -17,7 +17,7 @@ function HeroBreadcrumbs({
 }) {
   return (
     <nav aria-label="Breadcrumb" className={className}>
-      <ol className="flex flex-wrap items-center justify-center gap-1 font-sans text-[0.625rem] uppercase tracking-[0.16em] text-ivory/55">
+      <ol className="flex flex-wrap items-center gap-1 font-sans text-[0.625rem] uppercase tracking-[0.16em] text-ivory/70">
         {breadcrumbs.map((crumb, i) => (
           <li key={`${crumb.label}-${i}`} className="flex items-center gap-1">
             {crumb.href ? (
@@ -25,10 +25,10 @@ function HeroBreadcrumbs({
                 {crumb.label}
               </Link>
             ) : (
-              <span className="text-ivory/85">{crumb.label}</span>
+              <span className="text-ivory">{crumb.label}</span>
             )}
             {i < breadcrumbs.length - 1 ? (
-              <ChevronRight className="h-2.5 w-2.5 text-ivory/35" aria-hidden="true" />
+              <ChevronRight className="h-2.5 w-2.5 text-ivory/45" aria-hidden="true" />
             ) : null}
           </li>
         ))}
@@ -39,81 +39,63 @@ function HeroBreadcrumbs({
 
 function HeroCopy({ className }: { className?: string }) {
   return (
-    <div className={cn('mx-auto flex max-w-xl flex-col items-center text-center', className)}>
+    <div className={cn('flex max-w-xl flex-col', className)}>
       <p className="font-sans text-[0.625rem] font-medium uppercase tracking-[0.22em] text-accent sm:text-[0.6875rem]">
         NEW · NAVRATRI 2026
       </p>
 
-      <span
-        className="mt-4 h-px w-10 bg-accent/70"
-        aria-hidden="true"
-      />
+      <span className="mt-4 h-px w-10 bg-accent/75" aria-hidden="true" />
 
       <h1 className="mt-4 font-serif text-[2.35rem] font-normal tracking-[0.08em] text-ivory sm:text-5xl md:text-[3.35rem] md:tracking-[0.1em]">
         CHHABILI
       </h1>
 
-      <p className="mt-3 font-sans text-[0.625rem] font-medium uppercase tracking-[0.28em] text-ivory/70 sm:text-[0.6875rem]">
+      <p className="mt-3 font-sans text-[0.625rem] font-medium uppercase tracking-[0.28em] text-ivory/80 sm:text-[0.6875rem]">
         Festive Edition
       </p>
 
-      <span
-        className="mt-4 h-px w-6 bg-ivory/25"
-        aria-hidden="true"
-      />
+      <span className="mt-4 h-px w-6 bg-ivory/30" aria-hidden="true" />
 
-      <p className="mt-4 max-w-sm font-sans text-[0.8125rem] leading-relaxed text-ivory/65 text-pretty sm:text-sm">
+      <p className="mt-4 max-w-sm font-sans text-[0.8125rem] leading-relaxed text-ivory/75 text-pretty sm:text-sm">
         Explore the Chhabili festive collection.
       </p>
     </div>
   )
 }
 
-function CollageImage({ className }: { className?: string }) {
-  return (
-    // Native img preserves full Cloudinary resolution + natural aspect (no forced crop).
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={CHHABILI_HERO_IMAGE}
-      alt="CHHABILI Navratri 2026 festive collection"
-      className={cn(
-        'mx-auto h-auto w-full object-contain object-center',
-        className,
-      )}
-      decoding="async"
-      fetchPriority="high"
-    />
-  )
-}
-
 /**
- * Refined CHHABILI category hero —
- * narrower centered collage, shorter banner height, decorative editorial type.
+ * Full-bleed CHHABILI campaign hero —
+ * collage covers the entire hero area; copy sits in a soft top-left veil only.
  */
 export function ChhabiliCollectionHero({ breadcrumbs }: { breadcrumbs: Crumb[] }) {
   return (
     <section
       aria-label="CHHABILI collection"
-      className="relative overflow-hidden border-b border-border/30 bg-[#1a1410]"
+      className="relative h-[min(72vw,34rem)] min-h-[22rem] overflow-hidden border-b border-border/30 md:h-[38rem] md:min-h-0 lg:h-[40rem]"
     >
-      {/* Soft warm charcoal field — intentional campaign negative space */}
+      {/* Full-bleed cover — no side gutters / empty panels */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={CHHABILI_HERO_IMAGE}
+        alt="CHHABILI Navratri 2026 festive collection"
+        className="absolute inset-0 h-full w-full object-cover object-[62%_center] sm:object-[58%_center] md:object-[55%_center]"
+        decoding="async"
+        fetchPriority="high"
+      />
+
+      {/* Soft veil only behind text — keeps collage bright elsewhere */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(58,42,36,0.55)_0%,_transparent_68%)]"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#1a1410]/78 via-[#1a1410]/28 to-transparent md:bg-gradient-to-r md:from-[#1a1410]/72 md:via-[#1a1410]/28 md:to-transparent"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[55%] bg-gradient-to-b from-[#1a1410]/55 to-transparent md:h-[48%]"
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto flex max-w-[88rem] flex-col items-center px-5 pb-10 pt-28 md:px-8 md:pb-12 md:pt-32">
+      <div className="relative z-10 flex h-full flex-col px-5 pb-8 pt-28 md:px-8 md:pb-10 md:pt-32 lg:px-12">
         <HeroBreadcrumbs breadcrumbs={breadcrumbs} />
-
-        {/* Copy sits in the dark field above the collage — never over faces */}
-        <HeroCopy className="mt-7 md:mt-8" />
-
-        {/* Centered editorial still: ~900–1050px max, shorter banner height, aspect preserved */}
-        <div className="mt-8 flex w-full justify-center md:mt-9">
-          <div className="w-full max-w-[min(100%,980px)] px-1 sm:px-2">
-            <CollageImage className="max-h-[17rem] sm:max-h-[19rem] md:max-h-[22rem] lg:max-h-[24rem]" />
-          </div>
-        </div>
+        <HeroCopy className="mt-7 md:mt-9" />
       </div>
     </section>
   )
