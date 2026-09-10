@@ -75,7 +75,8 @@ export function getProductsForCatalogSlug(slug: string, products: Product[]): Pr
   }
 
   if (slug === 'new-arrivals') {
-    return products.filter((p) => p.isNew || p.collections.includes('new-arrivals'))
+    // Cross-category: every product type, newest first (DB createdAt when available).
+    return sortProductsNewestFirst(products)
   }
 
   if (isLegacyCollectionSlug(slug)) {
@@ -83,6 +84,22 @@ export function getProductsForCatalogSlug(slug: string, products: Product[]): Pr
   }
 
   return []
+}
+
+function createdAtMs(product: Product): number {
+  if (!product.createdAt) return 0
+  const value = Date.parse(product.createdAt)
+  return Number.isFinite(value) ? value : 0
+}
+
+/** Newest catalog additions first — any category/collection. */
+export function sortProductsNewestFirst(products: Product[]): Product[] {
+  return [...products].sort((a, b) => {
+    const delta = createdAtMs(b) - createdAtMs(a)
+    if (delta !== 0) return delta
+    // Stable tie-break: prefer explicit isNew, then slug (never alpha name sort as primary).
+    return Number(b.isNew ?? 0) - Number(a.isNew ?? 0) || a.slug.localeCompare(b.slug)
+  })
 }
 
 export function getCatalogTitle(slug: string): string | undefined {
@@ -109,6 +126,9 @@ export function getCatalogSubtitle(slug: string, category?: SareeCategory): stri
     if (category.slug === 'chhabili') {
       return 'NEW COLLECTION · Explore the Chhabili festive collection.'
     }
+    if (category.slug === 'lehanga') {
+      return 'FESTIVE EDITION · Explore the Lehanga collection.'
+    }
     const group = getCategoryGroup(category.groupSlug)
     return group ? `${group.name} · Browse ${category.name} sarees.` : `Browse ${category.name} sarees.`
   }
@@ -116,6 +136,10 @@ export function getCatalogSubtitle(slug: string, category?: SareeCategory): stri
   const group = getCategoryGroup(slug)
   if (group) {
     return `Explore ${group.name} sarees by type.`
+  }
+
+  if (slug === 'new-arrivals') {
+    return 'New products and collections, thoughtfully curated.'
   }
 
   return 'Browse sarees in this collection.'

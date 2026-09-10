@@ -20,6 +20,8 @@ export type Product = {
   care: string
   availability: 'In Stock' | 'Low Stock' | 'Made to Order'
   isNew?: boolean
+  /** ISO timestamp — from DB when available; used for New Arrivals newest-first ordering. */
+  createdAt?: string
   description: string
 }
 
@@ -1831,9 +1833,25 @@ export function getProduct(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug)
 }
 
+/**
+ * Fallback createdAt for static catalog rows when DB timestamps are unavailable.
+ * Later entries in `products` are treated as more recently added.
+ */
+const CATALOG_FALLBACK_EPOCH_MS = Date.UTC(2024, 0, 1)
+
+export function withCatalogCreatedAt(list: Product[]): Product[] {
+  return list.map((product, index) => {
+    if (product.createdAt) return product
+    return {
+      ...product,
+      createdAt: new Date(CATALOG_FALLBACK_EPOCH_MS + index * 60_000).toISOString(),
+    }
+  })
+}
+
 /** Catalog products visible on the storefront (respects temporary payment test mode). */
 export function getStorefrontProducts(): Product[] {
-  return filterStorefrontProducts(products)
+  return withCatalogCreatedAt(filterStorefrontProducts(products))
 }
 
 /** Product detail lookup that hides non-test products while payment test mode is on. */

@@ -3,7 +3,7 @@ import { resolveCheckoutCoupon } from '@/lib/checkout/coupon'
 import { calculateOrderTotal, getShippingRules } from '@/lib/checkout/shipping'
 import { isStorefrontProductVisible, productOffersFreeShipping } from '@/lib/payment-test-mode'
 import type { Product } from '@/lib/products'
-import { getProduct, getStorefrontProduct, getStorefrontProducts } from '@/lib/products'
+import { getProduct, getStorefrontProduct, getStorefrontProducts, withCatalogCreatedAt } from '@/lib/products'
 import { mapDbProductToStorefront } from '@/lib/catalog/storefront-search'
 
 export type DbProductPrice = {
@@ -61,7 +61,7 @@ export async function applyDbPricesToProducts(products: Product[]): Promise<Prod
 }
 
 export async function getPricedStorefrontProducts(): Promise<Product[]> {
-  const staticPriced = await applyDbPricesToProducts(getStorefrontProducts())
+  const staticPriced = withCatalogCreatedAt(await applyDbPricesToProducts(getStorefrontProducts()))
 
   try {
     const rows = await prisma.product.findMany({ where: { active: true } })
@@ -76,6 +76,7 @@ export async function getPricedStorefrontProducts(): Promise<Product[]> {
       if (fromStatic && fromStatic.images.length > 0) {
         bySlug.set(row.slug, {
           ...mapped,
+          createdAt: row.createdAt.toISOString(),
           image: fromStatic.image || mapped.image,
           images: [...fromStatic.images],
         })
@@ -83,7 +84,7 @@ export async function getPricedStorefrontProducts(): Promise<Product[]> {
         bySlug.set(row.slug, mapped)
       }
     }
-    return Array.from(bySlug.values())
+    return withCatalogCreatedAt(Array.from(bySlug.values()))
   } catch (error) {
     console.error('[catalog] DB catalog merge failed; using static+price overlay', error)
     return staticPriced

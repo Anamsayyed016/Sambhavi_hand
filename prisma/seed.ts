@@ -93,12 +93,21 @@ function buildSeedCollections(): {
     })
   }
 
+  // Top-level festive categories with custom intro copy (non-nested).
+  const lehanga = bySlug.get('lehanga')
+  if (lehanga) {
+    lehanga.description = 'FESTIVE EDITION · Explore the Lehanga collection.'
+  }
+
   for (const slug of legacyCollectionSlugs) {
     if (!bySlug.has(slug)) {
       bySlug.set(slug, {
         slug,
         name: titleFromSlug(slug),
-        description: `${titleFromSlug(slug)} collection.`,
+        description:
+          slug === 'new-arrivals'
+            ? 'New products and collections, thoughtfully curated.'
+            : `${titleFromSlug(slug)} collection.`,
         image: '/images/collection-silk.png',
       })
     }

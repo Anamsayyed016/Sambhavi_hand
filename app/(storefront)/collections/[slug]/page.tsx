@@ -50,7 +50,14 @@ export async function generateMetadata({
     return {
       title: 'CHHABILI | Sambhavi Handloom',
       description:
-        'Explore CHHABILI from the Navratri Collection 2026 festive edit by Sambhavi Handloom.',
+        'Explore CHHABILI from the Navratri Collection festive edit by Sambhavi Handloom.',
+    }
+  }
+
+  if (category?.slug === 'lehanga') {
+    return {
+      title: 'LEHANGA | Sambhavi Handloom',
+      description: 'Explore the LEHANGA collection by Sambhavi Handloom.',
     }
   }
 
@@ -95,6 +102,9 @@ export default async function CollectionDetailPage({
       : null
 
   const isChhabili = category?.slug === 'chhabili'
+  const isNewArrivals = slug === 'new-arrivals'
+  // One card per product with its primary image — never expand galleries on New Arrivals.
+  const expandImages = !isChhabili && !isNewArrivals
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
@@ -203,13 +213,15 @@ export default async function CollectionDetailPage({
         ) : null}
 
         {items.length > 0 ? (
-          <ProductGrid products={items} columns="three" expandImages={!isChhabili} />
+          <ProductGrid products={items} columns="three" expandImages={expandImages} />
         ) : (
           <p className="py-20 text-center font-serif text-xl text-muted-foreground">
             {category || isLegacyCollectionSlug(slug)
               ? children.length > 0
                 ? 'Explore a sub-collection above, or check back soon for more sarees.'
-                : 'No sarees in this category yet. Check back soon.'
+                : category?.slug === 'lehanga'
+                  ? 'No pieces in this collection yet. Check back soon.'
+                  : 'No sarees in this category yet. Check back soon.'
               : 'No sarees in this group yet. Select a type above or check back soon.'}
           </p>
         )}

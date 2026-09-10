@@ -63,6 +63,7 @@ const groupDefs: {
       'Diwali Collection',
       'Durga Puja / Bengal Special',
       'Navratri Collection',
+      'LEHANGA',
       'Raksha Bandhan / Family Sets',
     ],
   },

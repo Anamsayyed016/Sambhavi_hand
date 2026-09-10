@@ -52,6 +52,7 @@ export function mapDbProductToStorefront(row: DbProduct): Product {
     care: row.care,
     availability: mapAvailability(row.availability),
     isNew: row.isNew,
+    createdAt: row.createdAt.toISOString(),
     description: row.description,
   }
 }
