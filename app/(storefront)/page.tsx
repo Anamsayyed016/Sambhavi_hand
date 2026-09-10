@@ -1,4 +1,5 @@
 import { Hero } from '@/components/home/hero'
+import { LatestCollection } from '@/components/home/latest-collection'
 import { WhyChoose } from '@/components/home/why-choose'
 import { FeaturedCollection } from '@/components/home/featured-collection'
 import { BrandStory } from '@/components/home/brand-story'
@@ -15,8 +16,9 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <WhyChoose />
+      <LatestCollection />
       <FeaturedCollection />
+      <WhyChoose />
       <BrandStory />
       <Editorial />
       <NewArrivals />

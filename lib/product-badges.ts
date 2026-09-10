@@ -9,8 +9,8 @@ export function isChhabiliProduct(product: Product): boolean {
   )
 }
 
-/** Subtle editorial collection label for the latest Navratri 2026 CHHABILI edit. */
+/** Subtle editorial collection label for the latest CHHABILI edit. */
 export function getEditorialCollectionLabel(product: Product): string | null {
-  if (isChhabiliProduct(product)) return 'NEW · NAVRATRI 2026'
+  if (isChhabiliProduct(product)) return 'NEW COLLECTION'
   return null
 }

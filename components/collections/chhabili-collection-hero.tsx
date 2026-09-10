@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-/** CHHABILI / Navratri 2026 campaign collage — category hero visual only. */
+/** CHHABILI campaign collage — category hero visual only. */
 export const CHHABILI_HERO_IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.48_AM_1.jpg'
 
@@ -41,7 +41,7 @@ function HeroCopy({ className }: { className?: string }) {
   return (
     <div className={cn('flex max-w-xl flex-col', className)}>
       <p className="font-sans text-[0.625rem] font-medium uppercase tracking-[0.22em] text-accent sm:text-[0.6875rem]">
-        NEW · NAVRATRI 2026
+        Latest Collection
       </p>
 
       <span className="mt-4 h-px w-10 bg-accent/75" aria-hidden="true" />
@@ -77,7 +77,7 @@ export function ChhabiliCollectionHero({ breadcrumbs }: { breadcrumbs: Crumb[] }
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={CHHABILI_HERO_IMAGE}
-        alt="CHHABILI Navratri 2026 festive collection"
+        alt="CHHABILI festive collection"
         className="absolute inset-0 h-full w-full object-cover object-[62%_center] sm:object-[58%_center] md:object-[55%_center]"
         decoding="async"
         fetchPriority="high"
