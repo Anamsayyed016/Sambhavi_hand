@@ -1727,6 +1727,27 @@ export const products: Product[] = [
     availability: 'In Stock',
     description: 'Soft silk digital print saree with digital print work, paired with a blouse. Free shipping.',
   },
+  {
+    slug: 'chhabili-lehenga-set',
+    name: 'CHHABILI',
+    price: 3999,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
+    ],
+    category: 'CHHABILI',
+    collections: ['chhabili', 'navratri-collection'],
+    fabric: 'Pure Cotton',
+    weave: 'Lehenga Set · Kashida & Gamthi Work',
+    length: '41" · 8 meter flair with canvas & inner',
+    blouse: 'Top 38" (adj. 36"–40") · Top Length 25" · Waist up to 42"',
+    care: 'Package: Lehenga, Top, Purse · Weight: 1.300 Kg',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.\n\nPerfect for Navratri, Garba nights, festive gatherings & special celebrations.\n\nSpecifications:\n• Designed with 8 meter flair and stitching with canvas & inner\n• Length: 41"\n• Waist: Fits Up To 42"\n• Top: 38" standard sizing\n• Top adjustable margin: 36"–40"\n• Top Length: 25"\n\nPackage Contains:\n• Lehenga\n• Top\n• Purse\n\nWeight:\n1.300 Kg',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {

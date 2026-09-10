@@ -110,7 +110,7 @@ export function ProductDetail({ product }: { product: Product }) {
             {product.availability}
           </span>
 
-          <p className="mt-6 font-sans text-sm leading-relaxed text-foreground/85 text-pretty">
+          <p className="mt-6 whitespace-pre-line font-sans text-sm leading-relaxed text-foreground/85 text-pretty">
             {product.description}
           </p>
 
