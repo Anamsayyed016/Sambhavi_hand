@@ -1835,6 +1835,9 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041228/WhatsApp_Image_2026-09-10_at_11.18.13_AM_1.jpg',
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041228/WhatsApp_Image_2026-09-10_at_11.18.13_AM_1.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041229/WhatsApp_Image_2026-09-10_at_11.18.13_AM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041224/WhatsApp_Image_2026-09-10_at_11.18.10_AM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/video/upload/v1789041231/WhatsApp_Video_2026-09-10_at_11.18.06_AM.mp4',
     ],
     category: 'LEHANGA',
     collections: ['lehanga'],

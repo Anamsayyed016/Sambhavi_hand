@@ -9,7 +9,17 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041228/WhatsApp_Image_2026-09-10_at_11.18.13_AM_1.jpg'
 
-const IMAGES: string[] = [IMAGE]
+const IMAGE_2 =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041229/WhatsApp_Image_2026-09-10_at_11.18.13_AM.jpg'
+
+const IMAGE_3 =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041224/WhatsApp_Image_2026-09-10_at_11.18.10_AM.jpg'
+
+const VIDEO =
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789041231/WhatsApp_Video_2026-09-10_at_11.18.06_AM.mp4'
+
+/** Keep primary first; append gallery images then video. */
+const IMAGES: string[] = [IMAGE, IMAGE_2, IMAGE_3, VIDEO]
 
 const DESCRIPTION = [
   'Launch New Exclusive Designer premium Quality pure Kanjiveram silk full stitched Lehenga with Full stitched Designer maggam work blouse with embroidered work Dupatta.',
