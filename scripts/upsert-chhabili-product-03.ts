@@ -1,13 +1,19 @@
 /**
- * Upserts CHHABILI product #3 only.
- * Idempotent — does not modify other CHHABILI products or unrelated catalog data.
+ * Upserts CHHABILI Catalog #2 (green outfit) only.
+ * Gallery: keep existing primary, append second image.
+ * Idempotent — does not modify other CHHABILI products.
  */
 import { PrismaClient, ProductAvailability } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const IMAGE =
+const IMAGE_1 =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.50_AM_2.jpg'
+
+const IMAGE_2 =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.49_AM.jpg'
+
+const IMAGES: string[] = [IMAGE_1, IMAGE_2]
 
 const DESCRIPTION = [
   'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.',
@@ -38,7 +44,7 @@ async function main() {
       slug: 'chhabili',
       name: 'CHHABILI',
       description: 'FESTIVE EDITION · Explore the Chhabili collection.',
-      image: IMAGE,
+      image: IMAGE_1,
       active: true,
       featured: true,
     },
@@ -56,8 +62,8 @@ async function main() {
       description: DESCRIPTION,
       price: 3999,
       originalPrice: null,
-      image: IMAGE,
-      images: [IMAGE],
+      image: IMAGE_1,
+      images: IMAGES,
       category: 'CHHABILI',
       collections: ['chhabili', 'navratri-collection'],
       fabric: 'Pure Cotton',
@@ -76,8 +82,8 @@ async function main() {
       name: 'CHHABILI',
       description: DESCRIPTION,
       price: 3999,
-      image: IMAGE,
-      images: [IMAGE],
+      image: IMAGE_1,
+      images: IMAGES,
       category: 'CHHABILI',
       collections: ['chhabili', 'navratri-collection'],
       fabric: 'Pure Cotton',
