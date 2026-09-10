@@ -11,11 +11,12 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg'
 
+/** Existing Catalog #1 gallery image #2 (blue/white outfit) — must never be removed. */
 const IMAGE_2 =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.50_AM.jpg'
 
-/** Catalog #1 gallery only — do not include Catalog #3's cover image here. */
-const IMAGES = [IMAGE, IMAGE_2] as const
+/** Catalog #1 only: primary + existing second. Catalog #3 uses …50_AM_1.jpg separately. */
+const IMAGES: string[] = [IMAGE, IMAGE_2]
 
 const DESCRIPTION = [
   'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.',
