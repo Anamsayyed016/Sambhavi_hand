@@ -13,6 +13,10 @@ export type ProductGridItem = {
   key: string
 }
 
+/**
+ * LEGACY saree browse UX only: one grid card per gallery frame.
+ * Do NOT use for New Arrivals, CHHABILI, LEHANGA, or any product/catalog listing.
+ */
 export function expandProductsForGrid(products: Product[]): ProductGridItem[] {
   return products.flatMap((product) => {
     const images = product.images?.filter(Boolean) ?? []
@@ -26,6 +30,22 @@ export function expandProductsForGrid(products: Product[]): ProductGridItem[] {
   })
 }
 
+/** One card per unique product/catalog — primary image only (`product.image` / images[0]). */
+export function toProductCatalogCards(products: Product[]): ProductGridItem[] {
+  const seen = new Set<string>()
+  const items: ProductGridItem[] = []
+  for (const product of products) {
+    if (seen.has(product.slug)) continue
+    seen.add(product.slug)
+    items.push({
+      product,
+      displayImage: product.image || product.images?.[0] || '/placeholder.svg',
+      key: product.slug,
+    })
+  }
+  return items
+}
+
 export function ProductGrid({
   products,
   className,
@@ -35,17 +55,18 @@ export function ProductGrid({
   products: Product[]
   className?: string
   columns?: 'three' | 'four'
-  /** When true, each entry in product.images[] renders as its own card. */
+  /**
+   * When true, each gallery image becomes its own card (legacy saree browse).
+   * Default false = one card per product using the primary image.
+   * New Arrivals must always leave this false.
+   */
   expandImages?: boolean
 }) {
   const [quickView, setQuickView] = useState<Product | null>(null)
 
   const items = useMemo(
-    () => (expandImages ? expandProductsForGrid(products) : products.map((product) => ({
-        product,
-        displayImage: product.image || product.images?.[0] || '/placeholder.svg',
-        key: product.slug,
-      }))),
+    () =>
+      expandImages ? expandProductsForGrid(products) : toProductCatalogCards(products),
     [products, expandImages],
   )
 

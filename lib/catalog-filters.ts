@@ -75,8 +75,8 @@ export function getProductsForCatalogSlug(slug: string, products: Product[]): Pr
   }
 
   if (slug === 'new-arrivals') {
-    // Cross-category: every product type, newest first (DB createdAt when available).
-    return sortProductsNewestFirst(products)
+    // Cross-category unique products/catalogs, newest first — never gallery frames.
+    return sortProductsNewestFirst(uniqueProductsBySlug(products))
   }
 
   if (isLegacyCollectionSlug(slug)) {
@@ -84,6 +84,18 @@ export function getProductsForCatalogSlug(slug: string, products: Product[]): Pr
   }
 
   return []
+}
+
+/** One entry per product slug (stable catalog identity). */
+export function uniqueProductsBySlug(products: Product[]): Product[] {
+  const seen = new Set<string>()
+  const unique: Product[] = []
+  for (const product of products) {
+    if (seen.has(product.slug)) continue
+    seen.add(product.slug)
+    unique.push(product)
+  }
+  return unique
 }
 
 function createdAtMs(product: Product): number {

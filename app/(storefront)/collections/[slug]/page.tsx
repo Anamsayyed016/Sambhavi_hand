@@ -103,8 +103,17 @@ export default async function CollectionDetailPage({
 
   const isChhabili = category?.slug === 'chhabili'
   const isNewArrivals = slug === 'new-arrivals'
-  // One card per product with its primary image — never expand galleries on New Arrivals.
-  const expandImages = !isChhabili && !isNewArrivals
+  /**
+   * Gallery-frame expansion (one card per images[]) is ONLY for traditional
+   * handloom/powerloom saree category browsing. Named collections, New Arrivals,
+   * festive edits, kids, budget, and group hubs are always product/catalog cards.
+   */
+  const expandImages =
+    !isNewArrivals &&
+    !isChhabili &&
+    Boolean(category) &&
+    !category.parentSlug &&
+    category.groupSlug === 'handloom-powerloom'
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
@@ -213,7 +222,12 @@ export default async function CollectionDetailPage({
         ) : null}
 
         {items.length > 0 ? (
-          <ProductGrid products={items} columns="three" expandImages={expandImages} />
+          <ProductGrid
+            products={items}
+            columns="three"
+            // New Arrivals / named collections: NEVER expand gallery images into cards.
+            expandImages={isNewArrivals ? false : expandImages}
+          />
         ) : (
           <p className="py-20 text-center font-serif text-xl text-muted-foreground">
             {category || isLegacyCollectionSlug(slug)
