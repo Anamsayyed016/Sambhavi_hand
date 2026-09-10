@@ -70,8 +70,18 @@ export async function getPricedStorefrontProducts(): Promise<Product[]> {
     const bySlug = new Map(staticPriced.map((product) => [product.slug, product]))
     for (const row of rows) {
       if (!isStorefrontProductVisible(row.slug)) continue
-      // Database is source of truth for active catalog rows (admin-created CHHABILI products included).
-      bySlug.set(row.slug, mapDbProductToStorefront(row))
+      const mapped = mapDbProductToStorefront(row)
+      const fromStatic = bySlug.get(row.slug)
+      // Keep explicit static gallery order for catalog products (never auto-sort / never let stale DB reorder).
+      if (fromStatic && fromStatic.images.length > 0) {
+        bySlug.set(row.slug, {
+          ...mapped,
+          image: fromStatic.image || mapped.image,
+          images: [...fromStatic.images],
+        })
+      } else {
+        bySlug.set(row.slug, mapped)
+      }
     }
     return Array.from(bySlug.values())
   } catch (error) {
@@ -95,7 +105,13 @@ export async function getPricedStorefrontProduct(slug: string): Promise<Product 
     select: { active: true },
   })
   if (db && !db.active) return undefined
-  return priced
+
+  // Preserve explicit catalog gallery order from static product data.
+  return {
+    ...priced,
+    image: base.image || priced.image,
+    images: base.images.length > 0 ? [...base.images] : priced.images,
+  }
 }
 
 export async function computeServerCartTotals(

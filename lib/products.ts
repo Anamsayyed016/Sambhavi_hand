@@ -1733,6 +1733,8 @@ export const products: Product[] = [
     price: 3999,
     image:
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
+    // Explicit gallery order — do not reorder by filename/date/URL.
+    // 1) primary  2) existing second  3) newest additional
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.50_AM.jpg',
