@@ -3,9 +3,9 @@ import { NewArrivalsShowcase } from '@/components/collections/new-arrivals-showc
 import { getNewArrivalsCatalogCards } from '@/lib/new-arrivals-catalogs'
 import Link from 'next/link'
 
-/** Homepage — curated category/collection New Arrivals (not product/image cards). */
-export async function NewArrivals() {
-  const catalogs = await getNewArrivalsCatalogCards()
+/** Homepage — curated category/collection New Arrivals (never product cards). */
+export function NewArrivals() {
+  const catalogs = getNewArrivalsCatalogCards()
 
   return (
     <section className="py-20 md:py-28">

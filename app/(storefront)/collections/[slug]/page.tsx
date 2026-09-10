@@ -22,8 +22,6 @@ import {
 import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 import { getCollectionBySlug } from '@/lib/admin/collections'
 import { ChhabiliCollectionHero } from '@/components/collections/chhabili-collection-hero'
-import { NewArrivalsShowcase } from '@/components/collections/new-arrivals-showcase'
-import { getNewArrivalsCatalogCards } from '@/lib/new-arrivals-catalogs'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,13 +61,6 @@ export async function generateMetadata({
     }
   }
 
-  if (slug === 'new-arrivals') {
-    return {
-      title: 'New Arrivals | Sambhavi Handloom',
-      description: 'New products and collections, thoughtfully curated.',
-    }
-  }
-
   return {
     title,
     description,
@@ -89,11 +80,7 @@ export default async function CollectionDetailPage({
   const group = getCategoryGroup(slug)
   const parent = category ? getParentCategory(category) : undefined
   const children = category ? getChildCategories(category.slug) : []
-  const isNewArrivals = slug === 'new-arrivals'
-  const items = isNewArrivals
-    ? []
-    : getProductsForCatalogSlug(slug, await getPricedStorefrontProducts())
-  const newArrivalsCatalogs = isNewArrivals ? await getNewArrivalsCatalogCards() : []
+  const items = getProductsForCatalogSlug(slug, await getPricedStorefrontProducts())
 
   const childMeta = await Promise.all(
     children.map(async (child) => {
@@ -117,11 +104,9 @@ export default async function CollectionDetailPage({
   const isChhabili = category?.slug === 'chhabili'
   /**
    * Gallery-frame expansion (one card per images[]) is ONLY for traditional
-   * handloom/powerloom saree category browsing. Named collections, New Arrivals,
-   * festive edits, kids, budget, and group hubs are always product/catalog cards.
+   * handloom/powerloom saree category browsing.
    */
   const expandImages =
-    !isNewArrivals &&
     !isChhabili &&
     Boolean(category) &&
     !category.parentSlug &&
@@ -220,7 +205,11 @@ export default async function CollectionDetailPage({
           </div>
         ) : null}
 
-        {ownCollection?.image && category && !children.length && !isChhabili ? (
+        {ownCollection?.image &&
+        category &&
+        !children.length &&
+        !isChhabili &&
+        !ownCollection.image.startsWith('/images/collection-') ? (
           <div className="relative mb-10 hidden aspect-[21/9] overflow-hidden rounded-sm bg-muted md:block">
             <Image
               src={ownCollection.image}
@@ -233,9 +222,7 @@ export default async function CollectionDetailPage({
           </div>
         ) : null}
 
-        {isNewArrivals ? (
-          <NewArrivalsShowcase catalogs={newArrivalsCatalogs} />
-        ) : items.length > 0 ? (
+        {items.length > 0 ? (
           <ProductGrid
             products={items}
             columns="three"

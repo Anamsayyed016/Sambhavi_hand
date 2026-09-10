@@ -1,12 +1,11 @@
 import { CHHABILI_HERO_IMAGE } from '@/components/collections/chhabili-collection-hero'
-import { getCollectionBySlug } from '@/lib/admin/collections'
 import { getProductsForCatalogSlug } from '@/lib/catalog-filters'
-import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 import { getSareeCategory } from '@/lib/categories'
+import { getStorefrontProducts, type Product } from '@/lib/products'
 
 /**
  * Curated New Arrivals — category/collection showcase (exact order).
- * Not product-based, not gallery-based.
+ * Not product grids. Not gallery frames. Not ProductCards.
  */
 export const NEW_ARRIVALS_CATALOG_DEFS = [
   {
@@ -34,49 +33,66 @@ export type NewArrivalsCatalogCard = {
   name: string
   href: string
   blurb: string
-  image: string
+  /** Valid HTTPS Cloudinary (or equivalent) URL — never a missing local path. */
+  image: string | null
 }
 
-function isUsableCover(image: string | null | undefined): image is string {
-  if (!image?.trim()) return false
-  // Seed/admin placeholders — prefer a real product primary instead.
-  if (image.startsWith('/images/collection-')) return false
-  return true
+/**
+ * Known-good existing catalog primaries (same Cloudinary URLs already on products).
+ * Used when DB/collection cover is missing or invalid — does not change product data.
+ */
+const KNOWN_VALID_COVERS: Record<string, string> = {
+  chhabili: CHHABILI_HERO_IMAGE,
+  'digital-print':
+    'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916480/WhatsApp_Image_2026-08-28_at_4.02.44_PM.jpg',
+  'kota-handloom':
+    'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916346/WhatsApp_Image_2026-08-28_at_4.03.20_PM_1.jpg',
 }
 
-/** Resolve one representative cover per curated New Arrivals catalog. */
-export async function getNewArrivalsCatalogCards(): Promise<NewArrivalsCatalogCard[]> {
-  const products = await getPricedStorefrontProducts()
+/** Reject missing seed covers and anything that would render a broken <img>. */
+export function isValidCoverImageUrl(url: string | null | undefined): url is string {
+  const value = url?.trim() ?? ''
+  if (!value) return false
+  if (value.startsWith('/images/collection-')) return false
+  if (value === '/placeholder.svg') return false
+  if (value.startsWith('/')) return false
+  return /^https?:\/\//i.test(value)
+}
 
-  return Promise.all(
-    NEW_ARRIVALS_CATALOG_DEFS.map(async (def) => {
-      const category = getSareeCategory(def.slug)
-      const collection = await getCollectionBySlug(def.slug).catch(() => null)
-      const categoryProducts = getProductsForCatalogSlug(def.slug, products)
-      const primaryFromProduct =
-        categoryProducts[0]?.image || categoryProducts[0]?.images?.[0] || null
+function firstValidProductPrimary(products: Product[]): string | null {
+  for (const product of products) {
+    const candidates = [product.image, product.images?.[0]]
+    for (const candidate of candidates) {
+      if (isValidCoverImageUrl(candidate)) return candidate
+    }
+  }
+  return null
+}
 
-      let image: string
-      if (def.slug === 'chhabili') {
-        image =
-          (isUsableCover(collection?.image) ? collection!.image : null) ||
-          CHHABILI_HERO_IMAGE ||
-          primaryFromProduct ||
-          '/placeholder.svg'
-      } else {
-        // Digital Print / Kota: always use a real product primary image.
-        // Admin collection covers / missing /images/* placeholders often render
-        // as empty dark wells and are not suitable as New Arrivals covers.
-        image = primaryFromProduct || '/placeholder.svg'
-      }
+/**
+ * Resolve one representative cover per curated catalog.
+ * Prefer static storefront catalog (stable Cloudinary URLs) over DB collection.image,
+ * which is often seeded to `/images/collection-silk.png` (file does not exist → broken img).
+ */
+export function getNewArrivalsCatalogCards(): NewArrivalsCatalogCard[] {
+  const products = getStorefrontProducts()
 
-      return {
-        slug: def.slug,
-        name: category?.name ?? def.name,
-        href: def.href,
-        blurb: def.blurb,
-        image,
-      }
-    }),
-  )
+  return NEW_ARRIVALS_CATALOG_DEFS.map((def) => {
+    const category = getSareeCategory(def.slug)
+    const categoryProducts = getProductsForCatalogSlug(def.slug, products)
+    const fromProduct = firstValidProductPrimary(categoryProducts)
+    const known = KNOWN_VALID_COVERS[def.slug] ?? null
+
+    const image =
+      (isValidCoverImageUrl(fromProduct) ? fromProduct : null) ||
+      (isValidCoverImageUrl(known) ? known : null)
+
+    return {
+      slug: def.slug,
+      name: category?.name ?? def.name,
+      href: def.href,
+      blurb: def.blurb,
+      image,
+    }
+  })
 }
