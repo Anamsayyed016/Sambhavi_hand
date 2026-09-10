@@ -21,6 +21,7 @@ import {
 } from '@/lib/catalog-filters'
 import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 import { getCollectionBySlug } from '@/lib/admin/collections'
+import { ChhabiliEditorialFeature } from '@/components/collections/chhabili-editorial'
 
 export const dynamic = 'force-dynamic'
 
@@ -92,6 +93,11 @@ export default async function CollectionDetailPage({
     category && !group
       ? await getCollectionBySlug(category.slug).catch(() => null)
       : null
+
+  const isChhabili = category?.slug === 'chhabili'
+  const chhabiliProduct = isChhabili
+    ? items.find((product) => product.slug === 'chhabili-lehenga-set') ?? items[0]
+    : undefined
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
@@ -182,7 +188,7 @@ export default async function CollectionDetailPage({
           </div>
         ) : null}
 
-        {ownCollection?.image && category && !children.length ? (
+        {ownCollection?.image && category && !children.length && !isChhabili ? (
           <div className="relative mb-10 hidden aspect-[21/9] overflow-hidden rounded-sm bg-muted md:block">
             <Image
               src={ownCollection.image}
@@ -195,8 +201,12 @@ export default async function CollectionDetailPage({
           </div>
         ) : null}
 
+        {isChhabili && chhabiliProduct ? (
+          <ChhabiliEditorialFeature product={chhabiliProduct} />
+        ) : null}
+
         {items.length > 0 ? (
-          <ProductGrid products={items} columns="three" expandImages />
+          <ProductGrid products={items} columns="three" expandImages={!isChhabili} />
         ) : (
           <p className="py-20 text-center font-serif text-xl text-muted-foreground">
             {category || isLegacyCollectionSlug(slug)

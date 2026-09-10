@@ -20,6 +20,9 @@ type ProductImageZoomProps = {
   activeIndex: number
   onActiveIndexChange: (index: number) => void
   discountPercent?: number
+  /** Editorial campaign stills: preserve natural aspect, no product-card crop. */
+  variant?: 'gallery' | 'editorial'
+  className?: string
 }
 
 const MIN_SCALE = 1
@@ -31,6 +34,8 @@ export function ProductImageZoom({
   activeIndex,
   onActiveIndexChange,
   discountPercent = 0,
+  variant = 'gallery',
+  className,
 }: ProductImageZoomProps) {
   const [open, setOpen] = useState(false)
   const [viewerIndex, setViewerIndex] = useState(activeIndex)
@@ -214,9 +219,29 @@ export function ProductImageZoom({
     if (event.touches.length === 0) swipeRef.current = null
   }
 
-  return (
-    <>
-      <div className="flex flex-col-reverse gap-4 sm:flex-row">
+  const preview =
+    variant === 'editorial' ? (
+      <div className={cn('relative mx-auto w-full max-w-full lg:mx-0 lg:max-w-[28rem]', className)}>
+        <button
+          type="button"
+          onClick={() => openViewer(safeIndex)}
+          aria-label={`Open ${alt} image zoom`}
+          className="group/main relative block w-full cursor-zoom-in overflow-hidden rounded-sm bg-secondary/40 p-2 sm:p-4"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={gallery[safeIndex] || '/placeholder.svg'}
+            alt={alt}
+            className="h-auto w-full object-contain transition-transform duration-500 ease-out group-hover/main:scale-[1.015]"
+            draggable={false}
+          />
+          <span className="absolute bottom-4 right-4 z-10 flex size-10 items-center justify-center rounded-full border border-border/70 bg-background/90 text-foreground shadow-sm backdrop-blur-sm transition-colors group-hover/main:bg-background">
+            <Plus className="size-4" strokeWidth={1.75} aria-hidden />
+          </span>
+        </button>
+      </div>
+    ) : (
+      <div className={cn('flex flex-col-reverse gap-4 sm:flex-row', className)}>
         {gallery.length > 1 ? (
           <div className="flex gap-3 sm:flex-col">
             {gallery.map((img, i) => (
@@ -275,6 +300,11 @@ export function ProductImageZoom({
           ) : null}
         </div>
       </div>
+    )
+
+  return (
+    <>
+      {preview}
 
       <AnimatePresence>
         {open ? (
