@@ -1,6 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import {
+  clearBrowseReturn,
+  markPendingScrollRestore,
+  peekBrowseReturn,
+} from '@/lib/navigation-return'
 
 export function BackButton({
   fallbackHref = '/shop',
@@ -13,16 +18,36 @@ export function BackButton({
 
   const handleBack = () => {
     if (typeof window !== 'undefined') {
+      const remembered = peekBrowseReturn()
+      if (remembered) {
+        markPendingScrollRestore(remembered.path, remembered.scroll)
+        clearBrowseReturn()
+        router.push(remembered.path)
+        return
+      }
+
       try {
         const ref = document.referrer
-        if (ref && new URL(ref).origin === window.location.origin) {
-          router.back()
-          return
+        if (ref) {
+          const referrerUrl = new URL(ref)
+          if (
+            referrerUrl.origin === window.location.origin &&
+            !referrerUrl.pathname.startsWith('/product/')
+          ) {
+            router.back()
+            return
+          }
         }
       } catch {
-        // fall through to shop
+        // fall through
+      }
+
+      if (window.history.length > 1) {
+        router.back()
+        return
       }
     }
+
     router.push(fallbackHref)
   }
 

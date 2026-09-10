@@ -11,6 +11,11 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg'
 
+const IMAGE_2 =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.48_AM_1.jpg'
+
+const IMAGES = [IMAGE, IMAGE_2]
+
 const DESCRIPTION = [
   'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.',
   '',
@@ -77,7 +82,7 @@ async function main() {
       price: 3999,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'CHHABILI',
       collections: ['chhabili', 'navratri-collection'],
       fabric: 'Pure Cotton',
@@ -98,7 +103,7 @@ async function main() {
       description: DESCRIPTION,
       price: 3999,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'CHHABILI',
       collections: ['chhabili', 'navratri-collection'],
       fabric: 'Pure Cotton',
@@ -119,6 +124,7 @@ async function main() {
   console.log(`  price: ₹${product.price}`)
   console.log(`  category: ${product.category}`)
   console.log(`  collections: ${product.collections.join(', ')}`)
+  console.log(`  images: ${product.images.length}`)
   console.log(`  stock: ${product.stock} (edit in Admin → Products if needed)`)
 }
 

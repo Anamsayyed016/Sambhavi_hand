@@ -6,6 +6,7 @@ import { Heart, ShoppingBag, Trash2 } from 'lucide-react'
 import { getStorefrontProduct, formatINR } from '@/lib/products'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
+import { ProductLink } from '@/components/product/product-link'
 
 export function WishlistView() {
   const { wishlist, toggleWishlist, addItem } = useCart()
@@ -40,7 +41,7 @@ export function WishlistView() {
           if (!product) return null
           return (
             <li key={product.slug} className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center">
-              <Link
+              <ProductLink
                 href={`/product/${product.slug}`}
                 className="relative aspect-3/4 w-28 shrink-0 overflow-hidden rounded-sm bg-muted"
               >
@@ -51,14 +52,14 @@ export function WishlistView() {
                   sizes="112px"
                   className="object-cover"
                 />
-              </Link>
+              </ProductLink>
               <div className="min-w-0 flex-1">
-                <Link
+                <ProductLink
                   href={`/product/${product.slug}`}
                   className="font-serif text-lg text-foreground hover:text-primary"
                 >
                   {product.name}
-                </Link>
+                </ProductLink>
                 <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
                 <p className="mt-2 text-sm font-medium">{formatINR(product.price)}</p>
               </div>

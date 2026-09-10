@@ -1,12 +1,12 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { Heart, ShoppingBag, Eye } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { getEditorialCollectionLabel } from '@/lib/product-badges'
 import { useCart } from '@/components/cart/cart-provider'
+import { ProductLink } from '@/components/product/product-link'
 
 export function ProductCard({
   product,
@@ -46,7 +46,7 @@ export function ProductCard({
             className="object-contain object-center"
           />
         </div>
-        <Link
+        <ProductLink
           href={`/product/${product.slug}`}
           aria-label={product.name}
           className="absolute inset-0 z-[1]"
@@ -112,12 +112,12 @@ export function ProductCard({
         <span className="font-sans text-[0.6875rem] font-semibold uppercase tracking-luxe text-accent">
           {product.category}
         </span>
-        <Link
+        <ProductLink
           href={`/product/${product.slug}`}
           className="text-editorial-serif text-[1.0625rem] leading-snug text-foreground transition-colors hover:text-primary md:text-lg"
         >
           {product.name}
-        </Link>
+        </ProductLink>
         <div className="flex items-center gap-2 pt-0.5">
           <span className="font-sans text-[0.9375rem] font-semibold text-foreground">{formatINR(product.price)}</span>
           {product.originalPrice ? (

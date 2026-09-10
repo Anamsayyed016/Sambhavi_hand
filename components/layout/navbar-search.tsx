@@ -7,6 +7,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { Search, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatINR } from '@/lib/products'
+import { rememberBrowseContext } from '@/lib/navigation-return'
 
 type Suggestion = {
   slug: string
@@ -118,6 +119,7 @@ export function NavbarSearch() {
       if (activeIndex >= 0 && suggestions[activeIndex]) {
         e.preventDefault()
         setOpen(false)
+        rememberBrowseContext()
         router.push(`/product/${suggestions[activeIndex].slug}`)
         return
       }
@@ -187,7 +189,10 @@ export function NavbarSearch() {
                     <li key={item.slug}>
                       <Link
                         href={`/product/${item.slug}`}
-                        onClick={() => setOpen(false)}
+                        onClick={() => {
+                          rememberBrowseContext()
+                          setOpen(false)
+                        }}
                         className={cn(
                           'flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-secondary/60',
                           activeIndex === index && 'bg-secondary/60',

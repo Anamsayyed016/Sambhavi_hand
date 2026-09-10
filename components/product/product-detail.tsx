@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus, Plus, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
-import { getEditorialCollectionLabel } from '@/lib/product-badges'
+import { getEditorialCollectionLabel, isChhabiliProduct } from '@/lib/product-badges'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
@@ -29,6 +29,11 @@ export function ProductDetail({ product }: { product: Product }) {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
   const editorialLabel = getEditorialCollectionLabel(product)
+  const backFallback = isChhabiliProduct(product)
+    ? '/collections/chhabili'
+    : product.collections[0]
+      ? `/collections/${product.collections[0]}`
+      : '/shop'
 
   const handleAdd = () => {
     addItem(product, qty)
@@ -37,7 +42,7 @@ export function ProductDetail({ product }: { product: Product }) {
 
   return (
     <section className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-14">
-      <BackButton fallbackHref="/shop" />
+      <BackButton fallbackHref={backFallback} />
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
         <ProductImageZoom
           images={gallery}

@@ -8,6 +8,7 @@ import { X, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { type Product, formatINR } from '@/lib/products'
 import { useCart } from '@/components/cart/cart-provider'
+import { rememberBrowseContext } from '@/lib/navigation-return'
 
 export function QuickViewModal({
   product,
@@ -122,7 +123,15 @@ export function QuickViewModal({
                   </div>
                   <Button
                     variant="link"
-                    render={<Link href={`/product/${product.slug}`} onClick={onClose} />}
+                    render={
+                      <Link
+                        href={`/product/${product.slug}`}
+                        onClick={() => {
+                          rememberBrowseContext()
+                          onClose()
+                        }}
+                      />
+                    }
                     className="text-xs uppercase tracking-wide text-muted-foreground"
                   >
                     View Full Details

@@ -2,12 +2,12 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
 import { reels, type Reel } from '@/lib/content'
 import { getStorefrontProduct } from '@/lib/products'
 import { SectionHeader } from '@/components/layout/section-header'
+import { ProductLink } from '@/components/product/product-link'
 
 function ReelCaption({
   reel,
@@ -85,13 +85,13 @@ function ReelCard({ reel, index }: { reel: Reel; index: number }) {
           >
             {playOverlay}
           </button>
-          <Link
+          <ProductLink
             href={productHref}
             className="absolute inset-x-0 bottom-0 z-20"
             onClick={(e) => e.stopPropagation()}
           >
             <ReelCaption reel={reel} productName={product?.name} />
-          </Link>
+          </ProductLink>
         </div>
       </motion.div>
     )
@@ -104,7 +104,7 @@ function ReelCard({ reel, index }: { reel: Reel; index: number }) {
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.6, delay: index * 0.08 }}
     >
-      <Link
+      <ProductLink
         href={productHref}
         className="group relative block aspect-[9/16] overflow-hidden rounded-md bg-foreground/5"
       >
@@ -118,7 +118,7 @@ function ReelCard({ reel, index }: { reel: Reel; index: number }) {
         {gradient}
         {playOverlay}
         <ReelCaption reel={reel} productName={product?.name} />
-      </Link>
+      </ProductLink>
     </motion.div>
   )
 }

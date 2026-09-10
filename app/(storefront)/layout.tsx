@@ -1,8 +1,10 @@
 import type React from 'react'
+import { Suspense } from 'react'
 import { CartProvider } from '@/components/cart/cart-provider'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { CartDrawer } from '@/components/cart/cart-drawer'
+import { BrowseScrollRestorer } from '@/components/layout/browse-scroll-restorer'
 
 export default function StorefrontLayout({
   children,
@@ -13,6 +15,9 @@ export default function StorefrontLayout({
     <CartProvider>
       <Navbar />
       <CartDrawer />
+      <Suspense fallback={null}>
+        <BrowseScrollRestorer />
+      </Suspense>
       <main>{children}</main>
       <Footer />
     </CartProvider>

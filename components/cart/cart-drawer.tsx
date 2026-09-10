@@ -8,6 +8,7 @@ import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/components/cart/cart-provider'
 import { formatINR, getProduct } from '@/lib/products'
+import { rememberBrowseContext } from '@/lib/navigation-return'
 import {
   SHIPPING_FLAT_INR,
   FREE_SHIPPING_THRESHOLD_INR,
@@ -95,7 +96,10 @@ export function CartDrawer() {
                     <li key={item.slug} className="flex gap-4 border-b border-border/60 py-4">
                       <Link
                         href={`/product/${item.slug}`}
-                        onClick={closeCart}
+                        onClick={() => {
+                          rememberBrowseContext()
+                          closeCart()
+                        }}
                         className="relative aspect-3/4 w-20 shrink-0 overflow-hidden rounded-sm bg-muted"
                       >
                         <Image
@@ -114,7 +118,10 @@ export function CartDrawer() {
                             </p>
                             <Link
                               href={`/product/${item.slug}`}
-                              onClick={closeCart}
+                              onClick={() => {
+                                rememberBrowseContext()
+                                closeCart()
+                              }}
                               className="font-serif text-base leading-tight text-foreground hover:text-primary"
                             >
                               {item.name}
