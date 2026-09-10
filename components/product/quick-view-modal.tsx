@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { type Product, formatINR } from '@/lib/products'
 import { useCart } from '@/components/cart/cart-provider'
 import { rememberBrowseContext } from '@/lib/navigation-return'
+import { isChhabiliProduct } from '@/lib/product-badges'
+import { ChhabiliProductDescription } from '@/components/product/chhabili-product-description'
 
 export function QuickViewModal({
   product,
@@ -86,9 +88,16 @@ export function QuickViewModal({
                     </span>
                   ) : null}
                 </div>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {product.description}
-                </p>
+                {isChhabiliProduct(product) ? (
+                  <ChhabiliProductDescription
+                    description={product.description}
+                    className="text-muted-foreground"
+                  />
+                ) : (
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {product.description}
+                  </p>
+                )}
                 <dl className="flex flex-col gap-1 text-sm">
                   <div className="flex gap-2">
                     <dt className="text-muted-foreground">Fabric:</dt>

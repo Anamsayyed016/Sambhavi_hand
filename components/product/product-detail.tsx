@@ -9,6 +9,7 @@ import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
 import { ProductImageZoom } from '@/components/product/product-image-zoom'
+import { ChhabiliProductDescription } from '@/components/product/chhabili-product-description'
 
 const detailRows = (product: Product) => [
   { label: 'Fabric', value: product.fabric },
@@ -99,9 +100,13 @@ export function ProductDetail({ product }: { product: Product }) {
             {product.availability}
           </span>
 
-          <p className="mt-6 whitespace-pre-line font-sans text-sm leading-relaxed text-foreground/85 text-pretty">
-            {product.description}
-          </p>
+          {isChhabiliProduct(product) ? (
+            <ChhabiliProductDescription description={product.description} className="mt-6" />
+          ) : (
+            <p className="mt-6 whitespace-pre-line font-sans text-sm leading-relaxed text-foreground/85 text-pretty">
+              {product.description}
+            </p>
+          )}
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <div className="flex items-center rounded-md border border-border">

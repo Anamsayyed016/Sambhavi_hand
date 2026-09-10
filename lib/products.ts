@@ -1747,7 +1747,7 @@ export const products: Product[] = [
     availability: 'In Stock',
     isNew: true,
     description:
-      'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.\n\nPerfect for Navratri, Garba nights, festive gatherings & special celebrations.\n\nSpecifications:\n• Designed with 8 meter flair and stitching with canvas & inner\n• Length: 41"\n• Waist: Fits Up To 42"\n• Top: 38" standard sizing\n• Top adjustable margin: 36"–40"\n• Top Length: 25"\n\nPackage Contains:\n• Lehenga\n• Top\n• Purse\n\nWeight:\n1.300 Kg',
+      'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.\n\nPerfect for Navratri, Garba nights, festive gatherings & special celebrations.\n\nSpecifications:\n✦ Designed with 8 meter flair and stitching with canvas & inner\n✧ Length: 41"\n◇ Waist: Fits Up To 42"\n❖ Top: 38" standard sizing\n✦ Top adjustable margin: 36"–40"\n◇ Top Length: 25"\n\nPackage Contains:\n✦ Lehenga\n✧ Top\n◇ Purse\n\nWeight:\n◇ 1.300 Kg',
   },
 ]
 
