@@ -1,13 +1,25 @@
 /**
- * Upserts a NEW CHHABILI catalog product only (Catalog #4).
+ * Upserts CHHABILI Catalog #4 (blue jacket) only.
+ * Keep existing primary; append three gallery images.
  * Idempotent — does not modify Catalog #1, #2, or #3.
  */
 import { PrismaClient, ProductAvailability } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const IMAGE =
+const IMAGE_1 =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.46_AM_1.jpg'
+
+const IMAGE_2 =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.45_AM.jpg'
+
+const IMAGE_3 =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.45_AM_1.jpg'
+
+const IMAGE_4 =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.46_AM.jpg'
+
+const IMAGES: string[] = [IMAGE_1, IMAGE_2, IMAGE_3, IMAGE_4]
 
 const DESCRIPTION = [
   'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.',
@@ -38,7 +50,7 @@ async function main() {
       slug: 'chhabili',
       name: 'CHHABILI',
       description: 'FESTIVE EDITION · Explore the Chhabili collection.',
-      image: IMAGE,
+      image: IMAGE_1,
       active: true,
       featured: true,
     },
@@ -56,8 +68,8 @@ async function main() {
       description: DESCRIPTION,
       price: 3999,
       originalPrice: null,
-      image: IMAGE,
-      images: [IMAGE],
+      image: IMAGE_1,
+      images: IMAGES,
       category: 'CHHABILI',
       collections: ['chhabili', 'navratri-collection'],
       fabric: 'Pure Cotton',
@@ -76,8 +88,8 @@ async function main() {
       name: 'CHHABILI',
       description: DESCRIPTION,
       price: 3999,
-      image: IMAGE,
-      images: [IMAGE],
+      image: IMAGE_1,
+      images: IMAGES,
       category: 'CHHABILI',
       collections: ['chhabili', 'navratri-collection'],
       fabric: 'Pure Cotton',
@@ -98,6 +110,7 @@ async function main() {
   console.log(`  sku: ${product.sku}`)
   console.log(`  price: ₹${product.price}`)
   console.log(`  image: ${product.image}`)
+  console.log(`  images: ${product.images.length}`)
   console.log(`  stock: ${product.stock}`)
 }
 
