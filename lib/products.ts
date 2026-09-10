@@ -1733,11 +1733,10 @@ export const products: Product[] = [
     price: 3999,
     image:
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
-    // Catalog #1 gallery — KEEP both existing images.
-    // Do NOT include Catalog #3 cover (…50_AM_1.jpg) here.
+    // Catalog #1 (white/blue): keep primary; new image as gallery #2.
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.50_AM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.49_AM_1.jpg',
     ],
     category: 'CHHABILI',
     collections: ['chhabili', 'navratri-collection'],
