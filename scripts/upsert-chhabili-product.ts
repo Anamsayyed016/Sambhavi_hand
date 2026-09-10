@@ -12,7 +12,7 @@ const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg'
 
 const IMAGE_2 =
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.48_AM_1.jpg'
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.50_AM.jpg'
 
 const IMAGES = [IMAGE, IMAGE_2]
 
