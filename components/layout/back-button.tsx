@@ -55,7 +55,7 @@ export function BackButton({
     <button
       type="button"
       onClick={handleBack}
-      className="mb-6 inline-flex items-center font-sans text-xs uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-primary"
+      className="mb-3 inline-flex items-center font-sans text-xs uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-primary"
     >
       {label}
     </button>

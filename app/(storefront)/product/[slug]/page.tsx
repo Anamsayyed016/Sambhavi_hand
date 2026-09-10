@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { PageBanner } from '@/components/layout/page-banner'
 import { ProductDetail } from '@/components/product/product-detail'
 import { ProductGrid } from '@/components/product/product-grid'
 import { SectionHeader } from '@/components/layout/section-header'
@@ -9,6 +8,7 @@ import {
   getPricedStorefrontProduct,
 } from '@/lib/catalog/db-pricing'
 import { getRelatedProducts, getStorefrontProducts } from '@/lib/products'
+import { isChhabiliProduct } from '@/lib/product-badges'
 
 /** Always read current selling prices from the database. */
 export const dynamic = 'force-dynamic'
@@ -64,21 +64,27 @@ export default async function ProductPage({
     },
   }
 
+  const breadcrumbs = isChhabiliProduct(product)
+    ? [
+        { label: 'Home', href: '/' },
+        { label: 'Categories', href: '/collections' },
+        { label: 'Navratri Collection', href: '/collections/navratri-collection' },
+        { label: 'CHHABILI', href: '/collections/chhabili' },
+        { label: product.name },
+      ]
+    : [
+        { label: 'Home', href: '/' },
+        { label: 'Sarees', href: '/shop' },
+        { label: product.name },
+      ]
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PageBanner
-        title={product.name}
-        breadcrumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'Sarees', href: '/shop' },
-          { label: product.name },
-        ]}
-      />
-      <ProductDetail product={product} />
+      <ProductDetail product={product} breadcrumbs={breadcrumbs} />
 
       {related.length > 0 ? (
         <section className="border-t border-border bg-secondary/40 py-16 md:py-24">

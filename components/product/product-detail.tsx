@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus, Plus, Check } from 'lucide-react'
+import Link from 'next/link'
+import { ChevronRight, Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus, Plus, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { getEditorialCollectionLabel, isChhabiliProduct } from '@/lib/product-badges'
@@ -19,7 +20,15 @@ const detailRows = (product: Product) => [
   { label: 'Care', value: product.care },
 ]
 
-export function ProductDetail({ product }: { product: Product }) {
+type Crumb = { label: string; href?: string }
+
+export function ProductDetail({
+  product,
+  breadcrumbs,
+}: {
+  product: Product
+  breadcrumbs?: Crumb[]
+}) {
   const { addItem, toggleWishlist, isWishlisted, openCart } = useCart()
   const [activeImage, setActiveImage] = useState(0)
   const [qty, setQty] = useState(1)
@@ -42,9 +51,30 @@ export function ProductDetail({ product }: { product: Product }) {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-14">
+    <section className="mx-auto max-w-7xl px-5 pb-10 pt-[5.25rem] md:px-8 md:pb-14 md:pt-[6.5rem]">
+      {breadcrumbs && breadcrumbs.length > 0 ? (
+        <nav aria-label="Breadcrumb" className="mb-3">
+          <ol className="flex flex-wrap items-center gap-1.5 font-sans text-[0.65rem] uppercase tracking-wider text-muted-foreground sm:text-xs">
+            {breadcrumbs.map((crumb, i) => (
+              <li key={`${crumb.label}-${i}`} className="flex items-center gap-1.5">
+                {crumb.href ? (
+                  <Link href={crumb.href} className="transition-colors hover:text-primary">
+                    {crumb.label}
+                  </Link>
+                ) : (
+                  <span className="text-foreground">{crumb.label}</span>
+                )}
+                {i < breadcrumbs.length - 1 ? (
+                  <ChevronRight className="h-3 w-3" aria-hidden="true" />
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      ) : null}
+
       <BackButton fallbackHref={backFallback} />
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
+      <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-14">
         <ProductImageZoom
           images={gallery}
           alt={product.name}
