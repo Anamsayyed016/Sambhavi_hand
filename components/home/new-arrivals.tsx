@@ -1,13 +1,31 @@
-import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
-import { getProductsForCatalogSlug } from '@/lib/catalog-filters'
-import { NewArrivalsCarousel } from '@/components/home/new-arrivals-carousel'
+import { SectionHeader } from '@/components/layout/section-header'
+import { NewArrivalsShowcase } from '@/components/collections/new-arrivals-showcase'
+import { getNewArrivalsCatalogCards } from '@/lib/new-arrivals-catalogs'
+import Link from 'next/link'
 
-/** Homepage strip — same newest-first, cross-category logic as /collections/new-arrivals. */
+/** Homepage — curated category/collection New Arrivals (not product/image cards). */
 export async function NewArrivals() {
-  const products = getProductsForCatalogSlug(
-    'new-arrivals',
-    await getPricedStorefrontProducts(),
-  ).slice(0, 8)
+  const catalogs = await getNewArrivalsCatalogCards()
 
-  return <NewArrivalsCarousel products={products} />
+  return (
+    <section className="py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-4 md:px-8">
+        <div className="mb-10 flex items-end justify-between gap-4">
+          <SectionHeader
+            eyebrow="Just In"
+            title="New Arrivals"
+            subtitle="New products and collections, thoughtfully curated."
+            align="left"
+          />
+          <Link
+            href="/collections/new-arrivals"
+            className="hidden shrink-0 font-sans text-[0.65rem] font-medium uppercase tracking-[0.18em] text-accent transition-colors hover:text-primary md:inline-block"
+          >
+            View All
+          </Link>
+        </div>
+        <NewArrivalsShowcase catalogs={catalogs} />
+      </div>
+    </section>
+  )
 }

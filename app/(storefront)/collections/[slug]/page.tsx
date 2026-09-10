@@ -22,6 +22,8 @@ import {
 import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 import { getCollectionBySlug } from '@/lib/admin/collections'
 import { ChhabiliCollectionHero } from '@/components/collections/chhabili-collection-hero'
+import { NewArrivalsShowcase } from '@/components/collections/new-arrivals-showcase'
+import { getNewArrivalsCatalogCards } from '@/lib/new-arrivals-catalogs'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,6 +63,13 @@ export async function generateMetadata({
     }
   }
 
+  if (slug === 'new-arrivals') {
+    return {
+      title: 'New Arrivals | Sambhavi Handloom',
+      description: 'New products and collections, thoughtfully curated.',
+    }
+  }
+
   return {
     title,
     description,
@@ -80,7 +89,11 @@ export default async function CollectionDetailPage({
   const group = getCategoryGroup(slug)
   const parent = category ? getParentCategory(category) : undefined
   const children = category ? getChildCategories(category.slug) : []
-  const items = getProductsForCatalogSlug(slug, await getPricedStorefrontProducts())
+  const isNewArrivals = slug === 'new-arrivals'
+  const items = isNewArrivals
+    ? []
+    : getProductsForCatalogSlug(slug, await getPricedStorefrontProducts())
+  const newArrivalsCatalogs = isNewArrivals ? await getNewArrivalsCatalogCards() : []
 
   const childMeta = await Promise.all(
     children.map(async (child) => {
@@ -102,7 +115,6 @@ export default async function CollectionDetailPage({
       : null
 
   const isChhabili = category?.slug === 'chhabili'
-  const isNewArrivals = slug === 'new-arrivals'
   /**
    * Gallery-frame expansion (one card per images[]) is ONLY for traditional
    * handloom/powerloom saree category browsing. Named collections, New Arrivals,
@@ -221,12 +233,13 @@ export default async function CollectionDetailPage({
           </div>
         ) : null}
 
-        {items.length > 0 ? (
+        {isNewArrivals ? (
+          <NewArrivalsShowcase catalogs={newArrivalsCatalogs} />
+        ) : items.length > 0 ? (
           <ProductGrid
             products={items}
             columns="three"
-            // New Arrivals / named collections: NEVER expand gallery images into cards.
-            expandImages={isNewArrivals ? false : expandImages}
+            expandImages={expandImages}
           />
         ) : (
           <p className="py-20 text-center font-serif text-xl text-muted-foreground">
