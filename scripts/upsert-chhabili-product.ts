@@ -14,7 +14,10 @@ const IMAGE =
 const IMAGE_2 =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.50_AM.jpg'
 
-const IMAGES = [IMAGE, IMAGE_2]
+const IMAGE_3 =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.50_AM_1.jpg'
+
+const IMAGES = [IMAGE, IMAGE_2, IMAGE_3]
 
 const DESCRIPTION = [
   'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.',
