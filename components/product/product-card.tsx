@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Heart, ShoppingBag, Eye } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
+import { getEditorialCollectionLabel } from '@/lib/product-badges'
 import { useCart } from '@/components/cart/cart-provider'
 
 export function ProductCard({
@@ -21,6 +22,7 @@ export function ProductCard({
 }) {
   const { addItem, toggleWishlist, isWishlisted } = useCart()
   const wishlisted = isWishlisted(product.slug)
+  const editorialLabel = getEditorialCollectionLabel(product)
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
@@ -52,7 +54,11 @@ export function ProductCard({
 
         {/* badges */}
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5">
-          {product.isNew ? (
+          {editorialLabel ? (
+            <span className="w-fit max-w-[9.5rem] bg-charcoal/90 px-2 py-1 text-[0.58rem] font-medium uppercase tracking-[0.14em] text-ivory backdrop-blur-[2px]">
+              {editorialLabel}
+            </span>
+          ) : product.isNew ? (
             <span className="w-fit bg-charcoal px-2 py-1 text-[0.6rem] font-medium uppercase tracking-luxe text-ivory">
               New
             </span>

@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus, Plus, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
+import { getEditorialCollectionLabel } from '@/lib/product-badges'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
+import { ProductImageZoom } from '@/components/product/product-image-zoom'
 
 const detailRows = (product: Product) => [
   { label: 'Fabric', value: product.fabric },
@@ -27,6 +28,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
+  const editorialLabel = getEditorialCollectionLabel(product)
 
   const handleAdd = () => {
     addItem(product, qty)
@@ -37,52 +39,34 @@ export function ProductDetail({ product }: { product: Product }) {
     <section className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-14">
       <BackButton fallbackHref="/shop" />
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
-        {/* gallery */}
-        <div className="flex flex-col-reverse gap-4 sm:flex-row">
-          {gallery.length > 1 ? (
-            <div className="flex gap-3 sm:flex-col">
-              {gallery.map((img, i) => (
-                <button
-                  key={img}
-                  type="button"
-                  onClick={() => setActiveImage(i)}
-                  aria-label={`View image ${i + 1}`}
-                  className={cn(
-                    'relative h-20 w-16 shrink-0 overflow-hidden rounded-sm border bg-muted transition-colors sm:h-24 sm:w-20',
-                    activeImage === i ? 'border-primary' : 'border-border',
-                  )}
-                >
-                  <Image src={img || '/placeholder.svg'} alt="" fill sizes="80px" className="object-contain object-center" />
-                </button>
-              ))}
-            </div>
-          ) : null}
-          <div className="relative aspect-[2/3] flex-1 overflow-hidden rounded-md bg-ivory p-4 sm:p-6">
-            <div className="relative h-full w-full">
-              <Image
-                src={gallery[activeImage] || '/placeholder.svg'}
-                alt={product.name}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 45vw"
-                className="object-contain object-center"
-              />
-            </div>            {discount > 0 ? (
-              <span className="absolute left-4 top-4 bg-primary px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-luxe text-primary-foreground">
-                Save {discount}%
-              </span>
-            ) : null}
-          </div>
-        </div>
+        <ProductImageZoom
+          images={gallery}
+          alt={product.name}
+          activeIndex={activeImage}
+          onActiveIndexChange={setActiveImage}
+          discountPercent={discount}
+        />
 
-        {/* info */}
         <div className="flex flex-col">
-          <span className="font-sans text-xs uppercase tracking-luxe text-accent">
-            {product.category}
-          </span>
+          {editorialLabel ? (
+            <span className="font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-accent">
+              {editorialLabel}
+            </span>
+          ) : (
+            <span className="font-sans text-xs uppercase tracking-luxe text-accent">
+              {product.category}
+            </span>
+          )}
+
           <h1 className="mt-3 font-serif text-3xl text-foreground text-balance md:text-4xl">
             {product.name}
           </h1>
+
+          {!editorialLabel ? null : (
+            <p className="mt-2 font-sans text-[0.7rem] uppercase tracking-[0.14em] text-muted-foreground">
+              {product.category} · Festive Edition
+            </p>
+          )}
 
           <div className="mt-4 flex items-center gap-3">
             <span className="font-sans text-2xl font-medium text-foreground">
@@ -114,7 +98,6 @@ export function ProductDetail({ product }: { product: Product }) {
             {product.description}
           </p>
 
-          {/* quantity + actions */}
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <div className="flex items-center rounded-md border border-border">
               <button
@@ -160,7 +143,6 @@ export function ProductDetail({ product }: { product: Product }) {
             </Button>
           </div>
 
-          {/* trust icons */}
           <ul className="mt-8 grid grid-cols-3 gap-3 border-y border-border py-5">
             {[
               { icon: Truck, label: 'Free shipping over ₹5,000' },
@@ -176,7 +158,6 @@ export function ProductDetail({ product }: { product: Product }) {
             ))}
           </ul>
 
-          {/* details */}
           <dl className="mt-8 flex flex-col divide-y divide-border">
             {detailRows(product).map((row) => (
               <div key={row.label} className="flex gap-4 py-3">

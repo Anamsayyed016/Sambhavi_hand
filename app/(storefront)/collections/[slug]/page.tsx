@@ -48,7 +48,8 @@ export async function generateMetadata({
   if (category?.slug === 'chhabili') {
     return {
       title: 'CHHABILI | Sambhavi Handloom',
-      description: 'Explore the Chhabili festive saree collection from Sambhavi Handloom.',
+      description:
+        'Explore CHHABILI from the Navratri Collection 2026 festive edit by Sambhavi Handloom.',
     }
   }
 

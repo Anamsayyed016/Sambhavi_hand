@@ -107,7 +107,7 @@ export function getCatalogTitle(slug: string): string | undefined {
 export function getCatalogSubtitle(slug: string, category?: SareeCategory): string {
   if (category) {
     if (category.slug === 'chhabili') {
-      return 'FESTIVE EDITION · Explore the Chhabili collection.'
+      return 'NEW · NAVRATRI 2026 · Explore the Chhabili festive collection.'
     }
     const group = getCategoryGroup(category.groupSlug)
     return group ? `${group.name} · Browse ${category.name} sarees.` : `Browse ${category.name} sarees.`
