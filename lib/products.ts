@@ -1827,6 +1827,27 @@ export const products: Product[] = [
     description:
       'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.\n\nPerfect for Navratri, Garba nights, festive gatherings & special celebrations.\n\nSpecifications:\n✦ Designed with 8 meter flair and stitching with canvas & inner\n✧ Length: 41"\n◇ Waist fits up to 42"\n❖ Top 38" standard sizing\n✦ Top adjustable margin 36"–40"\n◇ Top Length 25"\n\nPackage Contains:\n✦ Lehenga\n✦ Top\n✦ Purse\n\nWeight:\n◇ 1.300 Kg',
   },
+  {
+    slug: 'lehanga-kanjiveram-silk',
+    name: 'LEHANGA',
+    price: 2690,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041228/WhatsApp_Image_2026-09-10_at_11.18.13_AM_1.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041228/WhatsApp_Image_2026-09-10_at_11.18.13_AM_1.jpg',
+    ],
+    category: 'LEHANGA',
+    collections: ['lehanga'],
+    fabric: 'Pure Kanjiveram Silk',
+    weave: 'Lehenga Set · Jacquard Border · Maggam Work Blouse',
+    length: '42" · 4 mtr flair with canvas patta',
+    blouse: 'Full stitched Rangoli · Free size · Designer work sleeves',
+    care: 'Package: Lehenga, Blouse, Dupatta',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Launch New Exclusive Designer premium Quality pure Kanjiveram silk full stitched Lehenga with Full stitched Designer maggam work blouse with embroidered work Dupatta.\n\nProduct Details:\n✦ Lehenga: Full stitched Kanjiveram silk with big Jacquard Border attached with canvas patta\n✦ Length: 42"\n✦ Flair: 4 mtr\n\n✦ Blouse: Full stitched Rangoli with heavy designer work on back and front with designer work sleeve\n✦ Size: Free size\n\n✦ Dupatta: Premium Quality Rangoli silk with beautiful embroidery cutwork border',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {

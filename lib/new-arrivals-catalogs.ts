@@ -9,6 +9,12 @@ import { getStorefrontProducts, type Product } from '@/lib/products'
  */
 export const NEW_ARRIVALS_CATALOG_DEFS = [
   {
+    slug: 'lehanga',
+    name: 'LEHANGA',
+    href: '/collections/lehanga',
+    blurb: 'New exclusive designer lehenga in pure Kanjiveram silk.',
+  },
+  {
     slug: 'chhabili',
     name: 'CHHABILI',
     href: '/collections/chhabili',
@@ -42,6 +48,8 @@ export type NewArrivalsCatalogCard = {
  * Used when DB/collection cover is missing or invalid — does not change product data.
  */
 const KNOWN_VALID_COVERS: Record<string, string> = {
+  lehanga:
+    'https://res.cloudinary.com/tcjtyr02/image/upload/v1789041228/WhatsApp_Image_2026-09-10_at_11.18.13_AM_1.jpg',
   chhabili: CHHABILI_HERO_IMAGE,
   'digital-print':
     'https://res.cloudinary.com/tcjtyr02/image/upload/v1787916480/WhatsApp_Image_2026-08-28_at_4.02.44_PM.jpg',

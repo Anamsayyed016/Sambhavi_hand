@@ -9,8 +9,18 @@ export function isChhabiliProduct(product: Product): boolean {
   )
 }
 
-/** Subtle editorial collection label for the latest CHHABILI edit. */
+/** True when a product belongs to the LEHANGA collection. */
+export function isLehangaProduct(product: Product): boolean {
+  return (
+    product.category.trim().toUpperCase() === 'LEHANGA' ||
+    product.collections.includes('lehanga') ||
+    product.slug.startsWith('lehanga-')
+  )
+}
+
+/** Subtle editorial collection label for latest edits. */
 export function getEditorialCollectionLabel(product: Product): string | null {
+  if (isLehangaProduct(product)) return 'NEW EXCLUSIVE DESIGNER LEHENGA'
   if (isChhabiliProduct(product)) return 'NEW COLLECTION'
   return null
 }
