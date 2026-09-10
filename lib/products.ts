@@ -1733,12 +1733,9 @@ export const products: Product[] = [
     price: 3999,
     image:
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
-    // Explicit gallery order — do not reorder by filename/date/URL.
-    // 1) primary  2) existing second  3) newest additional
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.50_AM.jpg',
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.50_AM_1.jpg',
     ],
     category: 'CHHABILI',
     collections: ['chhabili', 'navratri-collection'],
@@ -1778,9 +1775,9 @@ export const products: Product[] = [
     name: 'CHHABILI',
     price: 3999,
     image:
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.46_AM_2.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.50_AM_1.jpg',
     images: [
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.46_AM_2.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.50_AM_1.jpg',
     ],
     category: 'CHHABILI',
     collections: ['chhabili', 'navratri-collection'],
