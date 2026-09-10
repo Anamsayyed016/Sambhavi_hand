@@ -21,7 +21,7 @@ import {
 } from '@/lib/catalog-filters'
 import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 import { getCollectionBySlug } from '@/lib/admin/collections'
-import { ChhabiliEditorialFeature } from '@/components/collections/chhabili-editorial'
+import { ChhabiliCollectionHero } from '@/components/collections/chhabili-collection-hero'
 
 export const dynamic = 'force-dynamic'
 
@@ -95,9 +95,6 @@ export default async function CollectionDetailPage({
       : null
 
   const isChhabili = category?.slug === 'chhabili'
-  const chhabiliProduct = isChhabili
-    ? items.find((product) => product.slug === 'chhabili-lehenga-set') ?? items[0]
-    : undefined
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
@@ -125,13 +122,17 @@ export default async function CollectionDetailPage({
 
   return (
     <>
-      <PageBanner
-        title={title}
-        subtitle={
-          ownCollection?.description?.trim() || getCatalogSubtitle(slug, category)
-        }
-        breadcrumbs={breadcrumbs}
-      />
+      {isChhabili ? (
+        <ChhabiliCollectionHero breadcrumbs={breadcrumbs} />
+      ) : (
+        <PageBanner
+          title={title}
+          subtitle={
+            ownCollection?.description?.trim() || getCatalogSubtitle(slug, category)
+          }
+          breadcrumbs={breadcrumbs}
+        />
+      )}
       <section className="mx-auto max-w-[88rem] px-5 py-12 md:px-8 md:py-16">
         {group ? (
           <div className="mb-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -199,10 +200,6 @@ export default async function CollectionDetailPage({
               priority
             />
           </div>
-        ) : null}
-
-        {isChhabili && chhabiliProduct ? (
-          <ChhabiliEditorialFeature product={chhabiliProduct} />
         ) : null}
 
         {items.length > 0 ? (
