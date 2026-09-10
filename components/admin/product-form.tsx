@@ -411,6 +411,10 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
                 <option key={c} value={c} />
               ))}
             </datalist>
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              For Navratri sub-collection products, set Category to <strong>CHHABILI</strong> and
+              optionally toggle the <strong>CHHABILI</strong> collection chip below.
+            </p>
           </div>
           <div>
             <p className={labelClass}>Collections</p>

@@ -12,7 +12,7 @@
  */
 import { PrismaClient, ProductAvailability } from '@prisma/client'
 import { products } from '../lib/products'
-import { categoryGroups, legacyCollectionSlugs } from '../lib/categories'
+import { categoryGroups, legacyCollectionSlugs, nestedCategories } from '../lib/categories'
 
 const prisma = new PrismaClient()
 
@@ -79,6 +79,18 @@ function buildSeedCollections(): {
         image: '/images/collection-silk.png',
       })
     }
+  }
+
+  for (const category of nestedCategories) {
+    bySlug.set(category.slug, {
+      slug: category.slug,
+      name: category.name,
+      description:
+        category.slug === 'chhabili'
+          ? 'FESTIVE EDITION · Explore the Chhabili collection.'
+          : `Browse ${category.name} sarees.`,
+      image: '/images/collection-silk.png',
+    })
   }
 
   for (const slug of legacyCollectionSlugs) {

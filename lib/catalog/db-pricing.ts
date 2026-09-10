@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { resolveCheckoutCoupon } from '@/lib/checkout/coupon'
 import { calculateOrderTotal, getShippingRules } from '@/lib/checkout/shipping'
-import { productOffersFreeShipping } from '@/lib/payment-test-mode'
+import { isStorefrontProductVisible, productOffersFreeShipping } from '@/lib/payment-test-mode'
 import type { Product } from '@/lib/products'
 import { getProduct, getStorefrontProduct, getStorefrontProducts } from '@/lib/products'
 import { mapDbProductToStorefront } from '@/lib/catalog/storefront-search'
@@ -61,7 +61,23 @@ export async function applyDbPricesToProducts(products: Product[]): Promise<Prod
 }
 
 export async function getPricedStorefrontProducts(): Promise<Product[]> {
-  return applyDbPricesToProducts(getStorefrontProducts())
+  const staticPriced = await applyDbPricesToProducts(getStorefrontProducts())
+
+  try {
+    const rows = await prisma.product.findMany({ where: { active: true } })
+    if (rows.length === 0) return staticPriced
+
+    const bySlug = new Map(staticPriced.map((product) => [product.slug, product]))
+    for (const row of rows) {
+      if (!isStorefrontProductVisible(row.slug)) continue
+      // Database is source of truth for active catalog rows (admin-created CHHABILI products included).
+      bySlug.set(row.slug, mapDbProductToStorefront(row))
+    }
+    return Array.from(bySlug.values())
+  } catch (error) {
+    console.error('[catalog] DB catalog merge failed; using static+price overlay', error)
+    return staticPriced
+  }
 }
 
 export async function getPricedStorefrontProduct(slug: string): Promise<Product | undefined> {

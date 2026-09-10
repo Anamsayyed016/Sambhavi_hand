@@ -1,6 +1,7 @@
 import { Prisma, ProductAvailability, type Product } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import type { ProductInput, ProductPatch } from '@/lib/admin/validation'
+import { categoryNames } from '@/lib/categories'
 
 export const LOW_STOCK_THRESHOLD = 3
 
@@ -180,7 +181,9 @@ export async function getProductFilterOptions() {
   ])
 
   return {
-    categories: categories.map((c) => c.category),
+    categories: Array.from(new Set([...categoryNames, ...categories.map((c) => c.category)])).sort(
+      (a, b) => a.localeCompare(b),
+    ),
     collections,
   }
 }

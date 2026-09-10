@@ -31,6 +31,10 @@ export async function getCollectionById(id: string) {
   return prisma.collection.findUnique({ where: { id } })
 }
 
+export async function getCollectionBySlug(slug: string) {
+  return prisma.collection.findUnique({ where: { slug } })
+}
+
 export async function createCollection(data: CollectionInput): Promise<Collection> {
   return prisma.collection.create({
     data: {

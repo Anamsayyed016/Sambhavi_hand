@@ -4,6 +4,8 @@ export type SareeCategory = {
   groupSlug: string
   /** Key catalog types shown with subtle emphasis in navigation. */
   prominent?: boolean
+  /** When set, this category nests under another leaf category (e.g. CHHABILI under Navratri). */
+  parentSlug?: string
 }
 
 export type CategoryGroup = {
@@ -87,7 +89,20 @@ const groupDefs: {
   },
 ]
 
-function nameToSlug(name: string): string {
+/** Nested festive sub-categories (parent is another leaf category, not a group). */
+const nestedCategoryDefs: Array<{
+  name: string
+  parentSlug: string
+  groupSlug: string
+}> = [
+  {
+    name: 'CHHABILI',
+    parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
+]
+
+export function nameToSlug(name: string): string {
   return name
     .toLowerCase()
     .replace(/\s+\/\s+/g, '-')
@@ -96,22 +111,33 @@ function nameToSlug(name: string): string {
     .replace(/-+/g, '-')
 }
 
+function toCategory(name: string, groupSlug: string, parentSlug?: string): SareeCategory {
+  const slug = nameToSlug(name)
+  return {
+    slug,
+    name,
+    groupSlug,
+    parentSlug,
+    prominent: prominentCategorySlugs.has(slug),
+  }
+}
+
 export const categoryGroups: CategoryGroup[] = groupDefs.map((group) => ({
   slug: group.slug,
   name: group.name,
   primary: group.primary,
-  categories: group.names.map((name) => {
-    const slug = nameToSlug(name)
-    return {
-      slug,
-      name,
-      groupSlug: group.slug,
-      prominent: prominentCategorySlugs.has(slug),
-    }
-  }),
+  categories: group.names.map((name) => toCategory(name, group.slug)),
 }))
 
-export const sareeCategories: SareeCategory[] = categoryGroups.flatMap((g) => g.categories)
+export const nestedCategories: SareeCategory[] = nestedCategoryDefs.map((def) =>
+  toCategory(def.name, def.groupSlug, def.parentSlug),
+)
+
+/** Flat list of all browseable categories including nested sub-categories. */
+export const sareeCategories: SareeCategory[] = [
+  ...categoryGroups.flatMap((g) => g.categories),
+  ...nestedCategories,
+]
 
 export const categoryNames = sareeCategories.map((c) => c.name)
 
@@ -125,6 +151,15 @@ export function getCategoryGroup(slug: string): CategoryGroup | undefined {
 export function getSareeCategory(slug: string): SareeCategory | undefined {
   const resolved = slug === 'kota' ? 'kota-handloom' : slug
   return sareeCategories.find((c) => c.slug === resolved)
+}
+
+export function getChildCategories(parentSlug: string): SareeCategory[] {
+  return nestedCategories.filter((c) => c.parentSlug === parentSlug)
+}
+
+export function getParentCategory(category: SareeCategory): SareeCategory | undefined {
+  if (!category.parentSlug) return undefined
+  return getSareeCategory(category.parentSlug)
 }
 
 export function isKotaCategorySlug(slug: string): boolean {

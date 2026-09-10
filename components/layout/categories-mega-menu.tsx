@@ -7,6 +7,7 @@ import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   categoryGroups,
+  getChildCategories,
   primaryCategoryGroup,
   secondaryCategoryGroups,
   type CategoryGroup,
@@ -24,22 +25,40 @@ function CategoryLinks({
 }) {
   return (
     <ul className={cn('flex flex-col gap-2.5', className)}>
-      {categories.map((category) => (
-        <li key={category.slug}>
-          <Link
-            href={`/collections/${category.slug}`}
-            onClick={onNavigate}
-            className={cn(
-              'font-sans leading-snug tracking-nav transition-colors duration-300 hover:text-primary',
-              category.prominent
-                ? 'text-[0.9375rem] font-medium text-foreground/90'
-                : 'text-[0.9375rem] font-normal text-muted-foreground',
-            )}
-          >
-            {category.name}
-          </Link>
-        </li>
-      ))}
+      {categories.map((category) => {
+        const children = getChildCategories(category.slug)
+        return (
+          <li key={category.slug}>
+            <Link
+              href={`/collections/${category.slug}`}
+              onClick={onNavigate}
+              className={cn(
+                'font-sans leading-snug tracking-nav transition-colors duration-300 hover:text-primary',
+                category.prominent
+                  ? 'text-[0.9375rem] font-medium text-foreground/90'
+                  : 'text-[0.9375rem] font-normal text-muted-foreground',
+              )}
+            >
+              {category.name}
+            </Link>
+            {children.length > 0 ? (
+              <ul className="mt-2 space-y-1.5 border-l border-border/50 pl-3">
+                {children.map((child) => (
+                  <li key={child.slug}>
+                    <Link
+                      href={`/collections/${child.slug}`}
+                      onClick={onNavigate}
+                      className="font-sans text-[0.875rem] tracking-nav text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      {child.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </li>
+        )
+      })}
     </ul>
   )
 }
@@ -275,22 +294,40 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                               All {group.name.toLowerCase()}
                             </Link>
                           </li>
-                          {group.categories.map((category) => (
-                            <li key={category.slug}>
-                              <Link
-                                href={`/collections/${category.slug}`}
-                                onClick={handleNavigate}
-                                className={cn(
-                                  'font-sans leading-snug tracking-nav transition-colors hover:text-primary',
-                                  category.prominent
-                                    ? 'text-[0.9375rem] font-medium text-foreground/90'
-                                    : 'text-[0.9375rem] font-normal text-muted-foreground',
-                                )}
-                              >
-                                {category.name}
-                              </Link>
-                            </li>
-                          ))}
+                          {group.categories.map((category) => {
+                            const children = getChildCategories(category.slug)
+                            return (
+                              <li key={category.slug}>
+                                <Link
+                                  href={`/collections/${category.slug}`}
+                                  onClick={handleNavigate}
+                                  className={cn(
+                                    'font-sans leading-snug tracking-nav transition-colors hover:text-primary',
+                                    category.prominent
+                                      ? 'text-[0.9375rem] font-medium text-foreground/90'
+                                      : 'text-[0.9375rem] font-normal text-muted-foreground',
+                                  )}
+                                >
+                                  {category.name}
+                                </Link>
+                                {children.length > 0 ? (
+                                  <ul className="mt-1.5 space-y-1.5 border-l border-border/40 pl-3">
+                                    {children.map((child) => (
+                                      <li key={child.slug}>
+                                        <Link
+                                          href={`/collections/${child.slug}`}
+                                          onClick={handleNavigate}
+                                          className="font-sans text-[0.875rem] tracking-nav text-muted-foreground transition-colors hover:text-primary"
+                                        >
+                                          {child.name}
+                                        </Link>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : null}
+                              </li>
+                            )
+                          })}
                         </motion.ul>
                       ) : null}
                     </AnimatePresence>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { PageBanner } from '@/components/layout/page-banner'
@@ -6,6 +7,8 @@ import { ProductGrid } from '@/components/product/product-grid'
 import {
   categoryGroups,
   getCategoryGroup,
+  getChildCategories,
+  getParentCategory,
   getSareeCategory,
   isLegacyCollectionSlug,
   legacyCollectionSlugs,
@@ -17,7 +20,7 @@ import {
   getProductsForCatalogSlug,
 } from '@/lib/catalog-filters'
 import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
-import { getStorefrontProducts } from '@/lib/products'
+import { getCollectionBySlug } from '@/lib/admin/collections'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,9 +43,18 @@ export async function generateMetadata({
   const title = getCatalogTitle(slug)
   if (!title) return { title: 'Category Not Found' }
   const category = getSareeCategory(slug)
+  const description = getCatalogSubtitle(slug, category)
+
+  if (category?.slug === 'chhabili') {
+    return {
+      title: 'CHHABILI | Sambhavi Handloom',
+      description: 'Explore the Chhabili festive saree collection from Sambhavi Handloom.',
+    }
+  }
+
   return {
     title,
-    description: getCatalogSubtitle(slug, category),
+    description,
   }
 }
 
@@ -57,7 +69,28 @@ export default async function CollectionDetailPage({
 
   const category = getSareeCategory(slug)
   const group = getCategoryGroup(slug)
+  const parent = category ? getParentCategory(category) : undefined
+  const children = category ? getChildCategories(category.slug) : []
   const items = getProductsForCatalogSlug(slug, await getPricedStorefrontProducts())
+
+  const childMeta = await Promise.all(
+    children.map(async (child) => {
+      const collection = await getCollectionBySlug(child.slug).catch(() => null)
+      return {
+        category: child,
+        image: collection?.active !== false ? collection?.image ?? null : null,
+        description:
+          collection?.description?.trim() ||
+          'Explore the Chhabili festive collection.',
+        active: collection?.active !== false,
+      }
+    }),
+  )
+
+  const ownCollection =
+    category && !group
+      ? await getCollectionBySlug(category.slug).catch(() => null)
+      : null
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
@@ -70,6 +103,14 @@ export default async function CollectionDetailPage({
               label: getCategoryGroup(category.groupSlug)?.name ?? 'Categories',
               href: `/collections/${category.groupSlug}`,
             },
+            ...(parent
+              ? [
+                  {
+                    label: parent.name,
+                    href: `/collections/${parent.slug}`,
+                  },
+                ]
+              : []),
             { label: title },
           ]
         : [{ label: title }]),
@@ -79,7 +120,9 @@ export default async function CollectionDetailPage({
     <>
       <PageBanner
         title={title}
-        subtitle={getCatalogSubtitle(slug, category)}
+        subtitle={
+          ownCollection?.description?.trim() || getCatalogSubtitle(slug, category)
+        }
         breadcrumbs={breadcrumbs}
       />
       <section className="mx-auto max-w-[88rem] px-5 py-12 md:px-8 md:py-16">
@@ -97,12 +140,68 @@ export default async function CollectionDetailPage({
           </div>
         ) : null}
 
+        {childMeta.filter((c) => c.active).length > 0 ? (
+          <div className="mb-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {childMeta
+              .filter((c) => c.active)
+              .map(({ category: child, image, description }) => (
+                <Link
+                  key={child.slug}
+                  href={`/collections/${child.slug}`}
+                  className="group overflow-hidden rounded-sm border border-border bg-background transition-colors hover:border-primary"
+                >
+                  <div className="relative aspect-[4/5] bg-muted">
+                    {image ? (
+                      <Image
+                        src={image}
+                        alt={child.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center px-6 text-center font-serif text-2xl tracking-[0.18em] text-muted-foreground">
+                        {child.name}
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2 px-5 py-5">
+                    <h2 className="font-serif text-xl tracking-[0.12em] text-foreground">
+                      {child.name}
+                    </h2>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {description}
+                    </p>
+                    <span className="inline-block pt-1 text-xs uppercase tracking-[0.16em] text-primary">
+                      Explore {child.name}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+          </div>
+        ) : null}
+
+        {ownCollection?.image && category && !children.length ? (
+          <div className="relative mb-10 hidden aspect-[21/9] overflow-hidden rounded-sm bg-muted md:block">
+            <Image
+              src={ownCollection.image}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="(max-width: 1408px) 100vw, 1408px"
+              priority
+            />
+          </div>
+        ) : null}
+
         {items.length > 0 ? (
           <ProductGrid products={items} columns="three" expandImages />
         ) : (
           <p className="py-20 text-center font-serif text-xl text-muted-foreground">
             {category || isLegacyCollectionSlug(slug)
-              ? 'No sarees in this category yet. Check back soon.'
+              ? children.length > 0
+                ? 'Explore a sub-collection above, or check back soon for more sarees.'
+                : 'No sarees in this category yet. Check back soon.'
               : 'No sarees in this group yet. Select a type above or check back soon.'}
           </p>
         )}

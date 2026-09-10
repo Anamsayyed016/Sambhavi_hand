@@ -1,7 +1,9 @@
 import type { Product } from '@/lib/products'
 import {
   getCategoryGroup,
+  getChildCategories,
   getSareeCategory,
+  getSareeCategoryByName,
   isKotaCategorySlug,
   isLegacyCollectionSlug,
   type SareeCategory,
@@ -24,21 +26,47 @@ export function productMatchesCategory(product: Product, categoryName: string): 
   if (categoryName === 'Kota Handloom') {
     return (KOTA_CATEGORY_LABELS as readonly string[]).includes(product.category)
   }
-  return product.category === categoryName
+  if (product.category === categoryName) return true
+
+  // Parent categories include products assigned to nested children (Navratri → CHHABILI).
+  const category = getSareeCategoryByName(categoryName)
+  if (category) {
+    const children = getChildCategories(category.slug)
+    if (children.some((child) => child.name === product.category)) return true
+  }
+
+  return false
+}
+
+function productMatchesCatalogCategory(product: Product, category: SareeCategory): boolean {
+  if (isKotaCategorySlug(category.slug)) {
+    return isKotaProduct(product)
+  }
+  if (product.category === category.name) return true
+  if (product.collections.includes(category.slug)) return true
+
+  const children = getChildCategories(category.slug)
+  if (children.some((child) => product.category === child.name || product.collections.includes(child.slug))) {
+    return true
+  }
+
+  return false
 }
 
 export function getProductsForCatalogSlug(slug: string, products: Product[]): Product[] {
   const category = getSareeCategory(slug)
   if (category) {
-    if (isKotaCategorySlug(category.slug)) {
-      return products.filter(isKotaProduct)
-    }
-    return products.filter((p) => p.category === category.name)
+    return products.filter((p) => productMatchesCatalogCategory(p, category))
   }
 
   const group = getCategoryGroup(slug)
   if (group) {
     const names = new Set(group.categories.map((c) => c.name))
+    for (const parent of group.categories) {
+      for (const child of getChildCategories(parent.slug)) {
+        names.add(child.name)
+      }
+    }
     return products.filter(
       (p) =>
         names.has(p.category) ||
@@ -78,6 +106,9 @@ export function getCatalogTitle(slug: string): string | undefined {
 
 export function getCatalogSubtitle(slug: string, category?: SareeCategory): string {
   if (category) {
+    if (category.slug === 'chhabili') {
+      return 'FESTIVE EDITION · Explore the Chhabili collection.'
+    }
     const group = getCategoryGroup(category.groupSlug)
     return group ? `${group.name} · Browse ${category.name} sarees.` : `Browse ${category.name} sarees.`
   }

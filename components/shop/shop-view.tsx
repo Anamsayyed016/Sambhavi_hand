@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
-import { categoryGroups } from '@/lib/categories'
+import { categoryGroups, getChildCategories } from '@/lib/categories'
 import { productMatchesCategory } from '@/lib/catalog-filters'
 import { type Product } from '@/lib/products'
 import { ProductGrid } from '@/components/product/product-grid'
@@ -75,37 +75,46 @@ export function ShopView({
             {group.name}
           </h3>
           <ul className="flex flex-col gap-2.5">
-            {group.categories.map((cat) => {
-              const active = activeCategories.includes(cat.name)
-              return (
-                <li key={cat.slug}>
-                  <button
-                    type="button"
-                    onClick={() => toggleCategory(cat.name)}
-                    className="flex w-full items-start gap-3 text-left font-sans text-sm"
-                  >
-                    <span
-                      className={cn(
-                        'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors',
-                        active
-                          ? 'border-primary bg-primary text-primary-foreground'
-                          : 'border-border bg-transparent',
-                      )}
-                      aria-hidden="true"
+            {group.categories.flatMap((cat) => {
+              const children = getChildCategories(cat.slug)
+              const entries = [cat, ...children]
+              return entries.map((entry) => {
+                const active = activeCategories.includes(entry.name)
+                const nested = Boolean(entry.parentSlug)
+                return (
+                  <li key={entry.slug} className={nested ? 'pl-4' : undefined}>
+                    <button
+                      type="button"
+                      onClick={() => toggleCategory(entry.name)}
+                      className="flex w-full items-start gap-3 text-left font-sans text-sm"
                     >
-                      {active ? <X className="h-3 w-3" strokeWidth={3} /> : null}
-                    </span>
-                    <span
-                      className={cn(
-                        active ? 'text-foreground' : cat.prominent ? 'text-foreground/90' : 'text-muted-foreground',
-                        cat.prominent && 'font-normal',
-                      )}
-                    >
-                      {cat.name}
-                    </span>
-                  </button>
-                </li>
-              )
+                      <span
+                        className={cn(
+                          'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors',
+                          active
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-border bg-transparent',
+                        )}
+                        aria-hidden="true"
+                      >
+                        {active ? <X className="h-3 w-3" strokeWidth={3} /> : null}
+                      </span>
+                      <span
+                        className={cn(
+                          active
+                            ? 'text-foreground'
+                            : entry.prominent
+                              ? 'text-foreground/90'
+                              : 'text-muted-foreground',
+                          entry.prominent && 'font-normal',
+                        )}
+                      >
+                        {entry.name}
+                      </span>
+                    </button>
+                  </li>
+                )
+              })
             })}
           </ul>
         </div>

@@ -1,14 +1,22 @@
 'use client'
 
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 import { slugify } from '@/lib/admin/format'
 import { Button } from '@/components/ui/button'
 
-const field = 'mt-1.5 w-full rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-ring'
+const field =
+  'mt-1.5 w-full rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-ring'
 
-export function CollectionForm({ mode, initial }: { mode: 'create' | 'edit'; initial?: Record<string, unknown> }) {
+export function CollectionForm({
+  mode,
+  initial,
+}: {
+  mode: 'create' | 'edit'
+  initial?: Record<string, unknown>
+}) {
   const router = useRouter()
   const [form, setForm] = useState({
     name: String(initial?.name ?? ''),
@@ -21,6 +29,31 @@ export function CollectionForm({ mode, initial }: { mode: 'create' | 'edit'; ini
   const [slugTouched, setSlugTouched] = useState(mode === 'edit')
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+
+  async function uploadCover(file: File) {
+    setUploading(true)
+    setError(null)
+    try {
+      const body = new FormData()
+      body.append('file', file)
+      body.append('folder', 'sambhavi/collections')
+      const res = await fetch('/api/admin/media/upload', {
+        method: 'POST',
+        body,
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data.error ?? 'Image upload failed')
+        return
+      }
+      setForm((f) => ({ ...f, image: String(data.url ?? '') }))
+    } catch {
+      setError('Image upload failed. You can paste a Cloudinary URL instead.')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -34,7 +67,10 @@ export function CollectionForm({ mode, initial }: { mode: 'create' | 'edit'; ini
     })
     const data = await res.json().catch(() => ({}))
     setSaving(false)
-    if (!res.ok) { setError(data.error ?? 'Save failed'); return }
+    if (!res.ok) {
+      setError(data.error ?? 'Save failed')
+      return
+    }
     router.push(`/admin/collections/${data.collection.id}`)
     router.refresh()
   }
@@ -44,28 +80,102 @@ export function CollectionForm({ mode, initial }: { mode: 'create' | 'edit'; ini
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <div>
         <label className="text-xs uppercase tracking-wider text-muted-foreground">Name</label>
-        <input className={field} required value={form.name} onChange={(e) => {
-          const name = e.target.value
-          setForm((f) => ({ ...f, name, slug: slugTouched ? f.slug : slugify(name) }))
-        }} />
+        <input
+          className={field}
+          required
+          value={form.name}
+          onChange={(e) => {
+            const name = e.target.value
+            setForm((f) => ({ ...f, name, slug: slugTouched ? f.slug : slugify(name) }))
+          }}
+        />
       </div>
       <div>
         <label className="text-xs uppercase tracking-wider text-muted-foreground">Slug</label>
-        <input className={field} required value={form.slug} onChange={(e) => { setSlugTouched(true); setForm((f) => ({ ...f, slug: e.target.value })) }} />
+        <input
+          className={field}
+          required
+          value={form.slug}
+          onChange={(e) => {
+            setSlugTouched(true)
+            setForm((f) => ({ ...f, slug: e.target.value }))
+          }}
+        />
       </div>
       <div>
         <label className="text-xs uppercase tracking-wider text-muted-foreground">Description</label>
-        <textarea className={`${field} min-h-24`} required value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+        <textarea
+          className={`${field} min-h-24`}
+          required
+          value={form.description}
+          onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+        />
       </div>
       <div>
-        <label className="text-xs uppercase tracking-wider text-muted-foreground">Image path</label>
-        <input className={field} required placeholder="/images/..." value={form.image} onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))} />
+        <label className="text-xs uppercase tracking-wider text-muted-foreground">
+          Cover image (Cloudinary)
+        </label>
+        <input
+          className={field}
+          required
+          placeholder="https://res.cloudinary.com/..."
+          value={form.image}
+          onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+        />
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <label className="inline-flex cursor-pointer items-center rounded-md border border-border bg-white px-3 py-2 text-sm hover:bg-beige/50">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="sr-only"
+              disabled={uploading || saving}
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) void uploadCover(file)
+                e.target.value = ''
+              }}
+            />
+            {uploading ? 'Uploading…' : 'Upload to Cloudinary'}
+          </label>
+          <p className="text-xs text-muted-foreground">
+            Uploads require CLOUDINARY_API_KEY + CLOUDINARY_API_SECRET, or paste a Cloudinary URL.
+          </p>
+        </div>
+        {form.image ? (
+          <div className="relative mt-3 aspect-[4/3] w-full max-w-sm overflow-hidden rounded-md border border-border bg-beige">
+            <Image
+              src={form.image}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="384px"
+            />
+          </div>
+        ) : null}
       </div>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))} /> Active</label>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.featured} onChange={(e) => setForm((f) => ({ ...f, featured: e.target.checked }))} /> Featured</label>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={form.active}
+          onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))}
+        />{' '}
+        Active
+      </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={form.featured}
+          onChange={(e) => setForm((f) => ({ ...f, featured: e.target.checked }))}
+        />{' '}
+        Featured
+      </label>
       <div className="flex gap-2">
-        <Button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
-        <Button type="button" variant="outline" render={<Link href="/admin/collections" />}>Cancel</Button>
+        <Button type="submit" disabled={saving || uploading}>
+          {saving ? 'Saving…' : 'Save'}
+        </Button>
+        <Button type="button" variant="outline" render={<Link href="/admin/collections" />}>
+          Cancel
+        </Button>
       </div>
     </form>
   )
