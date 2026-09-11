@@ -139,9 +139,8 @@ export function ProductImageZoom({
     const video = inlineVideoRef.current
     if (!video) return
     video.muted = true
-    void video.play().catch(() => {
-      /* Autoplay may be blocked until the user interacts. */
-    })
+    // Attempt muted autoplay; native controls remain available for play/pause/seek.
+    void video.play().catch(() => {})
   }, [activeIsVideo, activeSrc])
 
   useEffect(() => {
@@ -278,6 +277,8 @@ export function ProductImageZoom({
           }
         }}
         aria-label={video ? `View video ${i + 1}` : `View image ${i + 1}`}
+        aria-pressed={selected}
+        data-media-type={video ? 'video' : 'image'}
         className={cn(
           'relative shrink-0 overflow-hidden rounded-sm border bg-muted transition-colors',
           size === 'rail' && 'h-20 w-16 sm:h-24 sm:w-20',
@@ -293,26 +294,16 @@ export function ProductImageZoom({
       >
         {video ? (
           <>
-            {poster ? (
-              <Image
-                src={poster}
-                alt=""
-                fill
-                sizes={size === 'rail' ? '80px' : '44px'}
-                className="object-cover object-center"
-                unoptimized
-              />
-            ) : (
-              <video
-                src={src}
-                muted
-                playsInline
-                preload="metadata"
-                className="h-full w-full object-cover"
-                aria-hidden
-              />
-            )}
-            <span className="absolute inset-0 flex items-center justify-center bg-charcoal/40">
+            <video
+              src={src}
+              poster={poster}
+              muted
+              playsInline
+              preload="metadata"
+              className="h-full w-full object-cover"
+              aria-hidden
+            />
+            <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-charcoal/40">
               <span className="flex size-6 items-center justify-center rounded-full border border-ivory/50 bg-charcoal/55">
                 <Play className="size-3 fill-ivory text-ivory" aria-hidden />
               </span>
@@ -347,11 +338,9 @@ export function ProductImageZoom({
               src={activeSrc}
               poster={getGalleryVideoPosterUrl(activeSrc)}
               className="h-auto w-full object-contain"
-              autoPlay
               muted
-              loop
               playsInline
-              controls={false}
+              controls
               preload="metadata"
               aria-label={`${alt} video`}
             />
@@ -383,24 +372,19 @@ export function ProductImageZoom({
 
         <div className="relative aspect-[2/3] flex-1 overflow-hidden rounded-md bg-ivory p-4 sm:p-6">
           {activeIsVideo ? (
-            <div className="relative h-full w-full overflow-hidden">
+            <div className="relative h-full w-full overflow-hidden bg-charcoal/5">
+              {/* Must be a real video element — never substitute poster/Image for the selected video media */}
               <video
                 ref={inlineVideoRef}
-                key={activeSrc}
+                key={`main-video-${activeSrc}`}
                 src={activeSrc}
-                poster={getGalleryVideoPosterUrl(activeSrc)}
                 className="h-full w-full object-cover object-center"
-                autoPlay
                 muted
-                loop
                 playsInline
-                controls={false}
+                controls
                 preload="metadata"
                 aria-label={`${alt} video`}
               />
-              <span className="pointer-events-none absolute bottom-3 right-3 z-10 flex size-9 items-center justify-center rounded-full border border-border/60 bg-background/85 text-foreground shadow-sm backdrop-blur-sm">
-                <Play className="size-3.5 fill-current" strokeWidth={1.75} aria-hidden />
-              </span>
             </div>
           ) : (
             <button
@@ -432,7 +416,7 @@ export function ProductImageZoom({
           ) : null}
 
           {discountPercent > 0 ? (
-            <span className="absolute left-4 top-4 bg-primary px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-luxe text-primary-foreground">
+            <span className="absolute left-4 top-4 z-10 bg-primary px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-luxe text-primary-foreground">
               Save {discountPercent}%
             </span>
           ) : null}
@@ -520,13 +504,10 @@ export function ProductImageZoom({
                 <div className="relative flex h-full w-full max-w-5xl items-center justify-center">
                   <video
                     ref={lightboxVideoRef}
-                    key={viewerSrc}
+                    key={`viewer-video-${viewerSrc}`}
                     src={viewerSrc}
-                    poster={getGalleryVideoPosterUrl(viewerSrc)}
                     className="max-h-full max-w-full object-contain"
-                    autoPlay
                     muted
-                    loop
                     playsInline
                     controls
                     preload="metadata"

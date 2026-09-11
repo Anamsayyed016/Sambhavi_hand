@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ChevronRight, Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus, Plus, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
+import { isGalleryVideoUrl } from '@/lib/gallery-media'
 import { getEditorialCollectionLabel, isChhabiliProduct, isJobaniyuProduct } from '@/lib/product-badges'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
@@ -22,6 +23,12 @@ const detailRows = (product: Product) => [
 
 type Crumb = { label: string; href?: string }
 
+function initialGalleryIndex(gallery: string[], preferVideo: boolean): number {
+  if (!preferVideo) return 0
+  const videoIndex = gallery.findIndex((url) => isGalleryVideoUrl(url))
+  return videoIndex >= 0 ? videoIndex : 0
+}
+
 export function ProductDetail({
   product,
   breadcrumbs,
@@ -30,11 +37,15 @@ export function ProductDetail({
   breadcrumbs?: Crumb[]
 }) {
   const { addItem, toggleWishlist, isWishlisted, openCart } = useCart()
-  const [activeImage, setActiveImage] = useState(0)
+  const gallery = useMemo(
+    () => (product.images.length > 0 ? product.images : [product.image]),
+    [product.images, product.image],
+  )
+  const [activeImage, setActiveImage] = useState(() =>
+    initialGalleryIndex(gallery, isChhabiliProduct(product)),
+  )
   const [qty, setQty] = useState(1)
-
   const wishlisted = isWishlisted(product.slug)
-  const gallery = product.images.length > 0 ? product.images : [product.image]
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
