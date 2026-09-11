@@ -1735,12 +1735,13 @@ export const products: Product[] = [
     price: 3999,
     image:
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
-    // Catalog #1 (white/blue): keep all existing; append new gallery image last.
+    // Catalog #1 (white/blue): keep all existing; append video last.
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.51_AM.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.49_AM_1.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022728/WhatsApp_Image_2026-09-10_at_11.16.47_AM_2.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022729/WhatsApp_Image_2026-09-10_at_11.16.50_AM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/video/upload/v1789109600/WhatsApp_Video_2026-09-10_at_11.25.27_AM.mp4',
     ],
     category: 'CHHABILI',
     collections: ['chhabili', 'navratri-collection'],
