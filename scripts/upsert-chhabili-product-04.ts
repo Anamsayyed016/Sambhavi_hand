@@ -19,8 +19,15 @@ const IMAGE_3 =
 const IMAGE_4 =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.47_AM_1.jpg'
 
-/** Catalog #3 (orange): keep existing gallery; append two new images. */
-const IMAGES: string[] = [IMAGE_1, IMAGE_2, IMAGE_3, IMAGE_4]
+/** Catalog #3 (orange): keep existing gallery; append two videos last. */
+const IMAGES: string[] = [
+  IMAGE_1,
+  IMAGE_2,
+  IMAGE_3,
+  IMAGE_4,
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789109611/WhatsApp_Video_2026-09-10_at_11.25.26_AM_1.mp4',
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789109601/WhatsApp_Video_2026-09-10_at_11.25.26_AM.mp4',
+]
 
 const DESCRIPTION = [
   'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.',
