@@ -9,6 +9,16 @@ export function isChhabiliProduct(product: Product): boolean {
   )
 }
 
+/** True when a product belongs to the JOBANIYU Navratri edit. */
+export function isJobaniyuProduct(product: Product): boolean {
+  return (
+    product.category.trim().toUpperCase() === 'JOBANIYU' ||
+    product.collections.includes('jobaniyu') ||
+    product.slug === 'jobaniyu' ||
+    product.slug.startsWith('jobaniyu-')
+  )
+}
+
 /** True when a product belongs to the LEHANGA collection. */
 export function isLehangaProduct(product: Product): boolean {
   return (
@@ -20,6 +30,7 @@ export function isLehangaProduct(product: Product): boolean {
 
 /** Subtle editorial collection label for latest edits. */
 export function getEditorialCollectionLabel(product: Product): string | null {
+  if (isJobaniyuProduct(product)) return 'NEW COLLECTION'
   if (isLehangaProduct(product)) return 'NEW EXCLUSIVE DESIGNER LEHENGA'
   if (isChhabiliProduct(product)) return 'NEW COLLECTION'
   return null

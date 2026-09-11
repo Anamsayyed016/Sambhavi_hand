@@ -1,5 +1,5 @@
 /**
- * Upserts JOBANIYU under the existing Navratri Collection.
+ * Upserts JOBANIYU as its own Navratri child category (sibling of CHHABILI).
  * Idempotent — does not modify CHHABILI, LEHANGA, or other products.
  */
 import { PrismaClient, ProductAvailability } from '@prisma/client'
@@ -62,6 +62,21 @@ async function main() {
     },
   })
 
+  await prisma.collection.upsert({
+    where: { slug: 'jobaniyu' },
+    create: {
+      slug: 'jobaniyu',
+      name: 'JOBANIYU',
+      description: 'NEW COLLECTION · Explore the Jobaniyu festive collection.',
+      image: IMAGE,
+      active: true,
+      featured: false,
+    },
+    update: {
+      name: 'JOBANIYU',
+    },
+  })
+
   const product = await prisma.product.upsert({
     where: { slug: 'jobaniyu' },
     create: {
@@ -73,8 +88,8 @@ async function main() {
       originalPrice: null,
       image: IMAGE,
       images: IMAGES,
-      category: 'Navratri Collection',
-      collections: ['navratri-collection'],
+      category: 'JOBANIYU',
+      collections: ['jobaniyu', 'navratri-collection'],
       fabric: 'Tasar Silk',
       weave: 'Gamthi Print · Embossed Design · Gotta Patti Lace',
       length: '41" · 3.80 meter flair · stitched with canvas & full inner',
@@ -92,8 +107,8 @@ async function main() {
       price: 2599,
       image: IMAGE,
       images: IMAGES,
-      category: 'Navratri Collection',
-      collections: ['navratri-collection'],
+      category: 'JOBANIYU',
+      collections: ['jobaniyu', 'navratri-collection'],
       fabric: 'Tasar Silk',
       weave: 'Gamthi Print · Embossed Design · Gotta Patti Lace',
       length: '41" · 3.80 meter flair · stitched with canvas & full inner',
@@ -105,7 +120,7 @@ async function main() {
     },
   })
 
-  console.log(`JOBANIYU ready: ${product.id} (${product.slug}) ₹${product.price}`)
+  console.log(`JOBANIYU category ready: ${product.id} (${product.slug}) ₹${product.price}`)
 }
 
 main()

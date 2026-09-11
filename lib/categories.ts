@@ -101,6 +101,11 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'navratri-collection',
     groupSlug: 'festive-edition',
   },
+  {
+    name: 'JOBANIYU',
+    parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
 ]
 
 export function nameToSlug(name: string): string {

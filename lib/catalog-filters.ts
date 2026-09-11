@@ -138,6 +138,9 @@ export function getCatalogSubtitle(slug: string, category?: SareeCategory): stri
     if (category.slug === 'chhabili') {
       return 'NEW COLLECTION · Explore the Chhabili festive collection.'
     }
+    if (category.slug === 'jobaniyu') {
+      return 'NEW COLLECTION · Explore the Jobaniyu festive collection.'
+    }
     if (category.slug === 'lehanga') {
       return 'FESTIVE EDITION · Explore the Lehanga collection.'
     }

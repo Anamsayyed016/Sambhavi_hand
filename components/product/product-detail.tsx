@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ChevronRight, Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus, Plus, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
-import { getEditorialCollectionLabel, isChhabiliProduct } from '@/lib/product-badges'
+import { getEditorialCollectionLabel, isChhabiliProduct, isJobaniyuProduct } from '@/lib/product-badges'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
@@ -41,9 +41,11 @@ export function ProductDetail({
   const editorialLabel = getEditorialCollectionLabel(product)
   const backFallback = isChhabiliProduct(product)
     ? '/collections/chhabili'
-    : product.collections[0]
-      ? `/collections/${product.collections[0]}`
-      : '/shop'
+    : isJobaniyuProduct(product)
+      ? '/collections/jobaniyu'
+      : product.collections[0]
+        ? `/collections/${product.collections[0]}`
+        : '/shop'
 
   const handleAdd = () => {
     addItem(product, qty)

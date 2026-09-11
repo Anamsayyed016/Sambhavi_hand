@@ -1884,8 +1884,8 @@ export const products: Product[] = [
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789109341/WhatsApp_Image_2026-09-10_at_11.19.26_AM_1.jpg',
     ],
-    category: 'Navratri Collection',
-    collections: ['navratri-collection'],
+    category: 'JOBANIYU',
+    collections: ['jobaniyu', 'navratri-collection'],
     fabric: 'Tasar Silk',
     weave: 'Gamthi Print · Embossed Design · Gotta Patti Lace',
     length: '41" · 3.80 meter flair · stitched with canvas & full inner',

@@ -88,7 +88,9 @@ function buildSeedCollections(): {
       description:
         category.slug === 'chhabili'
           ? 'FESTIVE EDITION · Explore the Chhabili collection.'
-          : `Browse ${category.name} sarees.`,
+          : category.slug === 'jobaniyu'
+            ? 'NEW COLLECTION · Explore the Jobaniyu festive collection.'
+            : `Browse ${category.name} sarees.`,
       image: '/images/collection-silk.png',
     })
   }

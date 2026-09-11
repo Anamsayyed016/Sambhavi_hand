@@ -8,7 +8,7 @@ import {
   getPricedStorefrontProduct,
 } from '@/lib/catalog/db-pricing'
 import { getRelatedProducts, getStorefrontProducts } from '@/lib/products'
-import { isChhabiliProduct } from '@/lib/product-badges'
+import { isChhabiliProduct, isJobaniyuProduct } from '@/lib/product-badges'
 
 /** Always read current selling prices from the database. */
 export const dynamic = 'force-dynamic'
@@ -72,11 +72,19 @@ export default async function ProductPage({
         { label: 'CHHABILI', href: '/collections/chhabili' },
         { label: product.name },
       ]
-    : [
-        { label: 'Home', href: '/' },
-        { label: 'Sarees', href: '/shop' },
-        { label: product.name },
-      ]
+    : isJobaniyuProduct(product)
+      ? [
+          { label: 'Home', href: '/' },
+          { label: 'Categories', href: '/collections' },
+          { label: 'Navratri Collection', href: '/collections/navratri-collection' },
+          { label: 'JOBANIYU', href: '/collections/jobaniyu' },
+          { label: product.name },
+        ]
+      : [
+          { label: 'Home', href: '/' },
+          { label: 'Sarees', href: '/shop' },
+          { label: product.name },
+        ]
 
   return (
     <>

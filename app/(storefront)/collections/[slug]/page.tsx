@@ -54,6 +54,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'jobaniyu') {
+    return {
+      title: 'JOBANIYU | Sambhavi Handloom',
+      description:
+        'Explore JOBANIYU from the Navratri Collection festive edit by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'lehanga') {
     return {
       title: 'LEHANGA | Sambhavi Handloom',
@@ -90,7 +98,7 @@ export default async function CollectionDetailPage({
         image: collection?.active !== false ? collection?.image ?? null : null,
         description:
           collection?.description?.trim() ||
-          'Explore the Chhabili festive collection.',
+          `Explore the ${child.name} festive collection.`,
         active: collection?.active !== false,
       }
     }),
