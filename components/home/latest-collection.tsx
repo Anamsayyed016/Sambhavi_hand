@@ -4,8 +4,11 @@ import { Button } from '@/components/ui/button'
 import { ProductLink } from '@/components/product/product-link'
 import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 import { isChhabiliProduct } from '@/lib/product-badges'
-import { CHHABILI_HERO_IMAGE } from '@/components/collections/chhabili-collection-hero'
 import { formatINR } from '@/lib/products'
+
+/** Homepage CHHABILI feature media — exact catalog video (not homepage.mp4). */
+const CHHABILI_FEATURE_VIDEO =
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789109600/WhatsApp_Video_2026-09-10_at_11.25.27_AM.mp4'
 
 /**
  * Homepage editorial spotlight for the newest collection (CHHABILI).
@@ -16,7 +19,6 @@ export async function LatestCollection() {
     .filter(isChhabiliProduct)
     .slice(0, 4)
 
-  const featureImage = chhabiliProducts[0]?.image || CHHABILI_HERO_IMAGE
   const showcase = chhabiliProducts.length > 0 ? chhabiliProducts : []
 
   return (
@@ -49,21 +51,26 @@ export async function LatestCollection() {
             </div>
           </div>
 
-          {/* Large editorial feature image */}
+          {/* Large editorial feature video — same container as former image */}
           <div className="order-2 lg:col-span-7 lg:order-2">
             <Link
               href="/collections/chhabili"
               className="group relative block overflow-hidden bg-muted"
+              aria-label="Explore CHHABILI collection"
             >
               <div className="relative aspect-[4/5] w-full sm:aspect-[5/4] lg:aspect-[16/11]">
-                <Image
-                  src={featureImage}
-                  alt="CHHABILI latest collection"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 58vw"
-                  className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                  priority
-                />
+                <video
+                  className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  controls={false}
+                  aria-label="CHHABILI latest collection film"
+                >
+                  <source src={CHHABILI_FEATURE_VIDEO} type="video/mp4" />
+                </video>
               </div>
             </Link>
           </div>
