@@ -2046,7 +2046,6 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125875/WhatsApp_Image_2026-09-10_at_11.28.00_AM_1.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125870/WhatsApp_Image_2026-09-10_at_11.27.59_AM_2.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125865/WhatsApp_Image_2026-09-10_at_11.27.58_AM.jpg',
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125873/WhatsApp_Image_2026-09-10_at_11.27.59_AM.jpg',
     ],
     category: 'LEHENGA CHOLI',
     collections: ['lehenga-choli'],
@@ -2068,7 +2067,28 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125861/WhatsApp_Image_2026-09-10_at_11.27.57_AM.jpg',
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125861/WhatsApp_Image_2026-09-10_at_11.27.57_AM.jpg',
+    ],
+    category: 'LEHENGA CHOLI',
+    collections: ['lehenga-choli'],
+    fabric: 'Dola Silk',
+    weave: 'Kalmkaei Print · Embroidery Thread Work',
+    length: '41" · 3.5 meter flair · stitched with canvas',
+    blouse: 'Unstitched · Vichitra Silk · Embroidery Thread Work',
+    care: 'Package: Lehenga, Blouse, Dupatta, Drawstring With Zip · Weight: 1 Kg',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Printed perfection for every occasion 🖤\n\nLehenga (Stitched)\n✦ Lehenga Fabric: Dola Silk\n✦ Lehenga Work: Kalmkaei Print\n✦ Lehenga Waist: Supported Up To 42\n✦ Lehenga Closer: Drawstring With Zip\n✦ Stitching: Stitched With Canvas\n✦ Length: 41\n✦ Flair: 3.5 Meter\n✦ Inner: Micro Cotton\n\nBlouse (Unstitched)\n✧ Blouse Fabric: Vichitra Silk\n✧ Work: Embroidery Thread Work\n\nDupatta\n◇ Dupatta Fabric: Vichitra Silk\n◇ Dupatta Work: Embroidery Thread Work With 4 Sard Lace Work\n◇ Dupatta Length: 2.5 Meter\n\nPackage Contains:\n❖ Lehenga\n❖ Blouse\n❖ Dupatta\n❖ Drawstring With Zip\n\nWeight:\n❖ 1 Kg\n\nRATE:\n₹1,999',
+  },
+  {
+    slug: 'lehenga-choli-03',
+    name: 'Lehenga Choli🌷',
+    price: 1999,
+    image:
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125868/WhatsApp_Image_2026-09-10_at_11.27.59_AM_1.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125868/WhatsApp_Image_2026-09-10_at_11.27.59_AM_1.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125873/WhatsApp_Image_2026-09-10_at_11.27.59_AM.jpg',
     ],
     category: 'LEHENGA CHOLI',
     collections: ['lehenga-choli'],

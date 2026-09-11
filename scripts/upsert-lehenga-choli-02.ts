@@ -9,11 +9,8 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125861/WhatsApp_Image_2026-09-10_at_11.27.57_AM.jpg'
 
-/** Primary green look + additional gallery still (moved from mistaken catalog #03). */
-const IMAGES: string[] = [
-  IMAGE,
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125868/WhatsApp_Image_2026-09-10_at_11.27.59_AM_1.jpg',
-]
+/** Light-green catalog — primary only (dark-green stills belong on catalog #03). */
+const IMAGES: string[] = [IMAGE]
 
 const DESCRIPTION = [
   'Printed perfection for every occasion 🖤',
