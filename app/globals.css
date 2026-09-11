@@ -149,48 +149,49 @@
 }
 
 /* Homepage editorial 3D stage — subtle independent floats (GPU transforms only) */
+/* Slow evening Garba rhythm — 4–10px drift, tiny rotation, staggered timing */
 @keyframes editorial-float-a {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(-2.5deg);
+    transform: translate3d(0, 0, 0) rotate(-2.2deg);
   }
   50% {
-    transform: translate3d(0, -12px, 0) rotate(-1.4deg);
+    transform: translate3d(0, -9px, 0) rotate(-1.2deg);
   }
 }
 
 @keyframes editorial-float-b {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(3deg);
+    transform: translate3d(0, 0, 0) rotate(2.8deg);
   }
   50% {
-    transform: translate3d(8px, 6px, 0) rotate(4.2deg);
+    transform: translate3d(5px, 7px, 0) rotate(3.6deg);
   }
 }
 
 @keyframes editorial-float-c {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(2.5deg);
+    transform: translate3d(0, 0, 0) rotate(2.2deg);
   }
   50% {
-    transform: translate3d(-4px, -8px, 0) rotate(1.2deg);
+    transform: translate3d(-4px, -8px, 0) rotate(1.1deg);
   }
 }
 
 .editorial-float-a {
-  animation: editorial-float-a 8s ease-in-out infinite;
+  animation: editorial-float-a 9s ease-in-out infinite;
 }
 
 .editorial-float-b {
-  animation: editorial-float-b 10s ease-in-out infinite;
-  animation-delay: -2.2s;
+  animation: editorial-float-b 11s ease-in-out infinite;
+  animation-delay: -2.8s;
 }
 
 .editorial-float-c {
-  animation: editorial-float-c 12s ease-in-out infinite;
-  animation-delay: -4.5s;
+  animation: editorial-float-c 13s ease-in-out infinite;
+  animation-delay: -5.2s;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -199,4 +200,33 @@
   .editorial-float-c {
     animation: none;
   }
+}
+
+/* Subtle Navratri atmosphere — gold dots + crossed dandiya-inspired lines */
+.editorial-navratri-dots {
+  background-image: radial-gradient(circle, color-mix(in oklab, var(--gold) 55%, transparent) 1px, transparent 1.2px);
+  background-size: 28px 28px;
+  background-position: 0 0;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, black 10%, transparent 75%);
+}
+
+.editorial-dandiya-lines {
+  background:
+    linear-gradient(
+      128deg,
+      transparent 46%,
+      color-mix(in oklab, var(--wine) 22%, transparent) 49.5%,
+      color-mix(in oklab, var(--gold) 35%, transparent) 50%,
+      color-mix(in oklab, var(--wine) 18%, transparent) 50.5%,
+      transparent 54%
+    ),
+    linear-gradient(
+      52deg,
+      transparent 46%,
+      color-mix(in oklab, var(--gold) 28%, transparent) 49.5%,
+      color-mix(in oklab, var(--wine) 20%, transparent) 50%,
+      color-mix(in oklab, var(--gold) 22%, transparent) 50.5%,
+      transparent 54%
+    );
+  mask-image: radial-gradient(ellipse 55% 50% at 60% 50%, black 5%, transparent 70%);
 }

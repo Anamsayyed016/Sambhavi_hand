@@ -11,13 +11,14 @@ const VIDEO_SRC =
 const POSTER_SRC =
   'https://res.cloudinary.com/tcjtyr02/video/upload/so_0,f_jpg,q_auto:eco/v1789119210/homepage.jpg'
 
+/** Existing Navratri category route — not the generic /collections index. */
 const CTA_HREF = '/collections/navratri-collection'
 
 type Parallax = { x: number; y: number }
 
 /**
  * Homepage-only decorative stills — not product/category media.
- * Depth: back < video < front for overlapping editorial layers.
+ * Positioned inside the STAGE column only (never over the text column).
  */
 const PANELS = [
   {
@@ -25,12 +26,10 @@ const PANELS = [
     src: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1789120676/nav3.png',
     alt: 'Editorial fashion photograph',
     floatClass: 'editorial-float-a',
-    /** Parallax strength in px at full cursor offset */
     parallaxPx: 6,
-    /** Desktop: overlaps video top-left, sits behind video */
     className:
-      'z-[2] left-[4%] top-[-2%] w-[min(18.5rem,28%)] md:left-[6%] md:top-0 xl:left-[8%]',
-    pose: 'rotateY(4deg) rotateX(2deg) translateZ(-36px) scale(0.96)',
+      'z-[2] left-[-4%] top-[-6%] w-[min(17.5rem,36%)] xl:left-[-2%] xl:w-[min(18rem,34%)]',
+    pose: 'rotateY(4deg) rotateX(2deg) translateZ(-36px) scale(0.97)',
   },
   {
     id: 'front-left',
@@ -38,9 +37,8 @@ const PANELS = [
     alt: 'Editorial fashion photograph',
     floatClass: 'editorial-float-b',
     parallaxPx: 12,
-    /** Desktop: overlaps lower-left of video, in front */
     className:
-      'z-[8] bottom-[-4%] left-[8%] w-[min(17rem,26%)] md:bottom-[-2%] md:left-[10%] xl:left-[12%]',
+      'z-[8] bottom-[-8%] left-[-2%] w-[min(18.5rem,38%)] xl:bottom-[-6%] xl:left-[0%] xl:w-[min(19.5rem,36%)]',
     pose: 'rotateY(-5deg) rotateX(-1.5deg) translateZ(28px)',
   },
   {
@@ -49,9 +47,8 @@ const PANELS = [
     alt: 'Editorial fashion photograph',
     floatClass: 'editorial-float-c',
     parallaxPx: 14,
-    /** Desktop: overlaps right edge of video, closest to viewer */
     className:
-      'z-[9] right-[2%] top-[18%] w-[min(16.5rem,25%)] md:right-[4%] md:top-[16%] xl:right-[6%]',
+      'z-[9] right-[-2%] top-[12%] w-[min(17rem,34%)] xl:right-[-1%] xl:top-[10%] xl:w-[min(18rem,32%)]',
     pose: 'rotateY(-3.5deg) rotateX(1deg) translateZ(42px)',
   },
 ] as const
@@ -84,10 +81,7 @@ function FloatingStill({
 
   return (
     <div
-      className={cn(
-        'pointer-events-none absolute will-change-transform',
-        className,
-      )}
+      className={cn('pointer-events-none absolute will-change-transform', className)}
       style={{
         transform: `translate3d(${px}px, ${py}px, 0)`,
         transition: reducedMotion
@@ -104,7 +98,7 @@ function FloatingStill({
         style={{ transitionDelay: `${delayMs}ms` }}
       >
         <div
-          className="overflow-hidden bg-ivory shadow-[0_22px_50px_-28px_rgba(36,28,20,0.55)] ring-1 ring-charcoal/8"
+          className="overflow-hidden bg-ivory shadow-[0_22px_50px_-28px_rgba(36,28,20,0.55)] ring-1 ring-charcoal/10"
           style={{
             transform: pose,
             transformStyle: 'preserve-3d',
@@ -115,7 +109,7 @@ function FloatingStill({
               src={src}
               alt={alt}
               fill
-              sizes="(max-width: 768px) 45vw, 300px"
+              sizes="(max-width: 768px) 30vw, 300px"
               className="object-cover object-center"
               unoptimized
             />
@@ -127,8 +121,8 @@ function FloatingStill({
 }
 
 /**
- * Immersive 3D editorial composition — one visual space for film, stills & type.
- * Homepage-only; does not touch product or category data.
+ * Immersive Navratri editorial composition.
+ * Text column is compositionally separate from the image/video stage.
  */
 export function EditorialVideo() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -232,225 +226,171 @@ export function EditorialVideo() {
   return (
     <section
       ref={sectionRef}
-      aria-label="Editorial brand film"
+      aria-label="Navratri editorial film"
       className="relative overflow-hidden border-y border-border/35 bg-secondary/30"
     >
-      <div className="mx-auto max-w-[92rem] px-4 py-12 md:px-8 md:py-16 lg:py-20">
-        {/* —— Desktop immersive stage —— */}
-        <div
-          ref={stageRef}
-          onMouseMove={onPointerMove}
-          onMouseLeave={onPointerLeave}
-          className="relative mx-auto hidden min-h-[36rem] w-full max-w-7xl md:block md:h-[70vh] md:max-h-[46rem]"
-          style={{ perspective: '1600px', perspectiveOrigin: '48% 42%' }}
-        >
-          <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
-            {/* Vertical editorial mark */}
-            <p
-              aria-hidden
-              className={cn(
-                'pointer-events-none absolute right-0 top-1/2 z-[1] hidden -translate-y-1/2 select-none font-sans text-[0.625rem] uppercase tracking-[0.45em] text-foreground/25 lg:block',
-                'origin-center rotate-90',
-                'transition-opacity duration-1000',
-                revealed ? 'opacity-100' : 'opacity-0',
-              )}
-              style={{ transitionDelay: '700ms' }}
-            >
-              Sambhavi
+      {/* Subtle Navratri atmosphere — decorative only */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="editorial-navratri-dots absolute inset-0 opacity-[0.4]" />
+        <div className="editorial-dandiya-lines absolute inset-0 opacity-[0.28]" />
+        <div className="absolute left-[14%] top-[16%] h-36 w-36 rounded-full border border-accent/20 md:left-[22%] md:top-[12%]" />
+        <div className="absolute bottom-[14%] right-[8%] h-24 w-24 rounded-full border border-wine/15" />
+      </div>
+
+      <div className="relative mx-auto max-w-[92rem] px-4 py-12 md:px-8 md:py-16">
+        {/* Desktop: protected text column + image/video stage */}
+        <div className="mx-auto hidden max-w-7xl md:grid md:h-[70vh] md:max-h-[46rem] md:grid-cols-[minmax(15rem,26%)_minmax(0,1fr)] md:items-center md:gap-8 lg:gap-10 xl:gap-12">
+          {/* ZONE A — typography never overlapped by images */}
+          <div
+            className={cn(
+              'relative z-20 flex max-w-[17rem] flex-col justify-center transition-[opacity,transform] duration-1000 ease-out',
+              revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
+            )}
+            style={{ transitionDelay: '480ms' }}
+          >
+            <p className="font-sans text-[0.625rem] font-medium uppercase tracking-[0.28em] text-accent">
+              01 — Navratri Edition
             </p>
-
-            {/* Upper-left label */}
-            <div
-              className={cn(
-                'absolute left-[2%] top-[6%] z-[10] max-w-[14rem] transition-[opacity,transform] duration-1000 ease-out xl:left-[3%]',
-                revealed ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3',
-              )}
-              style={{ transitionDelay: '520ms' }}
+            <span
+              className="mt-3 block h-px w-12 bg-gradient-to-r from-accent via-wine/50 to-transparent"
+              aria-hidden
+            />
+            <h2 className="mt-6 font-serif text-[2.85rem] leading-[0.95] tracking-[0.02em] text-foreground lg:text-[3.35rem]">
+              Woven
+              <br />
+              Stories
+            </h2>
+            <p className="mt-4 max-w-[14rem] font-sans text-xs leading-relaxed text-muted-foreground">
+              A celebration of colour, craft &amp; movement.
+            </p>
+            <Link
+              href={CTA_HREF}
+              className="mt-7 inline-flex w-fit items-center gap-2 border-b border-primary/40 pb-1 font-sans text-[0.6875rem] font-semibold uppercase tracking-btn text-primary transition-colors hover:border-primary hover:text-wine"
             >
-              <p className="font-sans text-[0.625rem] font-medium uppercase tracking-[0.28em] text-accent">
-                01 — The Art of Indian Craft
+              Explore Navratri
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
+
+          {/* ZONE B + C — video + stills only */}
+          <div
+            ref={stageRef}
+            onMouseMove={onPointerMove}
+            onMouseLeave={onPointerLeave}
+            className="relative h-full min-h-[32rem] w-full"
+            style={{ perspective: '1600px', perspectiveOrigin: '45% 42%' }}
+          >
+            <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
+              <p
+                aria-hidden
+                className={cn(
+                  'pointer-events-none absolute right-0 top-1/2 z-[1] hidden -translate-y-1/2 select-none font-sans text-[0.625rem] uppercase tracking-[0.45em] text-wine/30 lg:block',
+                  'origin-center rotate-90 transition-opacity duration-1000',
+                  revealed ? 'opacity-100' : 'opacity-0',
+                )}
+                style={{ transitionDelay: '700ms' }}
+              >
+                Garba
               </p>
-              <span className="mt-3 block h-px w-8 bg-accent/60" aria-hidden />
-            </div>
 
-            {/* Back / middle / front stills */}
-            {PANELS.map((panel, index) => (
-              <FloatingStill
-                key={panel.id}
-                src={panel.src}
-                alt={panel.alt}
-                floatClass={panel.floatClass}
-                parallaxPx={panel.parallaxPx}
-                className={panel.className}
-                pose={panel.pose}
-                parallax={parallax}
-                reducedMotion={reducedMotion}
-                revealed={revealed}
-                delayMs={180 + index * 160}
-              />
-            ))}
-
-            {/* Central video — middle depth plane */}
-            <div
-              className={cn(
-                'absolute left-1/2 top-1/2 z-[5] h-[78%] w-[62%] max-w-[46rem] overflow-hidden bg-charcoal/5',
-                'shadow-[0_32px_70px_-40px_rgba(36,28,20,0.55)] ring-1 ring-charcoal/10',
-                'transition-[opacity,transform] duration-1000 ease-out',
-                revealed ? 'opacity-100' : 'opacity-0',
-              )}
-              style={{
-                transitionDelay: '40ms',
-                transformStyle: 'preserve-3d',
-                transform: revealed
-                  ? `translate(calc(-50% + ${reducedMotion ? 0 : parallax.x * 2}px), calc(-50% + ${reducedMotion ? 0 : parallax.y * 1.5}px)) translateZ(0) scale(1)`
-                  : 'translate(-50%, -50%) translateZ(0) scale(0.985)',
-              }}
-            >
-              {reducedMotion ? (
-                <Image
-                  src={POSTER_SRC}
-                  alt="Sambhavi Handloom editorial film still"
-                  fill
-                  sizes="(max-width: 1280px) 62vw, 736px"
-                  className="object-cover object-[center_35%]"
-                  unoptimized
+              {PANELS.map((panel, index) => (
+                <FloatingStill
+                  key={panel.id}
+                  src={panel.src}
+                  alt={panel.alt}
+                  floatClass={panel.floatClass}
+                  parallaxPx={panel.parallaxPx}
+                  className={panel.className}
+                  pose={panel.pose}
+                  parallax={parallax}
+                  reducedMotion={reducedMotion}
+                  revealed={revealed}
+                  delayMs={180 + index * 160}
                 />
-              ) : (
-                <>
+              ))}
+
+              <div
+                className={cn(
+                  'absolute left-[52%] top-1/2 z-[5] h-[82%] w-[72%] max-w-[42rem] overflow-hidden bg-charcoal/5',
+                  'shadow-[0_32px_70px_-40px_rgba(36,28,20,0.55)] ring-1 ring-charcoal/10',
+                  'transition-[opacity,transform] duration-1000 ease-out',
+                  revealed ? 'opacity-100' : 'opacity-0',
+                )}
+                style={{
+                  transitionDelay: '40ms',
+                  transformStyle: 'preserve-3d',
+                  transform: revealed
+                    ? `translate(calc(-50% + ${reducedMotion ? 0 : parallax.x * 2}px), calc(-50% + ${reducedMotion ? 0 : parallax.y * 1.5}px)) translateZ(0) scale(1)`
+                    : 'translate(-50%, -50%) translateZ(0) scale(0.985)',
+                }}
+              >
+                {reducedMotion ? (
                   <Image
                     src={POSTER_SRC}
-                    alt=""
+                    alt="Sambhavi Handloom editorial film still"
                     fill
-                    sizes="(max-width: 1280px) 62vw, 736px"
+                    sizes="(max-width: 1280px) 50vw, 672px"
                     className="object-cover object-[center_35%]"
                     unoptimized
-                    aria-hidden
                   />
-                  <video
-                    ref={videoRef}
-                    className="absolute inset-0 h-full w-full object-cover object-[center_35%]"
-                    poster={POSTER_SRC}
-                    muted
-                    loop
-                    playsInline
-                    preload={inView ? 'auto' : 'none'}
-                    controls={false}
-                    disablePictureInPicture
-                    src={inView ? VIDEO_SRC : undefined}
-                    aria-label="Sambhavi Handloom editorial film"
-                  />
-                </>
-              )}
-              <div
-                className="pointer-events-none absolute inset-0 bg-gradient-to-br from-charcoal/10 via-transparent to-charcoal/15"
-                aria-hidden
-              />
-            </div>
-
-            {/* Lower-left editorial headline */}
-            <div
-              className={cn(
-                'absolute bottom-[8%] left-[3%] z-[10] max-w-[16rem] transition-[opacity,transform] duration-1000 ease-out xl:left-[4%] xl:bottom-[10%]',
-                revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
-              )}
-              style={{ transitionDelay: '640ms' }}
-            >
-              <h2 className="font-serif text-[2.75rem] leading-[0.95] tracking-[0.02em] text-foreground xl:text-[3.25rem]">
-                Woven
-                <br />
-                Stories
-              </h2>
-              <p className="mt-3 max-w-[13rem] font-sans text-xs leading-relaxed text-muted-foreground">
-                Where heritage meets movement.
-              </p>
-              <Link
-                href={CTA_HREF}
-                className="mt-5 inline-flex items-center gap-2 font-sans text-[0.6875rem] font-semibold uppercase tracking-btn text-primary transition-colors hover:text-wine"
-              >
-                Explore Navratri
-                <span aria-hidden>→</span>
-              </Link>
+                ) : (
+                  <>
+                    <Image
+                      src={POSTER_SRC}
+                      alt=""
+                      fill
+                      sizes="(max-width: 1280px) 50vw, 672px"
+                      className="object-cover object-[center_35%]"
+                      unoptimized
+                      aria-hidden
+                    />
+                    <video
+                      ref={videoRef}
+                      className="absolute inset-0 h-full w-full object-cover object-[center_35%]"
+                      poster={POSTER_SRC}
+                      muted
+                      loop
+                      playsInline
+                      preload={inView ? 'auto' : 'none'}
+                      controls={false}
+                      disablePictureInPicture
+                      src={inView ? VIDEO_SRC : undefined}
+                      aria-label="Sambhavi Handloom Navratri editorial film"
+                    />
+                  </>
+                )}
+                <div
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-br from-wine/12 via-transparent to-accent/12"
+                  aria-hidden
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* —— Mobile editorial composition —— */}
+        {/* Mobile: label → heading → video → images → CTA */}
         <div className="relative md:hidden">
-          <div className="mb-5 flex items-end justify-between gap-3">
-            <div>
-              <p className="font-sans text-[0.625rem] font-medium uppercase tracking-[0.24em] text-accent">
-                01 — Indian Craft
-              </p>
-              <h2 className="mt-2 font-serif text-[2.15rem] leading-[0.95] tracking-[0.02em] text-foreground">
-                Woven
-                <br />
-                Stories
-              </h2>
-            </div>
-            <div
-              className={cn(
-                'relative z-[3] w-[38%] max-w-[8.5rem] shrink-0 overflow-hidden bg-ivory shadow-md ring-1 ring-charcoal/10',
-                'transition-opacity duration-700',
-                revealed ? 'opacity-100' : 'opacity-0',
-                !reducedMotion && 'editorial-float-a',
-              )}
-            >
-              <div className="relative aspect-[3/4]">
-                <Image
-                  src={PANELS[0].src}
-                  alt={PANELS[0].alt}
-                  fill
-                  sizes="38vw"
-                  className="object-cover"
-                  unoptimized
-                />
-              </div>
-            </div>
+          <div
+            className={cn(
+              'transition-[opacity,transform] duration-700',
+              revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3',
+            )}
+          >
+            <p className="font-sans text-[0.625rem] font-medium uppercase tracking-[0.24em] text-accent">
+              01 — Navratri Edition
+            </p>
+            <span className="mt-3 block h-px w-10 bg-accent/60" aria-hidden />
+            <h2 className="mt-4 font-serif text-[2.25rem] leading-[0.95] tracking-[0.02em] text-foreground">
+              Woven
+              <br />
+              Stories
+            </h2>
+            <p className="mt-3 max-w-[16rem] font-sans text-xs leading-relaxed text-muted-foreground">
+              A celebration of colour, craft &amp; movement.
+            </p>
           </div>
 
-          <div className="relative mx-auto max-w-md">
-            {/* Side overlaps */}
-            <div
-              className={cn(
-                'absolute -left-1 bottom-6 z-[6] w-[32%] max-w-[7.5rem] overflow-hidden bg-ivory shadow-lg ring-1 ring-charcoal/10',
-                'transition-opacity duration-700',
-                revealed ? 'opacity-100' : 'opacity-0',
-                !reducedMotion && 'editorial-float-b',
-              )}
-              style={{ transitionDelay: '120ms' }}
-            >
-              <div className="relative aspect-[3/4]">
-                <Image
-                  src={PANELS[1].src}
-                  alt={PANELS[1].alt}
-                  fill
-                  sizes="32vw"
-                  className="object-cover"
-                  unoptimized
-                />
-              </div>
-            </div>
-            <div
-              className={cn(
-                'absolute -right-1 top-8 z-[6] w-[32%] max-w-[7.5rem] overflow-hidden bg-ivory shadow-lg ring-1 ring-charcoal/10',
-                'transition-opacity duration-700',
-                revealed ? 'opacity-100' : 'opacity-0',
-                !reducedMotion && 'editorial-float-c',
-              )}
-              style={{ transitionDelay: '180ms' }}
-            >
-              <div className="relative aspect-[3/4]">
-                <Image
-                  src={PANELS[2].src}
-                  alt={PANELS[2].alt}
-                  fill
-                  sizes="32vw"
-                  className="object-cover"
-                  unoptimized
-                />
-              </div>
-            </div>
-
+          <div className="relative mx-auto mt-8 max-w-md">
             <div
               className={cn(
                 'relative z-[4] aspect-[16/11] overflow-hidden bg-charcoal/5 shadow-lg ring-1 ring-charcoal/10',
@@ -489,20 +429,47 @@ export function EditorialVideo() {
                     controls={false}
                     disablePictureInPicture
                     src={VIDEO_SRC}
-                    aria-label="Sambhavi Handloom editorial film"
+                    aria-label="Sambhavi Handloom Navratri editorial film"
                   />
                 </>
               )}
+              <div
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-wine/15 via-transparent to-transparent"
+                aria-hidden
+              />
+            </div>
+
+            <div className="mt-5 flex items-start justify-center gap-4 px-1">
+              {PANELS.map((panel, index) => (
+                <div
+                  key={panel.id}
+                  className={cn(
+                    'w-[30%] max-w-[6.75rem] overflow-hidden bg-ivory shadow-md ring-1 ring-charcoal/10',
+                    'transition-opacity duration-700',
+                    revealed ? 'opacity-100' : 'opacity-0',
+                    !reducedMotion && panel.floatClass,
+                  )}
+                  style={{ transitionDelay: `${120 + index * 80}ms` }}
+                >
+                  <div className="relative aspect-[3/4]">
+                    <Image
+                      src={panel.src}
+                      alt={panel.alt}
+                      fill
+                      sizes="30vw"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="mt-6 text-center">
-            <p className="font-sans text-xs text-muted-foreground">
-              Where heritage meets movement.
-            </p>
+          <div className="mt-7 text-center">
             <Link
               href={CTA_HREF}
-              className="mt-4 inline-flex items-center gap-2 font-sans text-[0.6875rem] font-semibold uppercase tracking-btn text-primary"
+              className="inline-flex items-center gap-2 border-b border-primary/40 pb-1 font-sans text-[0.6875rem] font-semibold uppercase tracking-btn text-primary"
             >
               Explore Navratri
               <span aria-hidden>→</span>
