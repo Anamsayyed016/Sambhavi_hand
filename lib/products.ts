@@ -2046,6 +2046,7 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125875/WhatsApp_Image_2026-09-10_at_11.28.00_AM_1.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125870/WhatsApp_Image_2026-09-10_at_11.27.59_AM_2.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125865/WhatsApp_Image_2026-09-10_at_11.27.58_AM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125873/WhatsApp_Image_2026-09-10_at_11.27.59_AM.jpg',
     ],
     category: 'LEHENGA CHOLI',
     collections: ['lehenga-choli'],
