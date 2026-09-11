@@ -210,16 +210,6 @@ export function CategoriesMegaMenu() {
                   </div>
                 ))}
               </div>
-
-              <div className="mt-10 flex justify-end border-t border-border/25 pt-6">
-                <Link
-                  href="/collections"
-                  onClick={closeMenu}
-                  className="font-sans text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors duration-300 hover:text-primary"
-                >
-                  View all categories
-                </Link>
-              </div>
             </div>
           </motion.div>
         ) : null}

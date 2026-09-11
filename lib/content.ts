@@ -117,7 +117,6 @@ export const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Sarees', href: '/shop' },
   { label: 'New Arrivals', href: '/collections/new-arrivals' },
-  { label: 'Collections', href: '/collections' },
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]
@@ -164,8 +163,8 @@ export const heroSlides: HeroSlide[] = [
       'Discover beautifully crafted sarees that celebrate Indian heritage, artistry and effortless elegance.',
     primaryLabel: 'Shop Sarees',
     primaryHref: '/shop',
-    secondaryLabel: 'Explore Collection',
-    secondaryHref: '/collections',
+    secondaryLabel: 'Explore Navratri',
+    secondaryHref: '/collections/navratri-collection',
     objectPosition: 'center center',
   },
   {
@@ -177,8 +176,8 @@ export const heroSlides: HeroSlide[] = [
       'Every thread carries a story. Every weave reflects generations of craftsmanship and quiet devotion.',
     primaryLabel: 'Shop the Look',
     primaryHref: '/shop',
-    secondaryLabel: 'Explore Collection',
-    secondaryHref: '/collections',
+    secondaryLabel: 'Explore Navratri',
+    secondaryHref: '/collections/navratri-collection',
     objectPosition: 'center 35%',
   },
   {

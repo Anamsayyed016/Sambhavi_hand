@@ -67,7 +67,7 @@ export default async function ProductPage({
   const breadcrumbs = isChhabiliProduct(product)
     ? [
         { label: 'Home', href: '/' },
-        { label: 'Categories', href: '/collections' },
+        { label: 'Categories' },
         { label: 'Navratri Collection', href: '/collections/navratri-collection' },
         { label: 'CHHABILI', href: '/collections/chhabili' },
         { label: product.name },
@@ -75,7 +75,7 @@ export default async function ProductPage({
     : isJobaniyuProduct(product)
       ? [
           { label: 'Home', href: '/' },
-          { label: 'Categories', href: '/collections' },
+          { label: 'Categories' },
           { label: 'Navratri Collection', href: '/collections/navratri-collection' },
           { label: 'JOBANIYU', href: '/collections/jobaniyu' },
           { label: product.name },

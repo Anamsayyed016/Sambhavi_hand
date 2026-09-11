@@ -123,7 +123,7 @@ export default async function CollectionDetailPage({
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
-    { label: 'Categories', href: '/collections' },
+    { label: 'Categories' },
     ...(group
       ? [{ label: title }]
       : category

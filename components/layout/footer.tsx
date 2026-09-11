@@ -6,7 +6,7 @@ import { contactDetails } from '@/lib/content'
 const quickLinks = [
   { label: 'Home', href: '/' },
   { label: 'Shop', href: '/shop' },
-  { label: 'Collections', href: '/collections' },
+  { label: 'New Arrivals', href: '/collections/new-arrivals' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]

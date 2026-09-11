@@ -13,6 +13,16 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        // Generic collections index removed — category discovery is via Categories mega-menu.
+        source: '/collections',
+        destination: '/shop',
+        permanent: false,
+      },
+    ]
+  },
 }
 
 export default nextConfig

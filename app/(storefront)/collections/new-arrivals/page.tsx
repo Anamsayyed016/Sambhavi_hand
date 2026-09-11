@@ -24,7 +24,6 @@ export default function NewArrivalsPage() {
         subtitle="New products and collections, thoughtfully curated."
         breadcrumbs={[
           { label: 'Home', href: '/' },
-          { label: 'Categories', href: '/collections' },
           { label: 'New Arrivals' },
         ]}
       />
