@@ -147,3 +147,56 @@
     scrollbar-width: none;
   }
 }
+
+/* Homepage editorial 3D stage — subtle independent floats (GPU transforms only) */
+@keyframes editorial-float-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-3.5deg);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0) rotate(-2.2deg);
+  }
+}
+
+@keyframes editorial-float-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(4deg);
+  }
+  50% {
+    transform: translate3d(0, 8px, 0) rotate(5.2deg);
+  }
+}
+
+@keyframes editorial-float-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(3deg);
+  }
+  50% {
+    transform: translate3d(0, -7px, 0) rotate(1.8deg);
+  }
+}
+
+.editorial-float-a {
+  animation: editorial-float-a 11s ease-in-out infinite;
+}
+
+.editorial-float-b {
+  animation: editorial-float-b 13s ease-in-out infinite;
+  animation-delay: -2.5s;
+}
+
+.editorial-float-c {
+  animation: editorial-float-c 15s ease-in-out infinite;
+  animation-delay: -5s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editorial-float-a,
+  .editorial-float-b,
+  .editorial-float-c {
+    animation: none;
+  }
+}
