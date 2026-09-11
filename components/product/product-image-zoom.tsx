@@ -12,7 +12,13 @@ import {
 } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Play, Plus, X, ZoomIn, ZoomOut } from 'lucide-react'
+import {
+  getGalleryVideoPosterUrl,
+  isGalleryVideoUrl,
+} from '@/lib/gallery-media'
 import { cn } from '@/lib/utils'
+
+export { isGalleryVideoUrl } from '@/lib/gallery-media'
 
 type ProductImageZoomProps = {
   images: string[]
@@ -27,12 +33,6 @@ type ProductImageZoomProps = {
 
 const MIN_SCALE = 1
 const MAX_SCALE = 4
-
-/** Gallery media may include Cloudinary videos (.mp4 / /video/upload/). */
-export function isGalleryVideoUrl(url: string | null | undefined): boolean {
-  if (!url) return false
-  return /\.mp4(\?|$)/i.test(url) || /\/video\/upload\//i.test(url)
-}
 
 export function ProductImageZoom({
   images,
@@ -132,9 +132,23 @@ export function ProductImageZoom({
   }, [closeViewer, open, showNext, showPrev, viewerIsVideo])
 
   useEffect(() => {
+    if (!activeIsVideo) {
+      inlineVideoRef.current?.pause()
+      return
+    }
+    const video = inlineVideoRef.current
+    if (!video) return
+    video.muted = true
+    void video.play().catch(() => {
+      /* Autoplay may be blocked until the user interacts. */
+    })
+  }, [activeIsVideo, activeSrc])
+
+  useEffect(() => {
     if (!open || !viewerIsVideo) return
     const video = lightboxVideoRef.current
     if (!video) return
+    video.muted = true
     void video.play().catch(() => {
       /* Autoplay may be blocked; user can press play. */
     })
@@ -251,6 +265,7 @@ export function ProductImageZoom({
 
   function renderThumb(src: string, i: number, selected: boolean, size: 'rail' | 'strip') {
     const video = isGalleryVideoUrl(src)
+    const poster = video ? getGalleryVideoPosterUrl(src) : undefined
     return (
       <button
         key={`${src}-${i}`}
@@ -278,16 +293,29 @@ export function ProductImageZoom({
       >
         {video ? (
           <>
-            <video
-              src={src}
-              muted
-              playsInline
-              preload="metadata"
-              className="h-full w-full object-cover"
-              aria-hidden
-            />
-            <span className="absolute inset-0 flex items-center justify-center bg-charcoal/35">
-              <Play className="size-3.5 fill-ivory text-ivory" aria-hidden />
+            {poster ? (
+              <Image
+                src={poster}
+                alt=""
+                fill
+                sizes={size === 'rail' ? '80px' : '44px'}
+                className="object-cover object-center"
+                unoptimized
+              />
+            ) : (
+              <video
+                src={src}
+                muted
+                playsInline
+                preload="metadata"
+                className="h-full w-full object-cover"
+                aria-hidden
+              />
+            )}
+            <span className="absolute inset-0 flex items-center justify-center bg-charcoal/40">
+              <span className="flex size-6 items-center justify-center rounded-full border border-ivory/50 bg-charcoal/55">
+                <Play className="size-3 fill-ivory text-ivory" aria-hidden />
+              </span>
             </span>
           </>
         ) : (
@@ -315,12 +343,17 @@ export function ProductImageZoom({
           {activeIsVideo ? (
             <video
               ref={inlineVideoRef}
+              key={activeSrc}
               src={activeSrc}
+              poster={getGalleryVideoPosterUrl(activeSrc)}
               className="h-auto w-full object-contain"
+              autoPlay
               muted
+              loop
               playsInline
-              preload="metadata"
               controls={false}
+              preload="metadata"
+              aria-label={`${alt} video`}
             />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
@@ -350,16 +383,24 @@ export function ProductImageZoom({
 
         <div className="relative aspect-[2/3] flex-1 overflow-hidden rounded-md bg-ivory p-4 sm:p-6">
           {activeIsVideo ? (
-            <div className="relative h-full w-full">
+            <div className="relative h-full w-full overflow-hidden">
               <video
                 ref={inlineVideoRef}
                 key={activeSrc}
                 src={activeSrc}
-                className="h-full w-full object-contain object-center"
-                controls
+                poster={getGalleryVideoPosterUrl(activeSrc)}
+                className="h-full w-full object-cover object-center"
+                autoPlay
+                muted
+                loop
                 playsInline
+                controls={false}
                 preload="metadata"
+                aria-label={`${alt} video`}
               />
+              <span className="pointer-events-none absolute bottom-3 right-3 z-10 flex size-9 items-center justify-center rounded-full border border-border/60 bg-background/85 text-foreground shadow-sm backdrop-blur-sm">
+                <Play className="size-3.5 fill-current" strokeWidth={1.75} aria-hidden />
+              </span>
             </div>
           ) : (
             <button
@@ -481,10 +522,15 @@ export function ProductImageZoom({
                     ref={lightboxVideoRef}
                     key={viewerSrc}
                     src={viewerSrc}
+                    poster={getGalleryVideoPosterUrl(viewerSrc)}
                     className="max-h-full max-w-full object-contain"
-                    controls
+                    autoPlay
+                    muted
+                    loop
                     playsInline
+                    controls
                     preload="metadata"
+                    aria-label={`${alt} video`}
                   />
                 </div>
               ) : (

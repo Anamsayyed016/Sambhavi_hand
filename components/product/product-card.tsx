@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Heart, ShoppingBag, Eye } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
+import { getGalleryStillUrl, isGalleryVideoUrl } from '@/lib/gallery-media'
 import { getEditorialCollectionLabel } from '@/lib/product-badges'
 import { useCart } from '@/components/cart/cart-provider'
 import { ProductLink } from '@/components/product/product-link'
@@ -27,11 +28,14 @@ export function ProductCard({
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
 
-  const imageSrc =
+  const candidate =
     displayImage ??
     product.image ??
     product.images?.[0] ??
     '/placeholder.svg'
+  const imageSrc = isGalleryVideoUrl(candidate)
+    ? getGalleryStillUrl(product.images, product.image || '/placeholder.svg')
+    : candidate
 
   return (
     <div className="group flex flex-col">

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import type { Product } from '@/lib/products'
+import { isGalleryVideoUrl } from '@/lib/gallery-media'
 import { ProductCard } from '@/components/product/product-card'
 import { QuickViewModal } from '@/components/product/quick-view-modal'
 
@@ -16,13 +17,20 @@ export type ProductGridItem = {
 /**
  * LEGACY saree browse UX only: one grid card per gallery frame.
  * Do NOT use for New Arrivals, CHHABILI, LEHANGA, or any product/catalog listing.
+ * Video URLs are skipped — next/image cannot render mp4 and would show a broken icon.
  */
 export function expandProductsForGrid(products: Product[]): ProductGridItem[] {
   return products.flatMap((product) => {
-    const images = product.images?.filter(Boolean) ?? []
+    const images = (product.images?.filter(Boolean) ?? []).filter(
+      (url) => !isGalleryVideoUrl(url),
+    )
     const gallery =
-      images.length > 0 ? images : [product.image || '/placeholder.svg']
-    return gallery.map((displayImage, imageIndex) => ({
+      images.length > 0
+        ? images
+        : [product.image || '/placeholder.svg'].filter((url) => !isGalleryVideoUrl(url))
+    const frames =
+      gallery.length > 0 ? gallery : ['/placeholder.svg']
+    return frames.map((displayImage, imageIndex) => ({
       product,
       displayImage,
       key: `${product.slug}-${imageIndex}-${displayImage}`,
