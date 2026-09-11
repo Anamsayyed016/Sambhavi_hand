@@ -1904,6 +1904,27 @@ export const products: Product[] = [
       'Crafted with love, adorned with heritage : The South-style Kanchipuram silk lehenga is more than just attire; it\'s a piece of art that encapsulates the essence of South Indian culture 🪸\n\nLehenga (Stitched)\n✦ Lehenga Fabric: Kanchipuram\n✦ Lehenga Work: Zari Weaving Work\n✦ Lehenga Waist: SUPPORTED UP TO 42\n✦ Lehenga Closer: Drawstring With Zip\n✦ Stitching: Stitch With Canvas\n✦ Length: 41\n✦ Flair: 3.70 Meter\n✦ Inner: Micro Cotton\n\nBlouse (Unstitched)\n✦ Blouse Fabric: Kanchipuram\n✦ Blouse Work: Zari Weaving Work\n✦ Blouse Length: 0.80 Meter\n\nDupatta\n✦ Dupatta Fabric: Georgette\n✦ Dupatta Work: Plain With Lase Border\n✦ Dupatta Length: 2.5 Meter\n\nPackage Contains:\n✧ Lehenga\n✧ Blouse\n✧ Dupatta\n✧ Drawstring\n\nWeight:\n◇ 1 kg\n\nRate:\n❖ ₹1,950',
   },
   {
+    slug: 'lehanga-03',
+    name: 'LEHANGA',
+    // Details not provided yet — schema requires a price; admin can update later.
+    price: 0,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113687/WhatsApp_Image_2026-09-10_at_11.26.34_AM_1.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113687/WhatsApp_Image_2026-09-10_at_11.26.34_AM_1.jpg',
+    ],
+    category: 'Lehenga Collection',
+    collections: ['lehanga', 'navratri-collection'],
+    fabric: '—',
+    weave: '—',
+    length: '—',
+    blouse: '—',
+    care: '—',
+    availability: 'In Stock',
+    isNew: true,
+    description: 'Lehenga Collection piece — details coming soon.',
+  },
+  {
     slug: 'jobaniyu',
     name: 'JOBANIYU (જોબનિયું)',
     price: 2599,
