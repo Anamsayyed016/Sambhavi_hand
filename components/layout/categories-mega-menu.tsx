@@ -1,18 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { type CategoryGroup, type SareeCategory } from '@/lib/categories'
 import {
-  categoryGroups,
-  getChildCategories,
-  primaryCategoryGroup,
-  secondaryCategoryGroups,
-  type CategoryGroup,
-  type SareeCategory,
-} from '@/lib/categories'
+  getVisibleNavCategoryGroups,
+  getVisibleNavChildCategories,
+} from '@/lib/catalog-nav'
+import { getStorefrontProducts } from '@/lib/products'
 
 function CategoryLinks({
   categories,
@@ -23,10 +21,12 @@ function CategoryLinks({
   onNavigate?: () => void
   className?: string
 }) {
+  const products = useMemo(() => getStorefrontProducts(), [])
+
   return (
     <ul className={cn('flex flex-col gap-2.5', className)}>
       {categories.map((category) => {
-        const children = getChildCategories(category.slug)
+        const children = getVisibleNavChildCategories(category.slug, products)
         return (
           <li key={category.slug}>
             <Link
@@ -93,7 +93,12 @@ export function CategoriesMegaMenu() {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const primaryGroup = primaryCategoryGroup!
+  const visibleGroups = useMemo(
+    () => getVisibleNavCategoryGroups(getStorefrontProducts()),
+    [],
+  )
+  const primaryGroup = visibleGroups.find((group) => group.primary) ?? visibleGroups[0]
+  const secondaryGroups = visibleGroups.filter((group) => group.slug !== primaryGroup?.slug)
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimer.current) {
@@ -134,6 +139,8 @@ export function CategoriesMegaMenu() {
       clearCloseTimer()
     }
   }, [closeMenu, clearCloseTimer])
+
+  if (!primaryGroup) return null
 
   return (
     <div
@@ -179,7 +186,14 @@ export function CategoriesMegaMenu() {
             onMouseLeave={scheduleClose}
           >
             <div className="mx-auto max-h-[min(78vh,720px)] max-w-7xl overflow-y-auto px-6 py-10 md:px-8 md:py-12">
-              <div className="grid gap-10 lg:grid-cols-[minmax(0,2.2fr)_repeat(3,minmax(0,1fr))] lg:gap-x-10 xl:gap-x-12">
+              <div
+                className={cn(
+                  'grid gap-10 lg:gap-x-10 xl:gap-x-12',
+                  secondaryGroups.length > 0
+                    ? 'lg:grid-cols-[minmax(0,2.2fr)_repeat(auto-fit,minmax(0,1fr))]'
+                    : 'lg:grid-cols-1',
+                )}
+              >
                 <div className="space-y-5 border-border/40 lg:border-r lg:pr-10">
                   <GroupHeading group={primaryGroup} onNavigate={closeMenu} variant="primary" />
                   <CategoryLinks
@@ -189,7 +203,7 @@ export function CategoriesMegaMenu() {
                   />
                 </div>
 
-                {secondaryCategoryGroups.map((group) => (
+                {secondaryGroups.map((group) => (
                   <div key={group.slug} className="space-y-4">
                     <GroupHeading group={group} onNavigate={closeMenu} />
                     <CategoryLinks categories={group.categories} onNavigate={closeMenu} />
@@ -215,13 +229,20 @@ export function CategoriesMegaMenu() {
 }
 
 export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => void }) {
+  const visibleGroups = useMemo(
+    () => getVisibleNavCategoryGroups(getStorefrontProducts()),
+    [],
+  )
+  const products = useMemo(() => getStorefrontProducts(), [])
   const [expanded, setExpanded] = useState(false)
-  const [openGroup, setOpenGroup] = useState<string | null>(primaryCategoryGroup?.slug ?? null)
+  const [openGroup, setOpenGroup] = useState<string | null>(visibleGroups[0]?.slug ?? null)
 
   const handleNavigate = () => {
     setExpanded(false)
     onNavigate?.()
   }
+
+  if (visibleGroups.length === 0) return null
 
   return (
     <li className="border-b border-border/40">
@@ -250,7 +271,7 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
             className="overflow-hidden"
           >
             <div className="space-y-1 pb-4 pl-1">
-              {categoryGroups.map((group) => {
+              {visibleGroups.map((group) => {
                 const isOpen = openGroup === group.slug
                 const isPrimary = group.primary
 
@@ -262,7 +283,9 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                       onClick={() => setOpenGroup(isOpen ? null : group.slug)}
                       className={cn(
                         'flex w-full items-center justify-between py-3 text-left font-serif uppercase tracking-[0.1em] transition-colors hover:text-primary',
-                        isPrimary ? 'text-[0.9375rem] font-medium text-primary' : 'text-sm font-normal text-foreground/85',
+                        isPrimary
+                          ? 'text-[0.9375rem] font-medium text-primary'
+                          : 'text-sm font-normal text-foreground/85',
                       )}
                     >
                       {group.name}
@@ -295,7 +318,10 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                             </Link>
                           </li>
                           {group.categories.map((category) => {
-                            const children = getChildCategories(category.slug)
+                            const children = getVisibleNavChildCategories(
+                              category.slug,
+                              products,
+                            )
                             return (
                               <li key={category.slug}>
                                 <Link
