@@ -1875,6 +1875,27 @@ export const products: Product[] = [
     description:
       'Launch New Exclusive Designer premium Quality pure Kanjiveram silk full stitched Lehenga with Full stitched Designer maggam work blouse with embroidered work Dupatta.\n\nProduct Details:\n✦ Lehenga: Full stitched Kanjiveram silk with big Jacquard Border attached with canvas patta\n✦ Length: 42"\n✦ Flair: 4 mtr\n\n✦ Blouse: Full stitched Rangoli with heavy designer work on back and front with designer work sleeve\n✦ Size: Free size\n\n✦ Dupatta: Premium Quality Rangoli silk with beautiful embroidery cutwork border',
   },
+  {
+    slug: 'jobaniyu',
+    name: 'JOBANIYU (જોબનિયું)',
+    price: 2599,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789109341/WhatsApp_Image_2026-09-10_at_11.19.26_AM_1.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789109341/WhatsApp_Image_2026-09-10_at_11.19.26_AM_1.jpg',
+    ],
+    category: 'Navratri Collection',
+    collections: ['navratri-collection'],
+    fabric: 'Tasar Silk',
+    weave: 'Gamthi Print · Embossed Design · Gotta Patti Lace',
+    length: '41" · 3.80 meter flair · stitched with canvas & full inner',
+    blouse: '38" (adj. up to 42") · Length 15" · Sleeve Length 11"',
+    care: 'Package: Lehenga, Blouse, Dupatta, Drawstring with Zip · Weight: 1.100 kg',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'From the looms of tradition to the rhythm of Garba — this Tassar silk lehenga with Gamthi print brings your Navratri dream to life in every swirl 🧿\n\nLehenga (Stitched)\n✦ Lehenga Fabric: Tasar Silk\n✦ Lehenga Work: Gamthi Print With Embossed Design And Gotta Patti Lace Touch Up\n✦ Lehenga Waist: Support Up To 42\n✦ Lehenga Closer: Drawstring With Zip\n✦ Stitching: Stitched With Canvas And Full Inner\n✦ Length: 41\n✦ Flair: 3.80 Meter\n✦ Inner: Micro Crepe\n\nBlouse (Stitched)\n✦ Blouse Fabric: Tasar Silk\n✦ Blouse Work: Gamthi Print With Embossed Design And Gotta Patti Lace Touch Up\n✦ Blouse Size: 38” There is Extra Margin Customer Can Adjust up to 42\n✦ Blouse Length: 15\n✦ Sleeve Length: 11\n\nDupatta\n✦ Dupatta Fabric: Tasar Silk\n✦ Dupatta Work: Gamthi Print With Gotta Patti Lace Touch Up\n✦ Dupatta Length: 2.40 Meter\n\nPackage Contains:\n✧ Lehenga\n✧ Blouse\n✧ Dupatta\n✧ Drawstring with Zip\n\nWeight:\n◇ 1.100 kg',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
