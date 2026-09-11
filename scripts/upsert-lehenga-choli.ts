@@ -9,8 +9,12 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125875/WhatsApp_Image_2026-09-10_at_11.28.00_AM_1.jpg'
 
-/** Single provided image only — do not invent gallery frames. */
-const IMAGES: string[] = [IMAGE]
+/** Primary image first, then additional gallery stills (no duplicates). */
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125870/WhatsApp_Image_2026-09-10_at_11.27.59_AM_2.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125865/WhatsApp_Image_2026-09-10_at_11.27.58_AM.jpg',
+]
 
 const DESCRIPTION = [
   'Printed perfection for every occasion 🖤',
