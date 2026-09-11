@@ -2036,6 +2036,27 @@ export const products: Product[] = [
     description:
       'From the looms of tradition to the rhythm of Garba — this Tassar silk lehenga with Gamthi print brings your Navratri dream to life in every swirl 🧿\n\nLehenga (Stitched)\n✦ Lehenga Fabric: Tasar Silk\n✦ Lehenga Work: Gamthi Print With Embossed Design And Gotta Patti Lace Touch Up\n✦ Lehenga Waist: Support Up To 42\n✦ Lehenga Closer: Drawstring With Zip\n✦ Stitching: Stitched With Canvas And Full Inner\n✦ Length: 41\n✦ Flair: 3.80 Meter\n✦ Inner: Micro Crepe\n\nBlouse (Stitched)\n✦ Blouse Fabric: Tasar Silk\n✦ Blouse Work: Gamthi Print With Embossed Design And Gotta Patti Lace Touch Up\n✦ Blouse Size: 38” There is Extra Margin Customer Can Adjust up to 42\n✦ Blouse Length: 15\n✦ Sleeve Length: 11\n\nDupatta\n✦ Dupatta Fabric: Tasar Silk\n✦ Dupatta Work: Gamthi Print With Gotta Patti Lace Touch Up\n✦ Dupatta Length: 2.40 Meter\n\nPackage Contains:\n✧ Lehenga\n✧ Blouse\n✧ Dupatta\n✧ Drawstring with Zip\n\nWeight:\n◇ 1.100 kg',
   },
+  {
+    slug: 'lehenga-choli',
+    name: 'Lehenga Choli🌷',
+    price: 1999,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125875/WhatsApp_Image_2026-09-10_at_11.28.00_AM_1.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789125875/WhatsApp_Image_2026-09-10_at_11.28.00_AM_1.jpg',
+    ],
+    category: 'LEHENGA CHOLI',
+    collections: ['lehenga-choli'],
+    fabric: 'Dola Silk',
+    weave: 'Kalmkaei Print · Embroidery Thread Work',
+    length: '41" · 3.5 meter flair · stitched with canvas',
+    blouse: 'Unstitched · Vichitra Silk · Embroidery Thread Work',
+    care: 'Package: Lehenga, Blouse, Dupatta, Drawstring With Zip · Weight: 1 Kg',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Printed perfection for every occasion 🖤\n\nLehenga (Stitched)\n✦ Lehenga Fabric: Dola Silk\n✦ Lehenga Work: Kalmkaei Print\n✦ Lehenga Waist: Supported Up To 42\n✦ Lehenga Closer: Drawstring With Zip\n✦ Stitching: Stitched With Canvas\n✦ Length: 41\n✦ Flair: 3.5 Meter\n✦ Inner: Micro Cotton\n\nBlouse (Unstitched)\n✧ Blouse Fabric: Vichitra Silk\n✧ Work: Embroidery Thread Work\n\nDupatta\n◇ Dupatta Fabric: Vichitra Silk\n◇ Dupatta Work: Embroidery Thread Work With 4 Sard Lace Work\n◇ Dupatta Length: 2.5 Meter\n\nPackage Contains:\n❖ Lehenga\n❖ Blouse\n❖ Dupatta\n❖ Drawstring With Zip\n\nWeight:\n❖ 1 Kg\n\nRATE:\n₹1,999',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {

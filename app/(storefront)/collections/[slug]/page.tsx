@@ -70,6 +70,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'lehenga-choli') {
+    return {
+      title: 'LEHENGA CHOLI | Sambhavi Handloom',
+      description:
+        'Explore LEHENGA CHOLI festive ethnic wear from Sambhavi Handloom.',
+    }
+  }
+
   return {
     title,
     description,
