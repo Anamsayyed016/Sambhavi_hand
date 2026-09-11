@@ -1816,6 +1816,7 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.45_AM.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.45_AM_1.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.46_AM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/video/upload/v1789109603/WhatsApp_Video_2026-09-10_at_11.25.36_AM.mp4',
     ],
     category: 'CHHABILI',
     collections: ['chhabili', 'navratri-collection'],

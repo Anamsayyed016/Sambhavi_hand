@@ -1,6 +1,6 @@
 /**
  * Upserts CHHABILI Catalog #4 (blue jacket) only.
- * Keep existing primary; append three gallery images.
+ * Keep existing primary + gallery images; append video last.
  * Idempotent — does not modify Catalog #1, #2, or #3.
  */
 import { PrismaClient, ProductAvailability } from '@prisma/client'
@@ -19,7 +19,13 @@ const IMAGE_3 =
 const IMAGE_4 =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789022727/WhatsApp_Image_2026-09-10_at_11.16.46_AM.jpg'
 
-const IMAGES: string[] = [IMAGE_1, IMAGE_2, IMAGE_3, IMAGE_4]
+const IMAGES: string[] = [
+  IMAGE_1,
+  IMAGE_2,
+  IMAGE_3,
+  IMAGE_4,
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789109603/WhatsApp_Video_2026-09-10_at_11.25.36_AM.mp4',
+]
 
 const DESCRIPTION = [
   'Designed for Pure Cotton, this graceful lehenga features intricate Kashida and gamthi Work on the top, paired with a charming matching Purse for a complete festive look.',
