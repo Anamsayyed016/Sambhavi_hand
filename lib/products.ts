@@ -1889,11 +1889,6 @@ export const products: Product[] = [
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113689/WhatsApp_Image_2026-09-10_at_11.26.34_AM.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113677/WhatsApp_Image_2026-09-10_at_11.26.30_AM_2.jpg',
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113671/WhatsApp_Image_2026-09-10_at_11.26.27_AM.jpg',
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113686/WhatsApp_Image_2026-09-10_at_11.26.33_AM.jpg',
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113679/WhatsApp_Image_2026-09-10_at_11.26.31_AM_1.jpg',
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113684/WhatsApp_Image_2026-09-10_at_11.26.32_AM.jpg',
-      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113670/WhatsApp_Image_2026-09-10_at_11.26.26_AM.jpg',
     ],
     category: 'Lehenga Collection',
     collections: ['lehanga', 'navratri-collection'],

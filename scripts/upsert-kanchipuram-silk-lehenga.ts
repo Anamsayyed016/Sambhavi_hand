@@ -12,31 +12,8 @@ const IMAGE =
 const IMAGE_2 =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113677/WhatsApp_Image_2026-09-10_at_11.26.30_AM_2.jpg'
 
-const IMAGE_3 =
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113671/WhatsApp_Image_2026-09-10_at_11.26.27_AM.jpg'
-
-/** Keep existing primary + gallery; append shared Image #1/#2 pairs only (never #3 duplicates). */
-const IMAGE_APPEND_1 =
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113686/WhatsApp_Image_2026-09-10_at_11.26.33_AM.jpg'
-
-const IMAGE_APPEND_2 =
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113679/WhatsApp_Image_2026-09-10_at_11.26.31_AM_1.jpg'
-
-const IMAGE_APPEND_3 =
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113684/WhatsApp_Image_2026-09-10_at_11.26.32_AM.jpg'
-
-const IMAGE_APPEND_4 =
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113670/WhatsApp_Image_2026-09-10_at_11.26.26_AM.jpg'
-
-const IMAGES: string[] = [
-  IMAGE,
-  IMAGE_2,
-  IMAGE_3,
-  IMAGE_APPEND_1,
-  IMAGE_APPEND_2,
-  IMAGE_APPEND_3,
-  IMAGE_APPEND_4,
-]
+/** Only the two matching yellow/pink shots — no cross-catalog extras. */
+const IMAGES: string[] = [IMAGE, IMAGE_2]
 
 const DESCRIPTION = [
   'Crafted with love, adorned with heritage : The South-style Kanchipuram silk lehenga is more than just attire; it\'s a piece of art that encapsulates the essence of South Indian culture 🪸',
