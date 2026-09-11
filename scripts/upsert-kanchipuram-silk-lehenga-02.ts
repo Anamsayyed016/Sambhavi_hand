@@ -1,28 +1,21 @@
 /**
- * Upserts KANCHIPURAM SILK LEHENGA under Lehenga Collection (Navratri nested).
- * Idempotent — does not modify CHHABILI, JOBANIYU, or other LEHANGA products.
+ * Upserts NEW KANCHIPURAM SILK LEHENGA catalog #2 under Lehenga Collection.
+ * Idempotent — does not modify kanchipuram-silk-lehenga, CHHABILI, or JOBANIYU.
  */
 import { PrismaClient, ProductAvailability } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 const IMAGE =
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113689/WhatsApp_Image_2026-09-10_at_11.26.34_AM.jpg'
-
-const IMAGE_2 =
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113677/WhatsApp_Image_2026-09-10_at_11.26.30_AM_2.jpg'
-
-const IMAGE_3 =
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113671/WhatsApp_Image_2026-09-10_at_11.26.27_AM.jpg'
-
-/** Keep existing primary + gallery; append shared Image #1 and #2 only (not #3). */
-const IMAGE_APPEND_1 =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113686/WhatsApp_Image_2026-09-10_at_11.26.33_AM.jpg'
 
-const IMAGE_APPEND_2 =
+const IMAGE_2 =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113679/WhatsApp_Image_2026-09-10_at_11.26.31_AM_1.jpg'
 
-const IMAGES: string[] = [IMAGE, IMAGE_2, IMAGE_3, IMAGE_APPEND_1, IMAGE_APPEND_2]
+const IMAGE_3 =
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789113275/WhatsApp_Image_2026-09-10_at_11.26.25_AM.jpg'
+
+const IMAGES: string[] = [IMAGE, IMAGE_2, IMAGE_3]
 
 const DESCRIPTION = [
   'Crafted with love, adorned with heritage : The South-style Kanchipuram silk lehenga is more than just attire; it\'s a piece of art that encapsulates the essence of South Indian culture 🪸',
@@ -92,10 +85,10 @@ async function main() {
   })
 
   const product = await prisma.product.upsert({
-    where: { slug: 'kanchipuram-silk-lehenga' },
+    where: { slug: 'kanchipuram-silk-lehenga-02' },
     create: {
-      slug: 'kanchipuram-silk-lehenga',
-      sku: 'SH-KANCHIPURAM-SILK-LEHENGA',
+      slug: 'kanchipuram-silk-lehenga-02',
+      sku: 'SH-KANCHIPURAM-SILK-LEHENGA-02',
       name: 'KANCHIPURAM SILK LEHENGA',
       description: DESCRIPTION,
       price: 1950,
@@ -135,7 +128,7 @@ async function main() {
   })
 
   console.log(
-    `KANCHIPURAM SILK LEHENGA ready: ${product.id} (${product.slug}) ₹${product.price}`,
+    `KANCHIPURAM SILK LEHENGA #2 ready: ${product.id} (${product.slug}) ₹${product.price}`,
   )
 }
 
