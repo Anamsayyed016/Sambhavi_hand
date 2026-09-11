@@ -9,7 +9,13 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789109341/WhatsApp_Image_2026-09-10_at_11.19.26_AM_1.jpg'
 
-const IMAGES: string[] = [IMAGE]
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789109341/WhatsApp_Image_2026-09-10_at_11.19.26_AM.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789109341/WhatsApp_Image_2026-09-10_at_11.19.25_AM_1.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789109341/WhatsApp_Image_2026-09-10_at_11.19.25_AM.jpg',
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789109786/1.mp4',
+]
 
 const DESCRIPTION = [
   'From the looms of tradition to the rhythm of Garba — this Tassar silk lehenga with Gamthi print brings your Navratri dream to life in every swirl 🧿',
