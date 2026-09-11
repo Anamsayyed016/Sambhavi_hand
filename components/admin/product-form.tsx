@@ -412,8 +412,9 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
               ))}
             </datalist>
             <p className="mt-1.5 text-xs text-muted-foreground">
-              For Navratri sub-collection products, set Category to <strong>CHHABILI</strong> or{' '}
-              <strong>JOBANIYU</strong> and toggle the matching collection chip below.
+              For Navratri sub-collection products, set Category to <strong>CHHABILI</strong>,{' '}
+              <strong>JOBANIYU</strong>, or <strong>Lehenga Collection</strong> and toggle the
+              matching collection chip below.
             </p>
           </div>
           <div>

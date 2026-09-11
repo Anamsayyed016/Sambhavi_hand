@@ -90,15 +90,11 @@ function buildSeedCollections(): {
           ? 'FESTIVE EDITION · Explore the Chhabili collection.'
           : category.slug === 'jobaniyu'
             ? 'NEW COLLECTION · Explore the Jobaniyu festive collection.'
-            : `Browse ${category.name} sarees.`,
+            : category.slug === 'lehanga'
+              ? 'NAVRATRI COLLECTION · Explore the Lehenga Collection.'
+              : `Browse ${category.name} sarees.`,
       image: '/images/collection-silk.png',
     })
-  }
-
-  // Top-level festive categories with custom intro copy (non-nested).
-  const lehanga = bySlug.get('lehanga')
-  if (lehanga) {
-    lehanga.description = 'FESTIVE EDITION · Explore the Lehanga collection.'
   }
 
   for (const slug of legacyCollectionSlugs) {

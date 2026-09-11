@@ -10,7 +10,7 @@ import { getStorefrontProducts, type Product } from '@/lib/products'
 export const NEW_ARRIVALS_CATALOG_DEFS = [
   {
     slug: 'lehanga',
-    name: 'LEHANGA',
+    name: 'Lehenga Collection',
     href: '/collections/lehanga',
     blurb: 'New exclusive designer lehenga in pure Kanjiveram silk.',
   },

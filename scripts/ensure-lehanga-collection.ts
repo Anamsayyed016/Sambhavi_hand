@@ -1,6 +1,6 @@
 /**
- * Idempotent upsert for the LEHANGA collection metadata.
- * Safe to run on deploy — does not delete or reset existing product data.
+ * Idempotent upsert for the Lehenga Collection (Navratri nested) metadata.
+ * Keeps slug `lehanga` so existing /collections/lehanga URLs continue to work.
  * Does not create products; only ensures the collection record exists.
  */
 import { PrismaClient } from '@prisma/client'
@@ -8,23 +8,38 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  const collection = await prisma.collection.upsert({
-    where: { slug: 'lehanga' },
+  await prisma.collection.upsert({
+    where: { slug: 'navratri-collection' },
     create: {
-      slug: 'lehanga',
-      name: 'LEHANGA',
-      description: 'FESTIVE EDITION · Explore the Lehanga collection.',
+      slug: 'navratri-collection',
+      name: 'Navratri Collection',
+      description: 'FESTIVE EDITION · Browse Navratri Collection sarees.',
       image: '/images/collection-silk.png',
       active: true,
       featured: false,
     },
     update: {
-      name: 'LEHANGA',
-      // Keep admin-managed description/image/active on re-run.
+      name: 'Navratri Collection',
     },
   })
 
-  console.log(`LEHANGA collection ready: ${collection.id} (${collection.slug})`)
+  const collection = await prisma.collection.upsert({
+    where: { slug: 'lehanga' },
+    create: {
+      slug: 'lehanga',
+      name: 'Lehenga Collection',
+      description: 'NAVRATRI COLLECTION · Explore the Lehenga Collection.',
+      image: '/images/collection-silk.png',
+      active: true,
+      featured: false,
+    },
+    update: {
+      name: 'Lehenga Collection',
+      description: 'NAVRATRI COLLECTION · Explore the Lehenga Collection.',
+    },
+  })
+
+  console.log(`Lehenga Collection ready: ${collection.id} (${collection.slug})`)
 }
 
 main()

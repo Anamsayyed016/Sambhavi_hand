@@ -63,7 +63,6 @@ const groupDefs: {
       'Diwali Collection',
       'Durga Puja / Bengal Special',
       'Navratri Collection',
-      'LEHANGA',
       'Raksha Bandhan / Family Sets',
     ],
   },
@@ -95,6 +94,8 @@ const nestedCategoryDefs: Array<{
   name: string
   parentSlug: string
   groupSlug: string
+  /** Preserve an existing route when the display name would slug differently. */
+  slug?: string
 }> = [
   {
     name: 'CHHABILI',
@@ -103,6 +104,13 @@ const nestedCategoryDefs: Array<{
   },
   {
     name: 'JOBANIYU',
+    parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
+  {
+    name: 'Lehenga Collection',
+    /** Keep existing /collections/lehanga links & product collection chips. */
+    slug: 'lehanga',
     parentSlug: 'navratri-collection',
     groupSlug: 'festive-edition',
   },
@@ -117,8 +125,13 @@ export function nameToSlug(name: string): string {
     .replace(/-+/g, '-')
 }
 
-function toCategory(name: string, groupSlug: string, parentSlug?: string): SareeCategory {
-  const slug = nameToSlug(name)
+function toCategory(
+  name: string,
+  groupSlug: string,
+  parentSlug?: string,
+  slugOverride?: string,
+): SareeCategory {
+  const slug = slugOverride ?? nameToSlug(name)
   return {
     slug,
     name,
@@ -136,7 +149,7 @@ export const categoryGroups: CategoryGroup[] = groupDefs.map((group) => ({
 }))
 
 export const nestedCategories: SareeCategory[] = nestedCategoryDefs.map((def) =>
-  toCategory(def.name, def.groupSlug, def.parentSlug),
+  toCategory(def.name, def.groupSlug, def.parentSlug, def.slug),
 )
 
 /** Flat list of all browseable categories including nested sub-categories. */
@@ -155,7 +168,8 @@ export function getCategoryGroup(slug: string): CategoryGroup | undefined {
 }
 
 export function getSareeCategory(slug: string): SareeCategory | undefined {
-  const resolved = slug === 'kota' ? 'kota-handloom' : slug
+  const resolved =
+    slug === 'kota' ? 'kota-handloom' : slug === 'lehenga' ? 'lehanga' : slug
   return sareeCategories.find((c) => c.slug === resolved)
 }
 

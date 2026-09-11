@@ -37,17 +37,32 @@ const DESCRIPTION = [
 
 async function main() {
   await prisma.collection.upsert({
-    where: { slug: 'lehanga' },
+    where: { slug: 'navratri-collection' },
     create: {
-      slug: 'lehanga',
-      name: 'LEHANGA',
-      description: 'FESTIVE EDITION · Explore the Lehanga collection.',
+      slug: 'navratri-collection',
+      name: 'Navratri Collection',
+      description: 'FESTIVE EDITION · Browse Navratri Collection sarees.',
       image: IMAGE,
       active: true,
       featured: false,
     },
     update: {
-      name: 'LEHANGA',
+      name: 'Navratri Collection',
+    },
+  })
+
+  await prisma.collection.upsert({
+    where: { slug: 'lehanga' },
+    create: {
+      slug: 'lehanga',
+      name: 'Lehenga Collection',
+      description: 'NAVRATRI COLLECTION · Explore the Lehenga Collection.',
+      image: IMAGE,
+      active: true,
+      featured: false,
+    },
+    update: {
+      name: 'Lehenga Collection',
     },
   })
 
@@ -62,8 +77,8 @@ async function main() {
       originalPrice: null,
       image: IMAGE,
       images: IMAGES,
-      category: 'LEHANGA',
-      collections: ['lehanga'],
+      category: 'Lehenga Collection',
+      collections: ['lehanga', 'navratri-collection'],
       fabric: 'Pure Kanjiveram Silk',
       weave: 'Lehenga Set · Jacquard Border · Maggam Work Blouse',
       length: '42" · 4 mtr flair with canvas patta',
@@ -81,8 +96,8 @@ async function main() {
       price: 2690,
       image: IMAGE,
       images: IMAGES,
-      category: 'LEHANGA',
-      collections: ['lehanga'],
+      category: 'Lehenga Collection',
+      collections: ['lehanga', 'navratri-collection'],
       fabric: 'Pure Kanjiveram Silk',
       weave: 'Lehenga Set · Jacquard Border · Maggam Work Blouse',
       length: '42" · 4 mtr flair with canvas patta',
@@ -94,7 +109,7 @@ async function main() {
     },
   })
 
-  console.log(`LEHANGA product ready: ${product.id} (${product.slug})`)
+  console.log(`Lehenga Collection product ready: ${product.id} (${product.slug})`)
 }
 
 main()

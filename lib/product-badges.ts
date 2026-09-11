@@ -19,12 +19,15 @@ export function isJobaniyuProduct(product: Product): boolean {
   )
 }
 
-/** True when a product belongs to the LEHANGA collection. */
+/** True when a product belongs to the Lehenga Collection (Navratri nested). */
 export function isLehangaProduct(product: Product): boolean {
+  const category = product.category.trim().toUpperCase()
   return (
-    product.category.trim().toUpperCase() === 'LEHANGA' ||
+    category === 'LEHENGA COLLECTION' ||
+    category === 'LEHANGA' ||
     product.collections.includes('lehanga') ||
-    product.slug.startsWith('lehanga-')
+    product.slug.startsWith('lehanga-') ||
+    product.slug === 'kanchipuram-silk-lehenga'
   )
 }
 

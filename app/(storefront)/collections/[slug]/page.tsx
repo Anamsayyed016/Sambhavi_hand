@@ -64,8 +64,9 @@ export async function generateMetadata({
 
   if (category?.slug === 'lehanga') {
     return {
-      title: 'LEHANGA | Sambhavi Handloom',
-      description: 'Explore the LEHANGA collection by Sambhavi Handloom.',
+      title: 'Lehenga Collection | Sambhavi Handloom',
+      description:
+        'Explore Lehenga Collection from the Navratri Collection festive edit by Sambhavi Handloom.',
     }
   }
 

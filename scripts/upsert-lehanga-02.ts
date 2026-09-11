@@ -43,8 +43,8 @@ const DETAILS = {
   length: '42" · 4 mtr flair with canvas patta',
   blouse: 'Full stitched Rangoli · Free size · Designer work sleeves',
   care: 'Package: Lehenga, Blouse, Dupatta',
-  category: 'LEHANGA',
-  collections: ['lehanga'] as string[],
+  category: 'Lehenga Collection',
+  collections: ['lehanga', 'navratri-collection'] as string[],
   availability: ProductAvailability.IN_STOCK,
   isNew: true,
   active: true,
@@ -52,17 +52,32 @@ const DETAILS = {
 
 async function main() {
   await prisma.collection.upsert({
-    where: { slug: 'lehanga' },
+    where: { slug: 'navratri-collection' },
     create: {
-      slug: 'lehanga',
-      name: 'LEHANGA',
-      description: 'FESTIVE EDITION · Explore the Lehanga collection.',
+      slug: 'navratri-collection',
+      name: 'Navratri Collection',
+      description: 'FESTIVE EDITION · Browse Navratri Collection sarees.',
       image: IMAGE,
       active: true,
       featured: false,
     },
     update: {
-      name: 'LEHANGA',
+      name: 'Navratri Collection',
+    },
+  })
+
+  await prisma.collection.upsert({
+    where: { slug: 'lehanga' },
+    create: {
+      slug: 'lehanga',
+      name: 'Lehenga Collection',
+      description: 'NAVRATRI COLLECTION · Explore the Lehenga Collection.',
+      image: IMAGE,
+      active: true,
+      featured: false,
+    },
+    update: {
+      name: 'Lehenga Collection',
     },
   })
 
@@ -85,7 +100,7 @@ async function main() {
     },
   })
 
-  console.log(`LEHANGA product #2 details ready: ${product.id} (${product.slug}) ₹${product.price}`)
+  console.log(`Lehenga Collection product #2 ready: ${product.id} (${product.slug}) ₹${product.price}`)
 }
 
 main()

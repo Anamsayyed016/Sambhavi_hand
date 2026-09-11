@@ -142,7 +142,7 @@ export function getCatalogSubtitle(slug: string, category?: SareeCategory): stri
       return 'NEW COLLECTION · Explore the Jobaniyu festive collection.'
     }
     if (category.slug === 'lehanga') {
-      return 'FESTIVE EDITION · Explore the Lehanga collection.'
+      return 'NAVRATRI COLLECTION · Explore the Lehenga Collection.'
     }
     const group = getCategoryGroup(category.groupSlug)
     return group ? `${group.name} · Browse ${category.name} sarees.` : `Browse ${category.name} sarees.`
