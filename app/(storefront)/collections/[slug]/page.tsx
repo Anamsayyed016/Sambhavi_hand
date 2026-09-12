@@ -70,6 +70,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'dharvi-durga-pooja-edition') {
+    return {
+      title: 'DHARVI — DURGA POOJA EDITION | Sambhavi Handloom',
+      description:
+        'Explore DHARVI — DURGA POOJA EDITION from the Navratri Collection festive edit by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'lehenga-choli') {
     return {
       title: 'LEHENGA CHOLI | Sambhavi Handloom',

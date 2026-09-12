@@ -21,14 +21,13 @@ export function categoryHasStorefrontContent(slug: string, products: Product[]):
   )
 }
 
-/** Nested children (e.g. CHHABILI under Navratri) that currently have real products. */
+/** Nested children under a visible parent (e.g. CHHABILI / DHARVI under Navratri). */
 export function getVisibleNavChildCategories(
   parentSlug: string,
-  products: Product[],
+  _products: Product[],
 ): SareeCategory[] {
-  return getChildCategories(parentSlug).filter((child) =>
-    categoryHasStorefrontContent(child.slug, products),
-  )
+  // Nested catalogs are structural — keep them linkable before products land.
+  return getChildCategories(parentSlug)
 }
 
 /**

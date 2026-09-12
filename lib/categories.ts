@@ -115,6 +115,13 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'navratri-collection',
     groupSlug: 'festive-edition',
   },
+  {
+    name: 'DHARVI — DURGA POOJA EDITION',
+    /** Canonical route: /collections/dharvi-durga-pooja-edition */
+    slug: 'dharvi-durga-pooja-edition',
+    parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
 ]
 
 export function nameToSlug(name: string): string {
