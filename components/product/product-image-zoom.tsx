@@ -262,7 +262,12 @@ export function ProductImageZoom({
     if (event.touches.length === 0) swipeRef.current = null
   }
 
-  function renderThumb(src: string, i: number, selected: boolean, size: 'rail' | 'strip') {
+  function renderThumb(
+    src: string,
+    i: number,
+    selected: boolean,
+    size: 'rail' | 'strip' | 'tray',
+  ) {
     const video = isGalleryVideoUrl(src)
     const poster = video ? getGalleryVideoPosterUrl(src) : undefined
     return (
@@ -270,26 +275,34 @@ export function ProductImageZoom({
         key={`${src}-${i}`}
         type="button"
         onClick={() => {
-          if (size === 'rail') onActiveIndexChange(i)
-          else {
+          // Lightbox strip navigates the viewer; rail/tray update the main gallery.
+          if (size === 'strip') {
             setViewerIndex(i)
+            onActiveIndexChange(i)
             resetZoom()
+            return
           }
+          onActiveIndexChange(i)
         }}
         aria-label={video ? `View video ${i + 1}` : `View image ${i + 1}`}
         aria-pressed={selected}
         data-media-type={video ? 'video' : 'image'}
         className={cn(
-          'relative shrink-0 overflow-hidden rounded-sm border bg-muted transition-colors',
-          size === 'rail' && 'h-20 w-16 sm:h-24 sm:w-20',
-          size === 'strip' && 'h-14 w-11',
-          selected
-            ? size === 'strip'
-              ? 'border-ivory'
-              : 'border-primary'
-            : size === 'strip'
-              ? 'border-ivory/25 opacity-70'
-              : 'border-border',
+          'relative shrink-0 overflow-hidden transition-all duration-300 ease-out',
+          size === 'rail' && 'h-20 w-16 rounded-sm border bg-muted sm:h-24 sm:w-20',
+          size === 'strip' && 'h-14 w-11 rounded-sm border',
+          size === 'tray' &&
+            'h-[4.25rem] w-[4.25rem] rounded-sm border bg-ivory sm:h-[4.75rem] sm:w-[4.75rem]',
+          size === 'rail' &&
+            (selected
+              ? 'border-primary shadow-[0_6px_18px_-10px_rgba(80,30,30,0.45)]'
+              : 'border-border'),
+          size === 'strip' &&
+            (selected ? 'border-ivory' : 'border-ivory/25 opacity-70'),
+          size === 'tray' &&
+            (selected
+              ? 'scale-[1.03] border-wine shadow-[0_8px_22px_-12px_rgba(80,30,30,0.4)] ring-1 ring-accent/55'
+              : 'border-border/70 opacity-90 hover:border-accent/50 hover:opacity-100'),
         )}
       >
         {video ? (
@@ -303,9 +316,26 @@ export function ProductImageZoom({
               className="h-full w-full object-cover"
               aria-hidden
             />
-            <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-charcoal/40">
-              <span className="flex size-6 items-center justify-center rounded-full border border-ivory/50 bg-charcoal/55">
-                <Play className="size-3 fill-ivory text-ivory" aria-hidden />
+            <span
+              className={cn(
+                'pointer-events-none absolute inset-0 flex items-center justify-center',
+                size === 'tray' ? 'bg-charcoal/25' : 'bg-charcoal/40',
+              )}
+            >
+              <span
+                className={cn(
+                  'flex items-center justify-center rounded-full border',
+                  size === 'tray'
+                    ? 'size-5 border-wine/30 bg-ivory/90'
+                    : 'size-6 border-ivory/50 bg-charcoal/55',
+                )}
+              >
+                <Play
+                  className={cn(
+                    size === 'tray' ? 'size-2.5 fill-wine text-wine' : 'size-3 fill-ivory text-ivory',
+                  )}
+                  aria-hidden
+                />
               </span>
             </span>
           </>
@@ -314,8 +344,10 @@ export function ProductImageZoom({
             src={src || '/placeholder.svg'}
             alt=""
             fill
-            sizes={size === 'rail' ? '80px' : '44px'}
-            className={size === 'strip' ? 'object-cover' : 'object-contain object-center'}
+            sizes={size === 'rail' ? '80px' : size === 'tray' ? '76px' : '44px'}
+            className={
+              size === 'rail' ? 'object-contain object-center' : 'object-cover object-center'
+            }
           />
         )}
       </button>
@@ -329,7 +361,7 @@ export function ProductImageZoom({
           type="button"
           onClick={() => openViewer(safeIndex)}
           aria-label={activeIsVideo ? `Open ${alt} video` : `Open ${alt} image zoom`}
-          className="group/main relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-secondary/35 ring-1 ring-border/40"
+          className="group/main relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-ivory ring-1 ring-border/35"
         >
           {activeIsVideo ? (
             <video
@@ -345,21 +377,24 @@ export function ProductImageZoom({
               aria-label={`${alt} video`}
             />
           ) : (
-            // Width-driven intrinsic layout: full gallery column, natural aspect
-            // (landscape stays complete — no portrait letterboxing).
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={activeSrc}
-              alt={alt}
-              width={1280}
-              height={714}
-              decoding="async"
-              fetchPriority="high"
-              className="h-auto w-full object-contain transition-transform duration-500 ease-out group-hover/main:scale-[1.01]"
-              draggable={false}
-            />
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.img
+                key={activeSrc}
+                src={activeSrc}
+                alt={alt}
+                width={1280}
+                height={714}
+                decoding="async"
+                initial={{ opacity: 0.35 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0.2 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                className="h-auto w-full object-contain"
+                draggable={false}
+              />
+            </AnimatePresence>
           )}
-          <span className="absolute bottom-3 right-3 z-10 flex size-10 items-center justify-center rounded-full border border-border/70 bg-background/90 text-foreground shadow-sm backdrop-blur-sm transition-colors group-hover/main:bg-background sm:bottom-4 sm:right-4">
+          <span className="absolute bottom-3 right-3 z-10 flex size-10 items-center justify-center rounded-full border border-border/60 bg-background/95 text-foreground shadow-sm backdrop-blur-sm transition-colors group-hover/main:bg-background sm:bottom-4 sm:right-4">
             {activeIsVideo ? (
               <Play className="size-4 fill-current" strokeWidth={1.75} aria-hidden />
             ) : (
@@ -373,8 +408,10 @@ export function ProductImageZoom({
           ) : null}
         </button>
         {gallery.length > 1 ? (
-          <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1">
-            {gallery.map((img, i) => renderThumb(img, i, safeIndex === i, 'strip'))}
+          <div className="mt-4 rounded-sm border border-border/50 bg-secondary/40 px-3 py-3 sm:px-4 sm:py-3.5">
+            <div className="flex gap-2.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {gallery.map((img, i) => renderThumb(img, i, safeIndex === i, 'tray'))}
+            </div>
           </div>
         ) : null}
       </div>
