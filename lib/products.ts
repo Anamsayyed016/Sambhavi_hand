@@ -2178,6 +2178,27 @@ export const products: Product[] = [
     description:
       '🥳Being Traditional Is Being Classy.\n\n🥳 Fabric: Soft Linen Print & Blouse\n\nLet\'s Talk About Fashion💃🏼',
   },
+  {
+    slug: 'dharvi-puja-collection',
+    name: 'Dharvi puja collection',
+    price: 1499,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206426/WhatsApp_Image_2026-09-11_at_2.22.56_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206426/WhatsApp_Image_2026-09-11_at_2.22.56_PM.jpg',
+    ],
+    category: 'DHARVI — DURGA POOJA EDITION',
+    collections: ['dharvi-durga-pooja-edition'],
+    fabric: 'Soft Linen Gold Zari Border',
+    weave: 'Digital Print',
+    length: '6.30 Meter (With Digital Matching Blouse)',
+    blouse: 'Soft Linen with Digital Print Matching Blouse',
+    care: 'Digital Print · Soft Linen',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      '🍁 Dharvi puja collection\n\nFabric: Soft Linen Gold Zari Border\n\nWork: Digital Print\n\nSaree Length: 6.30 Meter\n(With Digital Matching Blouse)\n\nBlouse Fabric: Soft Linen with Digital Print Matching Blouse\n\n🍁🍁🍁🍁🍁🍁',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
