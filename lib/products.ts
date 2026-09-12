@@ -2214,7 +2214,12 @@ export const products: Product[] = [
     name: 'Dharvi DURGA',
     price: 1449,
     image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206464/1.jpg',
-    images: ['https://res.cloudinary.com/tcjtyr02/image/upload/v1789206464/1.jpg'],
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206464/1.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206463/2.jpg',
+      'https://res.cloudinary.com/tcjtyr02/video/upload/v1789206473/3.mp4',
+      'https://res.cloudinary.com/tcjtyr02/video/upload/v1789206473/4.mp4',
+    ],
     category: 'DHARVI — DURGA POOJA EDITION',
     collections: ['dharvi-durga-pooja-edition'],
     fabric: 'Soft simmer zari cotton',

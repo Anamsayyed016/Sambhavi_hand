@@ -7,7 +7,12 @@ import { PrismaClient, ProductAvailability } from '@prisma/client'
 const prisma = new PrismaClient()
 
 const IMAGE = 'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206464/1.jpg'
-const IMAGES: string[] = [IMAGE]
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206463/2.jpg',
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789206473/3.mp4',
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789206473/4.mp4',
+]
 
 const DESCRIPTION = [
   'Beautiful soft simmer zari cotton sarees with all DURGA PUJA PRINT design along with zari border',
