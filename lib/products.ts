@@ -2158,6 +2158,13 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206372/WhatsApp_Image_2026-09-11_at_2.21.56_PM.jpg',
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206372/WhatsApp_Image_2026-09-11_at_2.21.56_PM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206373/WhatsApp_Image_2026-09-11_at_2.21.57_PM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206371/WhatsApp_Image_2026-09-11_at_2.21.56_PM_2.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206370/WhatsApp_Image_2026-09-11_at_2.21.56_PM_1.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206368/WhatsApp_Image_2026-09-11_at_2.21.55_PM_3.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206369/WhatsApp_Image_2026-09-11_at_2.21.55_PM.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206367/WhatsApp_Image_2026-09-11_at_2.21.55_PM_2.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206366/WhatsApp_Image_2026-09-11_at_2.21.55_PM_1.jpg',
     ],
     category: 'DHARVI — DURGA POOJA EDITION',
     collections: ['dharvi-durga-pooja-edition'],
