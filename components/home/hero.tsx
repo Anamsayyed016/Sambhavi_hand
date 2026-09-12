@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, usePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { heroSlides } from '@/lib/content'
+import { heroSlides, type HeroSlide } from '@/lib/content'
 import { cn } from '@/lib/utils'
 
 const AUTOPLAY_MS = 8000
@@ -18,11 +18,106 @@ const primaryCtaClass =
 const secondaryCtaClass =
   'h-12 rounded-none border border-ivory/75 bg-charcoal/30 px-8 font-sans text-xs font-semibold uppercase tracking-[0.2em] text-ivory shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_28px_-16px_rgba(0,0,0,0.55)] backdrop-blur-[2px] transition-[background-color,border-color,box-shadow,transform] duration-300 hover:border-ivory hover:bg-charcoal/40 hover:text-ivory hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_14px_32px_-14px_rgba(0,0,0,0.6)] hover:-translate-y-px'
 
+/** True when a slide should render HTML5 video instead of an image. */
+function getHeroVideoSrc(slide: HeroSlide): string | undefined {
+  const candidate = slide.video?.trim()
+  if (!candidate) return undefined
+  if (/\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(candidate)) return candidate
+  if (/\/video\/upload\//i.test(candidate)) return candidate
+  return candidate
+}
+
+/**
+ * Owns its own video element/ref so AnimatePresence enter/exit slides never share a ref.
+ * Plays only while present; pauses immediately when the slide begins exiting.
+ */
+function HeroSlideMedia({
+  slide,
+  reducedMotion,
+  priority,
+}: {
+  slide: HeroSlide
+  reducedMotion: boolean
+  priority?: boolean
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const [isPresent] = usePresence()
+  const videoSrc = getHeroVideoSrc(slide)
+  const showVideo = Boolean(videoSrc) && !reducedMotion
+
+  useEffect(() => {
+    if (!showVideo) return
+    const video = videoRef.current
+    if (!video) return
+
+    video.muted = true
+    video.defaultMuted = true
+    video.playsInline = true
+
+    if (!isPresent) {
+      video.pause()
+      return
+    }
+
+    const tryPlay = () => {
+      void video.play().catch(() => {
+        /* Autoplay may be blocked until interaction; muted+playsInline usually works. */
+      })
+    }
+
+    tryPlay()
+    video.addEventListener('loadeddata', tryPlay)
+    video.addEventListener('canplay', tryPlay)
+
+    return () => {
+      video.removeEventListener('loadeddata', tryPlay)
+      video.removeEventListener('canplay', tryPlay)
+      video.pause()
+      try {
+        video.currentTime = 0
+      } catch {
+        /* ignore seek errors on teardown */
+      }
+    }
+  }, [showVideo, videoSrc, isPresent])
+
+  if (showVideo && videoSrc) {
+    return (
+      <video
+        ref={videoRef}
+        key={videoSrc}
+        src={videoSrc}
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ objectPosition: slide.objectPosition ?? 'center center' }}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        controls={false}
+        disablePictureInPicture
+        aria-label={slide.alt}
+      />
+    )
+  }
+
+  return (
+    <Image
+      src={slide.image}
+      alt={slide.alt}
+      fill
+      priority={priority}
+      sizes="100vw"
+      className="object-cover"
+      style={{ objectPosition: slide.objectPosition ?? 'center center' }}
+    />
+  )
+}
+
 export function Hero() {
   const total = heroSlides.length
   const [index, setIndex] = useState(0)
   const [reducedMotion, setReducedMotion] = useState(false)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -40,20 +135,7 @@ export function Hero() {
   }, [total])
 
   const slide = heroSlides[index]
-  const useVideo = Boolean(slide.video) && !reducedMotion
-
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video || !useVideo) return
-    video.muted = true
-    void video.play().catch(() => {
-      /* Autoplay may be blocked; muted + playsInline usually succeeds. */
-    })
-    return () => {
-      video.pause()
-    }
-  }, [useVideo, index, slide.video])
-
+  const activeIsVideo = Boolean(getHeroVideoSrc(slide)) && !reducedMotion
   const headlineLines = slide.headline.split('\n')
   const motionDuration = reducedMotion ? 0.15 : SLIDE_DURATION
   const imageMotion = reducedMotion
@@ -86,40 +168,19 @@ export function Hero() {
           transition={{ duration: motionDuration, ease: SLIDE_EASE }}
           className="absolute inset-0"
         >
-          {useVideo && slide.video ? (
-            <video
-              ref={videoRef}
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{ objectPosition: slide.objectPosition ?? 'center center' }}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              controls={false}
-              aria-label={slide.alt}
-            >
-              <source src={slide.video} type="video/mp4" />
-            </video>
-          ) : (
-            <Image
-              src={slide.image}
-              alt={slide.alt}
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              className="object-cover"
-              style={{ objectPosition: slide.objectPosition ?? 'center center' }}
-            />
-          )}
+          <HeroSlideMedia
+            slide={slide}
+            reducedMotion={reducedMotion}
+            priority={index === 0}
+          />
 
           <div
             className={cn(
-              'absolute inset-0 bg-gradient-to-r from-charcoal/78 via-charcoal/42 to-charcoal/10',
-              useVideo && 'from-charcoal/82 via-charcoal/48 to-charcoal/18',
+              'pointer-events-none absolute inset-0 bg-gradient-to-r from-charcoal/78 via-charcoal/42 to-charcoal/10',
+              activeIsVideo && 'from-charcoal/82 via-charcoal/48 to-charcoal/18',
             )}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/55 via-transparent to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-charcoal/55 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
 
