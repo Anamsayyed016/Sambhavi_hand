@@ -2123,6 +2123,27 @@ export const products: Product[] = [
     description:
       'Printed perfection for every occasion 🖤\n\nLehenga (Stitched)\n✦ Lehenga Fabric: Dola Silk\n✦ Lehenga Work: Kalmkaei Print\n✦ Lehenga Waist: Supported Up To 42\n✦ Lehenga Closer: Drawstring With Zip\n✦ Stitching: Stitched With Canvas\n✦ Length: 41\n✦ Flair: 3.5 Meter\n✦ Inner: Micro Cotton\n\nBlouse (Unstitched)\n✧ Blouse Fabric: Vichitra Silk\n✧ Work: Embroidery Thread Work\n\nDupatta\n◇ Dupatta Fabric: Vichitra Silk\n◇ Dupatta Work: Embroidery Thread Work With 4 Sard Lace Work\n◇ Dupatta Length: 2.5 Meter\n\nPackage Contains:\n❖ Lehenga\n❖ Blouse\n❖ Dupatta\n❖ Drawstring With Zip\n\nWeight:\n❖ 1 Kg\n\nRATE:\n₹1,999',
   },
+  {
+    slug: 'dharvi-durga-pooja-edition',
+    name: 'DHARVI — DURGA POOJA EDITION',
+    price: 1250,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206290/WhatsApp_Image_2026-09-11_at_2.18.16_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206290/WhatsApp_Image_2026-09-11_at_2.18.16_PM.jpg',
+    ],
+    category: 'DHARVI — DURGA POOJA EDITION',
+    collections: ['dharvi-durga-pooja-edition'],
+    fabric: 'Heavy Blooming Mul Cotton',
+    weave: 'Gold Pattu Border · Allover',
+    length: 'Saree with matching pallu',
+    blouse: 'Perfectly matched blouse piece included',
+    care: 'Quality & Fashion · New catalog',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'ENJOY YOUR FESTIVALS WITH THIS SAREE\n\n🥻 Saree Fabric: Heavy blooming mul cotton saree with gold pattu border on allover saree with PERFECTLY MATCHED blouse piece and pallu\n\n✏️ We believe in Quality & Fashion in new catalog',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {

@@ -93,19 +93,31 @@ export async function getPricedStorefrontProducts(): Promise<Product[]> {
 
 export async function getPricedStorefrontProduct(slug: string): Promise<Product | undefined> {
   if (!getStorefrontProduct(slug) && !getProduct(slug)) {
-    const row = await prisma.product.findUnique({ where: { slug } })
-    if (!row || !row.active) return undefined
-    return mapDbProductToStorefront(row)
+    try {
+      const row = await prisma.product.findUnique({ where: { slug } })
+      if (!row || !row.active) return undefined
+      return mapDbProductToStorefront(row)
+    } catch (error) {
+      console.error('[catalog] DB product lookup failed; static catalog only', error)
+      return undefined
+    }
   }
 
   const base = getStorefrontProduct(slug) ?? getProduct(slug)
   if (!base) return undefined
   const [priced] = await applyDbPricesToProducts([base])
-  const db = await prisma.product.findUnique({
-    where: { slug },
-    select: { active: true },
-  })
-  if (db && !db.active) return undefined
+
+  let dbActive: boolean | null = null
+  try {
+    const db = await prisma.product.findUnique({
+      where: { slug },
+      select: { active: true },
+    })
+    dbActive = db ? db.active : null
+  } catch (error) {
+    console.error('[catalog] DB product active check failed; using static catalog', error)
+  }
+  if (dbActive === false) return undefined
 
   // Preserve explicit catalog gallery order from static product data.
   return {

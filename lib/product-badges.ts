@@ -31,8 +31,19 @@ export function isLehangaProduct(product: Product): boolean {
   )
 }
 
+/** True when a product belongs to DHARVI — DURGA POOJA EDITION (Navratri nested). */
+export function isDharviProduct(product: Product): boolean {
+  return (
+    product.category.trim() === 'DHARVI — DURGA POOJA EDITION' ||
+    product.collections.includes('dharvi-durga-pooja-edition') ||
+    product.slug === 'dharvi-durga-pooja-edition' ||
+    product.slug.startsWith('dharvi-')
+  )
+}
+
 /** Subtle editorial collection label for latest edits. */
 export function getEditorialCollectionLabel(product: Product): string | null {
+  if (isDharviProduct(product)) return 'NEW COLLECTION'
   if (isJobaniyuProduct(product)) return 'NEW COLLECTION'
   if (isLehangaProduct(product)) return 'NEW EXCLUSIVE DESIGNER LEHENGA'
   if (isChhabiliProduct(product)) return 'NEW COLLECTION'
