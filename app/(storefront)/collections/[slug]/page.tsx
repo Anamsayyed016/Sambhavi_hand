@@ -127,12 +127,14 @@ export default async function CollectionDetailPage({
       : null
 
   const isChhabili = category?.slug === 'chhabili'
+  const isDharvi = category?.slug === 'dharvi-durga-pooja-edition'
   /**
    * Gallery-frame expansion (one card per images[]) is ONLY for traditional
    * handloom/powerloom saree category browsing.
    */
   const expandImages =
     !isChhabili &&
+    !isDharvi &&
     Boolean(category) &&
     !category.parentSlug &&
     category.groupSlug === 'handloom-powerloom'
@@ -236,6 +238,7 @@ export default async function CollectionDetailPage({
         category &&
         !children.length &&
         !isChhabili &&
+        !isDharvi &&
         !ownCollection.image.startsWith('/images/collection-') ? (
           <div className="relative mb-10 hidden aspect-[21/9] overflow-hidden rounded-sm bg-muted md:block">
             <Image
@@ -252,7 +255,7 @@ export default async function CollectionDetailPage({
         {items.length > 0 ? (
           <ProductGrid
             products={items}
-            columns="three"
+            columns={isDharvi ? 'featured' : 'three'}
             expandImages={expandImages}
           />
         ) : (

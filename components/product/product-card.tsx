@@ -5,7 +5,7 @@ import { Heart, ShoppingBag, Eye } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { getGalleryStillUrl, isGalleryVideoUrl } from '@/lib/gallery-media'
-import { getEditorialCollectionLabel } from '@/lib/product-badges'
+import { getEditorialCollectionLabel, isDharviProduct } from '@/lib/product-badges'
 import { useCart } from '@/components/cart/cart-provider'
 import { ProductLink } from '@/components/product/product-link'
 
@@ -37,17 +37,37 @@ export function ProductCard({
     ? getGalleryStillUrl(product.images, product.image || '/placeholder.svg')
     : candidate
 
+  /**
+   * DHARVI source art is landscape (~16:9). Global cards use portrait + object-contain,
+   * which letterboxes that photo into a tiny strip. Fill the editorial frame instead —
+   * other catalogs keep contain + padding unchanged.
+   */
+  const fillFrame = isDharviProduct(product)
+
   return (
     <div className="group flex flex-col">
-      <div className="relative aspect-[2/3] overflow-hidden rounded-sm bg-ivory p-4 sm:p-5">
+      <div
+        className={cn(
+          'relative aspect-[2/3] overflow-hidden rounded-sm',
+          fillFrame ? 'bg-secondary' : 'bg-ivory p-4 sm:p-5',
+        )}
+      >
         <div className="relative h-full w-full">
           <Image
             src={imageSrc}
             alt={product.name}
             fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1408px) 30vw, 28vw"
+            sizes={
+              fillFrame
+                ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw'
+                : '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1408px) 30vw, 28vw'
+            }
             priority={priority}
-            className="object-contain object-center"
+            className={cn(
+              fillFrame
+                ? 'object-cover object-[center_35%]'
+                : 'object-contain object-center',
+            )}
           />
         </div>
         <ProductLink

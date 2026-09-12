@@ -62,7 +62,8 @@ export function ProductGrid({
 }: {
   products: Product[]
   className?: string
-  columns?: 'three' | 'four'
+  /** `featured` = larger editorial cards for sparse catalogs (e.g. DHARVI). */
+  columns?: 'three' | 'four' | 'featured'
   /**
    * When true, each gallery image becomes its own card (legacy saree browse).
    * Default false = one card per product using the primary image.
@@ -81,7 +82,11 @@ export function ProductGrid({
   const cols =
     columns === 'four'
       ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-      : 'grid-cols-2 md:grid-cols-3'
+      : columns === 'featured'
+        ? items.length <= 1
+          ? 'grid-cols-1 max-w-[min(100%,22rem)] sm:max-w-[26rem] md:max-w-[30rem] lg:max-w-[32rem]'
+          : 'grid-cols-1 sm:grid-cols-2 max-w-3xl md:max-w-4xl'
+        : 'grid-cols-2 md:grid-cols-3'
 
   return (
     <>
