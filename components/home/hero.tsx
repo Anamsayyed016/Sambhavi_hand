@@ -1,20 +1,28 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { heroSlides } from '@/lib/content'
+import { cn } from '@/lib/utils'
 
 const AUTOPLAY_MS = 8000
 const SLIDE_EASE = [0.22, 1, 0.36, 1] as const
 const SLIDE_DURATION = 0.9
 
+const primaryCtaClass =
+  'h-12 rounded-none border border-charcoal/10 bg-ivory px-8 font-sans text-xs font-semibold uppercase tracking-[0.2em] text-charcoal shadow-[inset_0_1px_0_rgba(255,255,255,0.55),0_10px_28px_-14px_rgba(0,0,0,0.65)] transition-[background-color,box-shadow,transform] duration-300 hover:bg-ivory/95 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_14px_32px_-12px_rgba(0,0,0,0.7)] hover:-translate-y-px'
+
+const secondaryCtaClass =
+  'h-12 rounded-none border border-ivory/75 bg-charcoal/30 px-8 font-sans text-xs font-semibold uppercase tracking-[0.2em] text-ivory shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_28px_-16px_rgba(0,0,0,0.55)] backdrop-blur-[2px] transition-[background-color,border-color,box-shadow,transform] duration-300 hover:border-ivory hover:bg-charcoal/40 hover:text-ivory hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_14px_32px_-14px_rgba(0,0,0,0.6)] hover:-translate-y-px'
+
 export function Hero() {
   const total = heroSlides.length
   const [index, setIndex] = useState(0)
   const [reducedMotion, setReducedMotion] = useState(false)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -32,6 +40,20 @@ export function Hero() {
   }, [total])
 
   const slide = heroSlides[index]
+  const useVideo = Boolean(slide.video) && !reducedMotion
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video || !useVideo) return
+    video.muted = true
+    void video.play().catch(() => {
+      /* Autoplay may be blocked; muted + playsInline usually succeeds. */
+    })
+    return () => {
+      video.pause()
+    }
+  }, [useVideo, index, slide.video])
+
   const headlineLines = slide.headline.split('\n')
   const motionDuration = reducedMotion ? 0.15 : SLIDE_DURATION
   const imageMotion = reducedMotion
@@ -64,17 +86,39 @@ export function Hero() {
           transition={{ duration: motionDuration, ease: SLIDE_EASE }}
           className="absolute inset-0"
         >
-          <Image
-            src={slide.image}
-            alt={slide.alt}
-            fill
-            priority={index === 0}
-            sizes="100vw"
-            className="object-cover"
-            style={{ objectPosition: slide.objectPosition ?? 'center center' }}
-          />
+          {useVideo && slide.video ? (
+            <video
+              ref={videoRef}
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ objectPosition: slide.objectPosition ?? 'center center' }}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              controls={false}
+              aria-label={slide.alt}
+            >
+              <source src={slide.video} type="video/mp4" />
+            </video>
+          ) : (
+            <Image
+              src={slide.image}
+              alt={slide.alt}
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              className="object-cover"
+              style={{ objectPosition: slide.objectPosition ?? 'center center' }}
+            />
+          )}
 
-          <div className="absolute inset-0 bg-gradient-to-r from-charcoal/78 via-charcoal/42 to-charcoal/10" />
+          <div
+            className={cn(
+              'absolute inset-0 bg-gradient-to-r from-charcoal/78 via-charcoal/42 to-charcoal/10',
+              useVideo && 'from-charcoal/82 via-charcoal/48 to-charcoal/18',
+            )}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/55 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
@@ -90,11 +134,11 @@ export function Hero() {
               transition={{ duration: reducedMotion ? 0.15 : 0.65, ease: SLIDE_EASE }}
               className="flex max-w-2xl flex-col gap-6"
             >
-              <span className="font-sans text-xs font-semibold uppercase tracking-luxe text-accent">
+              <span className="font-sans text-xs font-semibold uppercase tracking-luxe text-accent drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)]">
                 {slide.eyebrow}
               </span>
 
-              <h1 className="text-hero-display text-balance text-ivory">
+              <h1 className="text-hero-display text-balance text-ivory [text-shadow:0_1px_0_rgba(255,255,255,0.12),0_10px_28px_rgba(0,0,0,0.45)]">
                 {headlineLines.map((line, i) => (
                   <span key={`${index}-${line}`}>
                     {line}
@@ -103,15 +147,15 @@ export function Hero() {
                 ))}
               </h1>
 
-              <p className="max-w-md text-pretty font-sans text-sm font-normal leading-relaxed text-ivory/80 sm:text-[0.9375rem]">
+              <p className="max-w-md text-pretty font-sans text-sm font-normal leading-relaxed text-ivory/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.4)] sm:text-[0.9375rem]">
                 {slide.description}
               </p>
 
-              <div className="mt-1 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button
                   size="lg"
                   render={<Link href={slide.primaryHref} />}
-                  className="h-12 rounded-none bg-ivory px-8 font-sans text-xs font-semibold uppercase tracking-btn text-charcoal hover:bg-ivory/90"
+                  className={primaryCtaClass}
                 >
                   {slide.primaryLabel}
                 </Button>
@@ -120,7 +164,7 @@ export function Hero() {
                     size="lg"
                     variant="outline"
                     render={<Link href={slide.secondaryHref} />}
-                    className="h-12 rounded-none border-ivory/50 bg-transparent px-8 font-sans text-xs font-semibold uppercase tracking-btn text-ivory hover:bg-ivory/10 hover:text-ivory"
+                    className={secondaryCtaClass}
                   >
                     {slide.secondaryLabel}
                   </Button>

@@ -140,6 +140,8 @@ export const contactDetails = {
 
 export type HeroSlide = {
   image: string
+  /** Optional full-bleed background video (Cloudinary mp4). When set, replaces image on capable clients. */
+  video?: string
   alt: string
   eyebrow: string
   headline: string
@@ -156,7 +158,8 @@ export type HeroSlide = {
 export const heroSlides: HeroSlide[] = [
   {
     image: '/images/hero-saree.png',
-    alt: 'Model wearing a deep maroon handloom silk saree',
+    video: 'https://res.cloudinary.com/tcjtyr02/video/upload/v1789201988/2wt.mp4',
+    alt: 'Sambhavi Handloom festive fashion film',
     eyebrow: 'Sambhavi Handloom',
     headline: 'Timeless Handloom.\nModern Elegance.',
     description:
