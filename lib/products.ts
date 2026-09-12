@@ -2150,6 +2150,27 @@ export const products: Product[] = [
     description:
       'ENJOY YOUR FESTIVALS WITH THIS SAREE\n\n🥻 Saree Fabric: Heavy blooming mul cotton saree with gold pattu border on allover saree with PERFECTLY MATCHED blouse piece and pallu\n\n✏️ We believe in Quality & Fashion in new catalog',
   },
+  {
+    slug: 'dharvi-durga-puja-collection',
+    name: 'Dharvi Durga Puja Collection🇮🇳💫',
+    price: 999,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206372/WhatsApp_Image_2026-09-11_at_2.21.56_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206372/WhatsApp_Image_2026-09-11_at_2.21.56_PM.jpg',
+    ],
+    category: 'DHARVI — DURGA POOJA EDITION',
+    collections: ['dharvi-durga-pooja-edition'],
+    fabric: 'Soft Linen Print & Blouse',
+    weave: 'Linen Print',
+    length: 'Saree with blouse',
+    blouse: 'Matching blouse',
+    care: "Let's Talk About Fashion💃🏼",
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      '🥳Being Traditional Is Being Classy.\n\n🥳 Fabric: Soft Linen Print & Blouse\n\nLet\'s Talk About Fashion💃🏼',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
