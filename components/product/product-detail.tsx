@@ -6,7 +6,7 @@ import { ChevronRight, Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus,
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { isGalleryVideoUrl } from '@/lib/gallery-media'
-import { getEditorialCollectionLabel, isChhabiliProduct, isJobaniyuProduct } from '@/lib/product-badges'
+import { getEditorialCollectionLabel, isChhabiliProduct, isDharviProduct, isJobaniyuProduct } from '@/lib/product-badges'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
@@ -50,13 +50,16 @@ export function ProductDetail({
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
   const editorialLabel = getEditorialCollectionLabel(product)
+  const isDharvi = isDharviProduct(product)
   const backFallback = isChhabiliProduct(product)
     ? '/collections/chhabili'
     : isJobaniyuProduct(product)
       ? '/collections/jobaniyu'
-      : product.collections[0]
-        ? `/collections/${product.collections[0]}`
-        : '/shop'
+      : isDharvi
+        ? '/collections/dharvi-durga-pooja-edition'
+        : product.collections[0]
+          ? `/collections/${product.collections[0]}`
+          : '/shop'
 
   const handleAdd = () => {
     addItem(product, qty)
@@ -87,13 +90,19 @@ export function ProductDetail({
         </nav>
       ) : null}
 
-      <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-14">
+      <div
+        className={cn(
+          'grid gap-8 lg:items-start',
+          isDharvi ? 'lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] lg:gap-12' : 'lg:grid-cols-2 lg:gap-14',
+        )}
+      >
         <ProductImageZoom
           images={gallery}
           alt={product.name}
           activeIndex={activeImage}
           onActiveIndexChange={setActiveImage}
           discountPercent={discount}
+          variant={isDharvi ? 'editorial' : 'gallery'}
         />
 
         <div className="flex flex-col">

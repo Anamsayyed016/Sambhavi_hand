@@ -324,12 +324,12 @@ export function ProductImageZoom({
 
   const preview =
     variant === 'editorial' ? (
-      <div className={cn('relative mx-auto w-full max-w-full lg:mx-0 lg:max-w-[28rem]', className)}>
+      <div className={cn('relative w-full', className)}>
         <button
           type="button"
           onClick={() => openViewer(safeIndex)}
           aria-label={activeIsVideo ? `Open ${alt} video` : `Open ${alt} image zoom`}
-          className="group/main relative block w-full cursor-zoom-in overflow-hidden rounded-sm bg-secondary/40 p-2 sm:p-4"
+          className="group/main relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-secondary/35 ring-1 ring-border/40"
         >
           {activeIsVideo ? (
             <video
@@ -345,22 +345,38 @@ export function ProductImageZoom({
               aria-label={`${alt} video`}
             />
           ) : (
+            // Width-driven intrinsic layout: full gallery column, natural aspect
+            // (landscape stays complete — no portrait letterboxing).
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={activeSrc}
               alt={alt}
-              className="h-auto w-full object-contain transition-transform duration-500 ease-out group-hover/main:scale-[1.015]"
+              width={1280}
+              height={714}
+              decoding="async"
+              fetchPriority="high"
+              className="h-auto w-full object-contain transition-transform duration-500 ease-out group-hover/main:scale-[1.01]"
               draggable={false}
             />
           )}
-          <span className="absolute bottom-4 right-4 z-10 flex size-10 items-center justify-center rounded-full border border-border/70 bg-background/90 text-foreground shadow-sm backdrop-blur-sm transition-colors group-hover/main:bg-background">
+          <span className="absolute bottom-3 right-3 z-10 flex size-10 items-center justify-center rounded-full border border-border/70 bg-background/90 text-foreground shadow-sm backdrop-blur-sm transition-colors group-hover/main:bg-background sm:bottom-4 sm:right-4">
             {activeIsVideo ? (
               <Play className="size-4 fill-current" strokeWidth={1.75} aria-hidden />
             ) : (
               <Plus className="size-4" strokeWidth={1.75} aria-hidden />
             )}
           </span>
+          {discountPercent > 0 ? (
+            <span className="absolute left-3 top-3 z-10 bg-primary px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-luxe text-primary-foreground sm:left-4 sm:top-4">
+              Save {discountPercent}%
+            </span>
+          ) : null}
         </button>
+        {gallery.length > 1 ? (
+          <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1">
+            {gallery.map((img, i) => renderThumb(img, i, safeIndex === i, 'strip'))}
+          </div>
+        ) : null}
       </div>
     ) : (
       <div className={cn('flex flex-col-reverse gap-4 sm:flex-row', className)}>
