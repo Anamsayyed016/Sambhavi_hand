@@ -8,7 +8,14 @@ const prisma = new PrismaClient()
 
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206601/WhatsApp_Image_2026-09-12_at_12.48.31_PM.jpg'
-const IMAGES: string[] = [IMAGE]
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206599/WhatsApp_Image_2026-09-12_at_12.48.31_PM_1.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206598/WhatsApp_Image_2026-09-12_at_12.48.30_PM.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206596/WhatsApp_Image_2026-09-12_at_12.48.30_PM_2.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206595/WhatsApp_Image_2026-09-12_at_12.48.30_PM_1.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206593/WhatsApp_Image_2026-09-12_at_12.48.29_PM.jpg',
+]
 
 const DESCRIPTION = [
   'Elegant Handloom Cotton Saree with Traditional Motif Design Lightweight & Soft Fabric for Daily & Festive Wear',
