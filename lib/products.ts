@@ -2268,6 +2268,29 @@ export const products: Product[] = [
     description:
       'CATLOGUE NO: Dharvi puja collection\n\nSaree Fabric: Plain Linen with Golden Jari Border\n\nWork: Digital Print\n\nSaree Length: 6.30 Meter (With Digital Blouse)\n\nBlouse Fabric: Plain Linen with Golden Jari Border with Digital Print\n\nRATE: ₹1,560\n\n🍁🍁🍁🍁🍁🍁',
   },
+  {
+    slug: 'dharvi-durga-puja-collection-02',
+    name: 'Dharvi Durga Puja collection',
+    price: 1450,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206601/WhatsApp_Image_2026-09-12_at_12.48.31_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206601/WhatsApp_Image_2026-09-12_at_12.48.31_PM.jpg',
+    ],
+    category: 'DHARVI — DURGA POOJA EDITION',
+    collections: ['dharvi-durga-pooja-edition'],
+    fabric:
+      'Crafted from high-quality, breathable cotton that feels soft on the skin, ensuring comfort throughout the day for both formal and casual use.',
+    weave:
+      'Delicate handloom motifs with a contrasting ethnic border, perfect for festivals, office wear, and special occasions.',
+    length: 'Weight: 470 GM',
+    blouse: '100% Best Quality · Ready To Ship',
+    care: 'RATE: ₹1,450 — FIXED · Weight: 470 GM · Ready To Ship',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Elegant Handloom Cotton Saree with Traditional Motif Design Lightweight & Soft Fabric for Daily & Festive Wear\n\nFABRIC:\nCrafted from high-quality, breathable cotton that feels soft on the skin, ensuring comfort throughout the day for both formal and casual use.\n\nDESIGN:\nFeatures delicate handloom motifs with a contrasting ethnic border, perfect for festivals, office wear, and special occasions.\n\nRATE:\n₹1,450 — FIXED\n\nQUALITY:\n100% Best Quality\n\nWEIGHT:\n470 GM\n\nAVAILABILITY:\nReady To Ship',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
