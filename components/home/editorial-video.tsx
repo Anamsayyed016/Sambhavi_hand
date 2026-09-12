@@ -14,8 +14,8 @@ const POSTER_SRC =
 /** Existing Navratri category route — not the generic /collections index. */
 const CTA_HREF = '/collections/navratri-collection'
 
-/** Primary shop destination for the centred video CTA. */
-const SHOP_HREF = '/shop'
+/** Primary shop destination for the centred video CTA — navbar New Arrivals. */
+const SHOP_HREF = '/collections/new-arrivals'
 
 const shopNowButtonClass =
   'group/shop pointer-events-auto absolute left-1/2 top-1/2 z-20 inline-flex -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-ivory/55 bg-charcoal/35 px-6 py-2.5 font-serif text-[0.8125rem] tracking-[0.22em] text-ivory shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_12px_32px_-14px_rgba(0,0,0,0.55)] backdrop-blur-[6px] transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out hover:-translate-x-1/2 hover:-translate-y-[calc(50%+3px)] hover:scale-[1.03] hover:border-ivory/80 hover:bg-charcoal/45 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.38),0_16px_36px_-12px_rgba(0,0,0,0.6)] sm:px-8 sm:py-3 sm:text-[0.9375rem] sm:tracking-[0.26em]'

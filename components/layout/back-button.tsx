@@ -6,42 +6,44 @@ import {
   markPendingScrollRestore,
   peekBrowseReturn,
 } from '@/lib/navigation-return'
+import { cn } from '@/lib/utils'
 
+/**
+ * History-aware back control.
+ * On product pages, prefers the remembered listing context (category / search /
+ * filters + scroll). Otherwise uses browser history, then a safe fallback.
+ */
 export function BackButton({
   fallbackHref = '/shop',
   label = '← Back',
+  className,
 }: {
   fallbackHref?: string
   label?: string
+  className?: string
 }) {
   const router = useRouter()
 
   const handleBack = () => {
     if (typeof window !== 'undefined') {
+      const current = `${window.location.pathname}${window.location.search}`
+      const onProduct = window.location.pathname.startsWith('/product/')
       const remembered = peekBrowseReturn()
-      if (remembered) {
+
+      // Listing→product continuity only applies while viewing a product.
+      if (
+        onProduct &&
+        remembered &&
+        remembered.path !== current &&
+        !remembered.path.startsWith('/product/')
+      ) {
         markPendingScrollRestore(remembered.path, remembered.scroll)
         clearBrowseReturn()
         router.push(remembered.path)
         return
       }
 
-      try {
-        const ref = document.referrer
-        if (ref) {
-          const referrerUrl = new URL(ref)
-          if (
-            referrerUrl.origin === window.location.origin &&
-            !referrerUrl.pathname.startsWith('/product/')
-          ) {
-            router.back()
-            return
-          }
-        }
-      } catch {
-        // fall through
-      }
-
+      // Meaningful in-app history: return to the actual previous page.
       if (window.history.length > 1) {
         router.back()
         return
@@ -55,7 +57,10 @@ export function BackButton({
     <button
       type="button"
       onClick={handleBack}
-      className="mb-3 inline-flex items-center font-sans text-xs uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-primary"
+      className={cn(
+        'mb-4 inline-flex items-center font-sans text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-muted-foreground transition-colors duration-300 hover:text-accent',
+        className,
+      )}
     >
       {label}
     </button>

@@ -27,6 +27,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         title="All Sarees"
         subtitle="Explore our complete collection of handwoven sarees, crafted for every occasion."
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Sarees' }]}
+        showBack
+        backFallbackHref="/"
       />
       <ShopView initialCategory={category?.name} products={products} />
     </>

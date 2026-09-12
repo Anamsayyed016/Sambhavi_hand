@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Search } from 'lucide-react'
 import type { StorefrontSearchResult } from '@/lib/catalog/storefront-search'
 import { ProductGrid } from '@/components/product/product-grid'
+import { BackButton } from '@/components/layout/back-button'
 
 const SEARCH_HINTS = ['silk', 'cotton', 'Banarasi', 'handloom', 'digital print']
 
@@ -47,7 +48,8 @@ export function SearchView({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
+    <div className="mx-auto max-w-7xl px-4 py-12 pt-28 md:px-8 md:py-16 md:pt-32">
+      <BackButton fallbackHref="/" className="mb-6" />
       <div className="mx-auto max-w-2xl text-center">
         <h1 className="font-serif text-3xl text-foreground md:text-4xl">Search</h1>
         <p className="mt-2 text-sm text-muted-foreground">

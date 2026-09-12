@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+import { BackButton } from '@/components/layout/back-button'
 import { cn } from '@/lib/utils'
 
 /** CHHABILI campaign collage — category hero visual only. */
@@ -94,6 +95,10 @@ export function ChhabiliCollectionHero({ breadcrumbs }: { breadcrumbs: Crumb[] }
       />
 
       <div className="relative z-10 flex h-full flex-col px-5 pb-8 pt-28 md:px-8 md:pb-10 md:pt-32 lg:px-12">
+        <BackButton
+          fallbackHref="/collections/navratri-collection"
+          className="mb-3 text-ivory/75 hover:text-accent"
+        />
         <HeroBreadcrumbs breadcrumbs={breadcrumbs} />
         <HeroCopy className="mt-7 md:mt-9" />
       </div>

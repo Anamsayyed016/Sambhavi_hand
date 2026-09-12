@@ -164,6 +164,8 @@ export default async function CollectionDetailPage({
             ownCollection?.description?.trim() || getCatalogSubtitle(slug, category)
           }
           breadcrumbs={breadcrumbs}
+          showBack
+          backFallbackHref="/"
         />
       )}
       <section className="mx-auto max-w-[88rem] px-5 py-12 md:px-8 md:py-16">

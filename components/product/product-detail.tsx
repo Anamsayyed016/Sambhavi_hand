@@ -65,6 +65,7 @@ export function ProductDetail({
 
   return (
     <section className="mx-auto max-w-7xl px-5 pb-10 pt-[5.25rem] md:px-8 md:pb-14 md:pt-[6.5rem]">
+      <BackButton fallbackHref={backFallback} />
       {breadcrumbs && breadcrumbs.length > 0 ? (
         <nav aria-label="Breadcrumb" className="mb-3">
           <ol className="flex flex-wrap items-center gap-1.5 font-sans text-[0.65rem] uppercase tracking-wider text-muted-foreground sm:text-xs">
@@ -86,7 +87,6 @@ export function ProductDetail({
         </nav>
       ) : null}
 
-      <BackButton fallbackHref={backFallback} />
       <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-14">
         <ProductImageZoom
           images={gallery}

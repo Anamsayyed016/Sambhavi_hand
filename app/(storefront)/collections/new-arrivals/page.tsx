@@ -26,6 +26,8 @@ export default function NewArrivalsPage() {
           { label: 'Home', href: '/' },
           { label: 'New Arrivals' },
         ]}
+        showBack
+        backFallbackHref="/"
       />
       <section className="mx-auto max-w-[88rem] px-5 py-12 md:px-8 md:py-16">
         <NewArrivalsShowcase catalogs={catalogs} />

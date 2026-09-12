@@ -1,18 +1,27 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+import { BackButton } from '@/components/layout/back-button'
 
 export function PageBanner({
   title,
   subtitle,
   breadcrumbs,
+  showBack = false,
+  backFallbackHref = '/',
 }: {
   title: string
   subtitle?: string
   breadcrumbs: { label: string; href?: string }[]
+  /** History-aware ← Back under the navbar / above the title. */
+  showBack?: boolean
+  backFallbackHref?: string
 }) {
   return (
     <section className="border-b border-border bg-secondary/50 pb-12 pt-32 md:pt-36">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
+        {showBack ? (
+          <BackButton fallbackHref={backFallbackHref} className="mb-4" />
+        ) : null}
         <nav aria-label="Breadcrumb" className="mb-5">
           <ol className="flex flex-wrap items-center gap-1.5 font-sans text-xs uppercase tracking-wider text-muted-foreground">
             {breadcrumbs.map((crumb, i) => (
