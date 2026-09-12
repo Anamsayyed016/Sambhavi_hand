@@ -10,7 +10,15 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206290/WhatsApp_Image_2026-09-11_at_2.18.16_PM.jpg'
 
-const IMAGES: string[] = [IMAGE]
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206289/WhatsApp_Image_2026-09-11_at_2.18.16_PM_1.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206288/WhatsApp_Image_2026-09-11_at_2.18.15_PM.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206288/WhatsApp_Image_2026-09-11_at_2.18.15_PM_1.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206287/WhatsApp_Image_2026-09-11_at_2.18.14_PM.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206286/WhatsApp_Image_2026-09-11_at_2.18.14_PM_2.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206286/WhatsApp_Image_2026-09-11_at_2.18.14_PM_1.jpg',
+]
 
 const DESCRIPTION = [
   'ENJOY YOUR FESTIVALS WITH THIS SAREE',
