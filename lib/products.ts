@@ -2232,6 +2232,27 @@ export const products: Product[] = [
     description:
       'Beautiful soft simmer zari cotton sarees with all DURGA PUJA PRINT design along with zari border\n\nBeautiful Durga special print\n\nBeautiful zumka on pallu\n\nRunning blouse with border and Durga print\n\n100% quality\n\nBeware to duplicate Quality\n\nReady To Dispatch',
   },
+  {
+    slug: 'dharvi-puja-collection-02',
+    name: 'Dharvi puja collection',
+    price: 1560,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206545/WhatsApp_Image_2026-09-11_at_2.25.54_PM.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206545/WhatsApp_Image_2026-09-11_at_2.25.54_PM.jpg',
+    ],
+    category: 'DHARVI — DURGA POOJA EDITION',
+    collections: ['dharvi-durga-pooja-edition'],
+    fabric: 'Plain Linen with Golden Jari Border',
+    weave: 'Digital Print',
+    length: '6.30 Meter (With Digital Blouse)',
+    blouse: 'Plain Linen with Golden Jari Border with Digital Print',
+    care: '🍁🍁🍁🍁🍁🍁',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'CATLOGUE NO: Dharvi puja collection\n\nSaree Fabric: Plain Linen with Golden Jari Border\n\nWork: Digital Print\n\nSaree Length: 6.30 Meter (With Digital Blouse)\n\nBlouse Fabric: Plain Linen with Golden Jari Border with Digital Print\n\nRATE: ₹1,560\n\n🍁🍁🍁🍁🍁🍁',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
