@@ -85,7 +85,10 @@ export function ProductGrid({
       : columns === 'featured'
         ? items.length <= 1
           ? 'grid-cols-1 max-w-[min(100%,22rem)] sm:max-w-[26rem] md:max-w-[30rem] lg:max-w-[32rem]'
-          : 'grid-cols-1 sm:grid-cols-2 max-w-3xl md:max-w-4xl'
+          : items.length === 2
+            ? 'grid-cols-1 sm:grid-cols-2 max-w-5xl'
+            : // 3+ products: one desktop row, 2 on tablet, 1 on mobile — full content width
+              'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
         : 'grid-cols-2 md:grid-cols-3'
 
   return (
