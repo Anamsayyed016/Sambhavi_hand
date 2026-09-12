@@ -8,7 +8,24 @@ const prisma = new PrismaClient()
 
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206545/WhatsApp_Image_2026-09-11_at_2.25.54_PM.jpg'
-const IMAGES: string[] = [IMAGE]
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206544/WhatsApp_Image_2026-09-11_at_2.25.54_PM_2.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206542/WhatsApp_Image_2026-09-11_at_2.25.54_PM_1.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206540/WhatsApp_Image_2026-09-11_at_2.25.53_PM.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206539/WhatsApp_Image_2026-09-11_at_2.25.53_PM_3.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206537/WhatsApp_Image_2026-09-11_at_2.25.53_PM_2.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206536/WhatsApp_Image_2026-09-11_at_2.25.53_PM_1.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206534/WhatsApp_Image_2026-09-11_at_2.25.52_PM.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206533/WhatsApp_Image_2026-09-11_at_2.25.52_PM_3.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206531/WhatsApp_Image_2026-09-11_at_2.25.52_PM_2.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206530/WhatsApp_Image_2026-09-11_at_2.25.52_PM_1.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206528/WhatsApp_Image_2026-09-11_at_2.25.51_PM.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206527/WhatsApp_Image_2026-09-11_at_2.25.51_PM_2.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206526/WhatsApp_Image_2026-09-11_at_2.25.51_PM_1.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206524/WhatsApp_Image_2026-09-11_at_2.25.50_PM.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789206523/WhatsApp_Image_2026-09-11_at_2.25.48_PM.jpg',
+]
 
 const DESCRIPTION = [
   'CATLOGUE NO: Dharvi puja collection',
