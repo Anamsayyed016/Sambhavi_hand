@@ -12,6 +12,12 @@ const IMAGE =
 const IMAGES: string[] = [
   IMAGE,
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537374/file_0000000005588211bcb8370400629448.png',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537375/file_00000000e7dc8211ac70bae0774bf038.png',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537377/file_000000006dc48211b65189af7245ec65.png',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537377/file_00000000b6908211ac984871141e8051.png',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537380/file_0000000028448211a3cbefb74e1984a5.png',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537374/file_0000000000f48207bfbbcfa01960fa92.png',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537374/file_00000000828882118becbd7e03cfed8a.png',
 ]
 
 const DESCRIPTION =
