@@ -9,6 +9,19 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500075/IMG-20260914-WA0441.jpg'
 
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500074/IMG-20260914-WA0448.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500072/IMG-20260914-WA0443.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500074/IMG-20260914-WA0447.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500074/IMG-20260914-WA0442.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500074/IMG-20260914-WA0436.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500073/IMG-20260914-WA0439.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500072/IMG-20260914-WA0444.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500072/IMG-20260914-WA0437.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500072/IMG-20260914-WA0440.jpg',
+]
+
 const DESCRIPTION = [
   '✦ With Running Blouse Piece',
   '',
@@ -45,7 +58,7 @@ async function main() {
       price: 1470,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Premium Resham Dhakai',
@@ -66,7 +79,7 @@ async function main() {
       price: 1470,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Premium Resham Dhakai',
