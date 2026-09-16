@@ -9,6 +9,13 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789239842/IMG_20260913_002921_179.jpg'
 
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240136/IMG_20260913_002920_854.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789239879/IMG_20260913_002921_111.jpg',
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789240138/VID_20260913_002921_289.mp4',
+]
+
 const DESCRIPTION = [
   '💃 Featuring Our Own Real Modeling – A Boutique Statement Piece!',
   '',
@@ -62,7 +69,7 @@ async function main() {
       price: 2499,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Lehenga Collection',
       collections: ['lehanga', 'navratri-collection'],
       fabric: 'Havy Reyon',
@@ -83,7 +90,7 @@ async function main() {
       price: 2499,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Lehenga Collection',
       collections: ['lehanga', 'navratri-collection'],
       fabric: 'Havy Reyon',
