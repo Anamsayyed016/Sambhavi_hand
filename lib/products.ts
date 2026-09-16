@@ -2490,7 +2490,7 @@ export const products: Product[] = [
   {
     slug: 'pink-kora-cotton-navaratri-lehenga-choli',
     name: 'Pink Kora Cotton Navaratri Lehenga Choli',
-    price: 0,
+    price: 2999,
     image:
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241314/IMG-20260913-WA0116.jpg',
     images: [

@@ -1,7 +1,7 @@
 /**
  * Upserts Pink Kora Cotton Navaratri Lehenga Choli under NAVRATRI COLLECTION.
  * Idempotent — does not modify Sahajanand, Dharvi, CHHABILI, JOBANIYU, or other products.
- * Price is 0 because no MRP was provided (do not invent a price).
+ * Price MRP: ₹2,999.
  */
 import { PrismaClient, ProductAvailability } from '@prisma/client'
 
@@ -72,7 +72,7 @@ async function main() {
       sku: 'SH-PINK-KORA-NAVRATRI-01',
       name: 'Pink Kora Cotton Navaratri Lehenga Choli',
       description: DESCRIPTION,
-      price: 0,
+      price: 2999,
       originalPrice: null,
       image: IMAGE,
       images: IMAGES,
@@ -93,7 +93,7 @@ async function main() {
       sku: 'SH-PINK-KORA-NAVRATRI-01',
       name: 'Pink Kora Cotton Navaratri Lehenga Choli',
       description: DESCRIPTION,
-      price: 0,
+      price: 2999,
       originalPrice: null,
       image: IMAGE,
       images: IMAGES,
