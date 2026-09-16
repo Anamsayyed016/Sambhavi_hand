@@ -2296,6 +2296,27 @@ export const products: Product[] = [
     description:
       'Elegant Handloom Cotton Saree with Traditional Motif Design Lightweight & Soft Fabric for Daily & Festive Wear\n\nFABRIC:\nCrafted from high-quality, breathable cotton that feels soft on the skin, ensuring comfort throughout the day for both formal and casual use.\n\nDESIGN:\nFeatures delicate handloom motifs with a contrasting ethnic border, perfect for festivals, office wear, and special occasions.\n\nRATE:\n₹1,450 — FIXED\n\nQUALITY:\n100% Best Quality\n\nWEIGHT:\n470 GM\n\nAVAILABILITY:\nReady To Ship',
   },
+  {
+    slug: 'navratri-handloom-saree',
+    name: 'Navratri Handloom Saree',
+    price: 1499,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537375/file_0000000010e48211bb9ac2c8aee1234d.png',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537375/file_0000000010e48211bb9ac2c8aee1234d.png',
+    ],
+    category: 'Navratri Collection',
+    collections: ['navratri-collection'],
+    fabric: 'Lightweight, breathable open-weave linen blend',
+    weave: 'Open-weave handloom',
+    length: 'See product description',
+    blouse: 'See product description',
+    care: 'See product description',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Crafted from a lightweight, breathable open-weave linen blend, it offers a crisp drape that combines traditional handloom aesthetics with comfort, making it popular for both smart casual wear and daytime festivities.',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
