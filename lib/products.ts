@@ -2607,6 +2607,11 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241317/IMG-20260913-WA0065.jpg',
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241317/IMG-20260913-WA0065.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241323/IMG-20260913-WA0068.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241321/IMG-20260913-WA0064.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241320/IMG-20260913-WA0067.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241320/IMG-20260913-WA0069.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241317/IMG-20260913-WA0066.jpg',
     ],
     category: 'Navratri Collection',
     collections: ['navratri-collection'],

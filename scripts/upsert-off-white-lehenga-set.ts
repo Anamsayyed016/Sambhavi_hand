@@ -9,6 +9,15 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241317/IMG-20260913-WA0065.jpg'
 
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241323/IMG-20260913-WA0068.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241321/IMG-20260913-WA0064.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241320/IMG-20260913-WA0067.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241320/IMG-20260913-WA0069.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241317/IMG-20260913-WA0066.jpg',
+]
+
 const DESCRIPTION = [
   'Crafted from pure cotton with detailed embroidery work, this off-white lehenga set is the perfect blend of elegance and tradition. Featuring a layered ruffle flair lehenga, an embroidered blouse, and a matching embroidered koti, this set is an ideal pick for Navratri Garba, festive events, cultural functions, and weddings.',
   '',
@@ -71,7 +80,7 @@ async function main() {
       price: 2999,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Pure Cotton',
@@ -92,7 +101,7 @@ async function main() {
       price: 2999,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Pure Cotton',
