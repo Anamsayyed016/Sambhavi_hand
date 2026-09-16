@@ -9,6 +9,16 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240204/IMG_20260913_002946_769.jpg'
 
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240205/IMG_20260913_002946_807.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240204/IMG_20260913_002947_456.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240204/IMG_20260913_002947_465.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240202/IMG_20260913_002946_950.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240201/IMG_20260913_002946_721.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240201/IMG_20260913_002946_622.jpg',
+]
+
 const DESCRIPTION = [
   'REAL MODLING OF NEW LAUNCHED NAVARATRI LAHENGA CHOLI FROM LOOMEERA💚',
   '',
@@ -66,7 +76,7 @@ async function main() {
       price: 2499,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Reyon',
@@ -87,7 +97,7 @@ async function main() {
       price: 2499,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Reyon',
