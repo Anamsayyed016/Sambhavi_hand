@@ -2324,6 +2324,27 @@ export const products: Product[] = [
     description:
       'Crafted from a lightweight, breathable open-weave linen blend, it offers a crisp drape that combines traditional handloom aesthetics with comfort, making it popular for both smart casual wear and daytime festivities.',
   },
+  {
+    slug: 'ethereal-handwoven-muslin-jamdani-sarees',
+    name: 'Ethereal Handwoven Muslin Jamdani Sarees',
+    price: 1899,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537450/file_0000000030ac81faa0ff733fd2d20445.png',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537450/file_0000000030ac81faa0ff733fd2d20445.png',
+    ],
+    category: 'Navratri Collection',
+    collections: ['navratri-collection'],
+    fabric: 'Ultra-lightweight, semi-transparent premium fabric',
+    weave: 'Handwoven Muslin Jamdani',
+    length: 'See product description',
+    blouse: 'See product description',
+    care: 'See product description',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      'Ethereal handwoven Muslin Jamdani sarees crafted from an ultra-lightweight, semi-transparent premium fabric that offers a breezy and fluid drape. Perfect for festive occasions',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
