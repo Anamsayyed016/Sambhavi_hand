@@ -10,6 +10,11 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241314/IMG-20260913-WA0116.jpg'
 
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/video/upload/v1789241313/VID-20260913-WA0117.mp4',
+]
+
 const DESCRIPTION = [
   "Embrace the festive spirit with Kloth Trend's exquisite Pink Kora Cotton Navaratri Lehenga Choli. This handcrafted traditional silhouette boasts attractive Gota-Lace work on the voluminous 6-meter flair lehenga, perfectly complemented by a soft cotton inner. The vibrant green hue, combined with the luxurious fabric, makes this designer party wear an ideal choice for those seeking elegant Indian ethnic boutique attire for festive celebrations.",
   '',
@@ -70,7 +75,7 @@ async function main() {
       price: 0,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Kora Cotton · Faux Georgette blouse',
@@ -91,7 +96,7 @@ async function main() {
       price: 0,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Kora Cotton · Faux Georgette blouse',
