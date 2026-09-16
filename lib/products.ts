@@ -2666,6 +2666,7 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241315/IMG-20260912-WA0527.jpg',
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241315/IMG-20260912-WA0527.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241315/IMG-20260912-WA0523.jpg',
     ],
     category: 'Navratri Collection',
     collections: ['navratri-collection'],

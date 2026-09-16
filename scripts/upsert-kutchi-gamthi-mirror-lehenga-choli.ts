@@ -9,6 +9,11 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241315/IMG-20260912-WA0527.jpg'
 
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241315/IMG-20260912-WA0523.jpg',
+]
+
 const DESCRIPTION = [
   'Heavy Flair Ready To Wear Real Mirror Work Chaniya Choli From Anaya Designer Studio',
   '',
@@ -60,7 +65,7 @@ async function main() {
       price: 1999,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Cotton Printed · Cotton blouse',
@@ -81,7 +86,7 @@ async function main() {
       price: 1999,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Cotton Printed · Cotton blouse',
