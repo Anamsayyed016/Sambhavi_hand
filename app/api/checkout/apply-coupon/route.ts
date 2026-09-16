@@ -47,8 +47,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ valid: false, error: error.message }, { status: error.status })
     }
     if (error instanceof Error && error.message.startsWith('Unavailable:')) {
+      const slug = error.message.slice('Unavailable:'.length).trim()
       return NextResponse.json(
-        { valid: false, error: 'One or more products are no longer available.' },
+        {
+          valid: false,
+          error: slug
+            ? `One or more products are no longer available. (${slug})`
+            : 'One or more products are no longer available.',
+          unavailableSlugs: slug ? [slug] : [],
+        },
         { status: 400 },
       )
     }

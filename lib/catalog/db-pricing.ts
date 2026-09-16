@@ -68,34 +68,31 @@ export async function getPricedStorefrontProducts(): Promise<Product[]> {
       prisma.product.findMany({ where: { active: true } }),
       prisma.product.findMany({ where: { active: false }, select: { slug: true } }),
     ])
+    // Empty DB → static catalog only (local/dev without seed).
     if (activeRows.length === 0 && inactiveRows.length === 0) return staticPriced
 
-    // Inactive DB products must not remain visible via the static catalog fallback —
-    // checkout/coupon pricing rejects them and looks like "coupons don't work".
-    const inactiveSlugs = new Set(inactiveRows.map((row) => row.slug))
-    const bySlug = new Map(
-      staticPriced
-        .filter((product) => !inactiveSlugs.has(product.slug))
-        .map((product) => [product.slug, product]),
-    )
+    // Commerce requires an active DB row. Never list static-only or inactive products —
+    // they look shoppable but fail cart pricing / coupon apply with a misleading availability error.
+    const staticBySlug = new Map(staticPriced.map((product) => [product.slug, product]))
+    const priced: Product[] = []
 
     for (const row of activeRows) {
       if (!isStorefrontProductVisible(row.slug)) continue
       const mapped = mapDbProductToStorefront(row)
-      const fromStatic = bySlug.get(row.slug)
+      const fromStatic = staticBySlug.get(row.slug)
       // Keep explicit static gallery order for catalog products (never auto-sort / never let stale DB reorder).
       if (fromStatic && fromStatic.images.length > 0) {
-        bySlug.set(row.slug, {
+        priced.push({
           ...mapped,
           createdAt: row.createdAt.toISOString(),
           image: fromStatic.image || mapped.image,
           images: [...fromStatic.images],
         })
       } else {
-        bySlug.set(row.slug, mapped)
+        priced.push(mapped)
       }
     }
-    return withCatalogCreatedAt(Array.from(bySlug.values()))
+    return withCatalogCreatedAt(priced)
   } catch (error) {
     console.error('[catalog] DB catalog merge failed; using static+price overlay', error)
     return staticPriced
@@ -119,6 +116,7 @@ export async function getPricedStorefrontProduct(slug: string): Promise<Product 
   const [priced] = await applyDbPricesToProducts([base])
 
   let dbActive: boolean | null = null
+  let dbReachable = true
   try {
     const db = await prisma.product.findUnique({
       where: { slug },
@@ -126,9 +124,11 @@ export async function getPricedStorefrontProduct(slug: string): Promise<Product 
     })
     dbActive = db ? db.active : null
   } catch (error) {
+    dbReachable = false
     console.error('[catalog] DB product active check failed; using static catalog', error)
   }
-  if (dbActive === false) return undefined
+  // Hide inactive and static-only products when the commerce DB is available.
+  if (dbReachable && dbActive !== true) return undefined
 
   // Preserve explicit catalog gallery order from static product data.
   return {

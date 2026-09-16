@@ -41,7 +41,12 @@ export async function POST(request: Request) {
       return !row || !row.active
     })
     if (missing.length > 0) {
-      throw new CheckoutError('One or more products are no longer available.', 400)
+      throw new CheckoutError(
+        missing.length === 1
+          ? `One or more products are no longer available. (${missing[0]})`
+          : `One or more products are no longer available. (${missing.join(', ')})`,
+        400,
+      )
     }
 
     const totals = await computeServerCartTotals(parsed.data.items)
