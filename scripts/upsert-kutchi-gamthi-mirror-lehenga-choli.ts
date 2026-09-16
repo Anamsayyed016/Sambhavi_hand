@@ -12,6 +12,7 @@ const IMAGE =
 const IMAGES: string[] = [
   IMAGE,
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241315/IMG-20260912-WA0523.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789241314/IMG-20260912-WA0525.jpg',
 ]
 
 const DESCRIPTION = [
