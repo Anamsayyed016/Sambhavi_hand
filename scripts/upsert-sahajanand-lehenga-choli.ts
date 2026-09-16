@@ -9,6 +9,13 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240309/IMG_20260913_003057_358.jpg'
 
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240308/IMG_20260913_003108_082.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240308/IMG_20260913_003108_437.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240308/IMG_20260913_003107_860.jpg',
+]
+
 const DESCRIPTION = [
   'A Tasar Silk masterpiece dipped in artistic tie-dye prints, crafted for moments that deserve something truly unique 🌺✨',
   '',
@@ -73,7 +80,7 @@ async function main() {
       price: 2500,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Lehenga Collection',
       collections: ['lehanga', 'navratri-collection'],
       fabric: 'Tasar Silk',
@@ -94,7 +101,7 @@ async function main() {
       price: 2500,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Lehenga Collection',
       collections: ['lehanga', 'navratri-collection'],
       fabric: 'Tasar Silk',

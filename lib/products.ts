@@ -2548,6 +2548,9 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240309/IMG_20260913_003057_358.jpg',
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240309/IMG_20260913_003057_358.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240308/IMG_20260913_003108_082.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240308/IMG_20260913_003108_437.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789240308/IMG_20260913_003107_860.jpg',
     ],
     category: 'Lehenga Collection',
     collections: ['lehanga', 'navratri-collection'],
