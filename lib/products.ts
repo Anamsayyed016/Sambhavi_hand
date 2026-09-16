@@ -2354,6 +2354,27 @@ export const products: Product[] = [
     description:
       'Ethereal handwoven Muslin Jamdani sarees crafted from an ultra-lightweight, semi-transparent premium fabric that offers a breezy and fluid drape. Perfect for festive occasions',
   },
+  {
+    slug: 'premium-resham-dhakai-jamdani-saree',
+    name: 'Premium Resham Dhakai Jamdani Saree',
+    price: 1470,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500075/IMG-20260914-WA0441.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1789500075/IMG-20260914-WA0441.jpg',
+    ],
+    category: 'Navratri Collection',
+    collections: ['navratri-collection'],
+    fabric: 'Premium Resham Dhakai',
+    weave: 'Beautiful Allover Weaving Work',
+    length: 'See product description',
+    blouse: 'With Running Blouse Piece',
+    care: 'Quality Superior to Any Regular Dhakai Saree Available in the Market.',
+    availability: 'In Stock',
+    isNew: true,
+    description:
+      '✦ With Running Blouse Piece\n\n✦ Beautiful Allover Weaving Work\n\n✦ Finely Crafted with Premium Finishing\n\n🩵 Quality Superior to Any Regular Dhakai Saree Available in the Market.',
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
