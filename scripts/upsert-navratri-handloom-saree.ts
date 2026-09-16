@@ -9,6 +9,11 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537375/file_0000000010e48211bb9ac2c8aee1234d.png'
 
+const IMAGES: string[] = [
+  IMAGE,
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1789537374/file_0000000005588211bcb8370400629448.png',
+]
+
 const DESCRIPTION =
   'Crafted from a lightweight, breathable open-weave linen blend, it offers a crisp drape that combines traditional handloom aesthetics with comfort, making it popular for both smart casual wear and daytime festivities.'
 
@@ -39,7 +44,7 @@ async function main() {
       price: 1499,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Lightweight, breathable open-weave linen blend',
@@ -60,7 +65,7 @@ async function main() {
       price: 1499,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images: IMAGES,
       category: 'Navratri Collection',
       collections: ['navratri-collection'],
       fabric: 'Lightweight, breathable open-weave linen blend',
