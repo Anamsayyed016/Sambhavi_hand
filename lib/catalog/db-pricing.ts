@@ -64,11 +64,22 @@ export async function getPricedStorefrontProducts(): Promise<Product[]> {
   const staticPriced = withCatalogCreatedAt(await applyDbPricesToProducts(getStorefrontProducts()))
 
   try {
-    const rows = await prisma.product.findMany({ where: { active: true } })
-    if (rows.length === 0) return staticPriced
+    const [activeRows, inactiveRows] = await Promise.all([
+      prisma.product.findMany({ where: { active: true } }),
+      prisma.product.findMany({ where: { active: false }, select: { slug: true } }),
+    ])
+    if (activeRows.length === 0 && inactiveRows.length === 0) return staticPriced
 
-    const bySlug = new Map(staticPriced.map((product) => [product.slug, product]))
-    for (const row of rows) {
+    // Inactive DB products must not remain visible via the static catalog fallback —
+    // checkout/coupon pricing rejects them and looks like "coupons don't work".
+    const inactiveSlugs = new Set(inactiveRows.map((row) => row.slug))
+    const bySlug = new Map(
+      staticPriced
+        .filter((product) => !inactiveSlugs.has(product.slug))
+        .map((product) => [product.slug, product]),
+    )
+
+    for (const row of activeRows) {
       if (!isStorefrontProductVisible(row.slug)) continue
       const mapped = mapDbProductToStorefront(row)
       const fromStatic = bySlug.get(row.slug)

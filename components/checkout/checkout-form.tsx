@@ -116,7 +116,12 @@ export function CheckoutForm() {
 
     const priced = await revalidatePrices()
     if (!priced.ok || !priced.items || priced.items.length === 0) {
-      return { ok: false, error: priced.error ?? 'Unable to refresh prices. Please try again.' }
+      return {
+        ok: false,
+        error:
+          priced.error ??
+          'Unable to refresh cart prices. Remove unavailable items, then try the coupon again.',
+      }
     }
 
     const res = await fetch('/api/checkout/apply-coupon', {

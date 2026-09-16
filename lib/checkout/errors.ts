@@ -26,6 +26,23 @@ export function checkoutErrorResponse(error: unknown): Response {
   )
 }
 
+/** Apex + www aliases so Origin/Host mismatches (common with dual-domain Hostinger setups) do not block checkout. */
+function hostAliases(hostHeader: string): string[] {
+  const bare = hostHeader.split(':')[0]?.toLowerCase()
+  if (!bare) return []
+  const aliases = new Set<string>([bare])
+  if (bare.startsWith('www.')) {
+    aliases.add(bare.slice(4))
+  } else {
+    aliases.add(`www.${bare}`)
+  }
+  return [...aliases]
+}
+
+function expectedOriginsForHost(hostHeader: string): string[] {
+  return hostAliases(hostHeader).flatMap((host) => [`https://${host}`, `http://${host}`])
+}
+
 export function assertCheckoutOrigin(request: Request): void {
   const origin = request.headers.get('origin')
   const referer = request.headers.get('referer')
@@ -35,7 +52,7 @@ export function assertCheckoutOrigin(request: Request): void {
     throw new CheckoutError('Invalid request', 403)
   }
 
-  const expected = [`https://${host}`, `http://${host}`]
+  const expected = expectedOriginsForHost(host)
 
   if (origin) {
     if (!expected.some((value) => origin === value)) {
