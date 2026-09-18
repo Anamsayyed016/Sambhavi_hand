@@ -2,6 +2,7 @@ import type React from 'react'
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Bodoni_Moda, Manrope } from 'next/font/google'
+import { MetaPixel } from '@/components/analytics/meta-pixel'
 import './globals.css'
 
 const bodoniModa = Bodoni_Moda({
@@ -75,6 +76,7 @@ export default function RootLayout({
     <html lang="en" className={`light ${bodoniModa.variable} ${manrope.variable} bg-background`}>
       <body className="antialiased">
         {children}
+        <MetaPixel />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
