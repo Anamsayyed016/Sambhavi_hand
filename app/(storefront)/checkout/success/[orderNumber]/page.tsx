@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { Check, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { MetaPurchaseTracker } from '@/components/analytics/meta-pixel'
 import { getPublicOrderByNumber } from '@/lib/checkout/create-order'
 import { formatDate } from '@/lib/admin/format'
 import { formatINR } from '@/lib/products'
@@ -26,6 +27,17 @@ export default async function CheckoutSuccessPage({ params }: Params) {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 md:px-8 md:py-16">
+      {paid ? (
+        <MetaPurchaseTracker
+          orderNumber={order.orderNumber}
+          paid={paid}
+          value={order.total}
+          items={order.items.map((item) => ({
+            productSlug: item.productSlug,
+            quantity: item.quantity,
+          }))}
+        />
+      ) : null}
       <div className="rounded-md border border-border bg-card p-8 md:p-10">
         <div className="flex flex-col items-center text-center">
           <span className="flex size-14 items-center justify-center rounded-full bg-secondary text-primary">

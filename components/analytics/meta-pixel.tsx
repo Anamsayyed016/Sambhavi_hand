@@ -14,6 +14,97 @@ declare global {
   }
 }
 
+type MetaEventParams = Record<string, string | number | string[] | undefined>
+
+/** Safe fbq wrapper — no-op until Pixel is ready. Does not re-init. */
+export function trackMetaEvent(event: string, params?: MetaEventParams) {
+  if (typeof window === 'undefined') return
+  if (typeof window.fbq !== 'function') return
+  if (params) window.fbq('track', event, params)
+  else window.fbq('track', event)
+}
+
+/** Storefront products are keyed by slug (no separate public product.id). */
+export function trackViewContent(product: { slug: string; name: string; price: number }) {
+  trackMetaEvent('ViewContent', {
+    content_ids: [product.slug],
+    content_name: product.name,
+    content_type: 'product',
+    value: product.price,
+    currency: 'INR',
+  })
+}
+
+export function trackAddToCart(
+  product: { slug: string; name: string; price: number },
+  quantity: number,
+) {
+  const qty = Math.max(1, quantity)
+  trackMetaEvent('AddToCart', {
+    content_ids: [product.slug],
+    content_name: product.name,
+    content_type: 'product',
+    value: product.price * qty,
+    currency: 'INR',
+  })
+}
+
+export function trackInitiateCheckout(
+  items: Array<{ slug: string; quantity: number; price: number }>,
+  subtotal: number,
+) {
+  if (items.length === 0) return
+  const numItems = items.reduce((sum, item) => sum + item.quantity, 0)
+  trackMetaEvent('InitiateCheckout', {
+    content_ids: items.map((item) => item.slug),
+    content_type: 'product',
+    num_items: numItems,
+    value: subtotal,
+    currency: 'INR',
+  })
+}
+
+const PURCHASE_STORAGE_PREFIX = 'meta_pixel_purchase:'
+
+/**
+ * Fires Purchase once per paid order (sessionStorage dedupe by order number).
+ * Renders nothing — mount only on the checkout success page when payment is PAID.
+ */
+export function MetaPurchaseTracker({
+  orderNumber,
+  paid,
+  items,
+  value,
+}: {
+  orderNumber: string
+  paid: boolean
+  items: Array<{ productSlug: string; quantity: number }>
+  value: number
+}) {
+  useEffect(() => {
+    if (!paid || !orderNumber) return
+
+    const key = `${PURCHASE_STORAGE_PREFIX}${orderNumber}`
+    try {
+      if (sessionStorage.getItem(key)) return
+      sessionStorage.setItem(key, '1')
+    } catch {
+      // sessionStorage unavailable — fall through; React Strict Mode may double-invoke in dev only
+    }
+
+    const numItems = items.reduce((sum, item) => sum + item.quantity, 0)
+    trackMetaEvent('Purchase', {
+      content_ids: items.map((item) => item.productSlug),
+      content_type: 'product',
+      num_items: numItems,
+      value,
+      currency: 'INR',
+    })
+  }, [orderNumber, paid, items, value])
+
+  return null
+}
+
 /**
  * Site-wide Meta Pixel.
  * - Loads once via next/script (afterInteractive)

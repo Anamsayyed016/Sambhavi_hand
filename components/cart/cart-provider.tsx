@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react'
 import type { Product } from '@/lib/products'
+import { trackAddToCart } from '@/components/analytics/meta-pixel'
 
 const WISHLIST_STORAGE_KEY = 'sambhavi_wishlist'
 const CART_STORAGE_KEY = 'sambhavi_cart_v1'
@@ -221,11 +222,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cartReady])
 
   const addItem = useCallback((product: Product, quantity = 1) => {
+    const qty = Math.max(1, quantity)
     setItems((prev) => {
       const existing = prev.find((i) => i.slug === product.slug)
       if (existing) {
         return prev.map((i) =>
-          i.slug === product.slug ? { ...i, quantity: i.quantity + quantity, price: product.price } : i,
+          i.slug === product.slug ? { ...i, quantity: i.quantity + qty, price: product.price } : i,
         )
       }
       return [
@@ -236,11 +238,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
           price: product.price,
           image: product.image,
           category: product.category,
-          quantity,
+          quantity: qty,
         },
       ]
     })
     setIsCartOpen(true)
+    trackAddToCart({ slug: product.slug, name: product.name, price: product.price }, qty)
   }, [])
 
   const removeItem = useCallback((slug: string) => {

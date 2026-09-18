@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/components/cart/cart-provider'
+import { trackInitiateCheckout } from '@/components/analytics/meta-pixel'
 import {
   CouponSection,
   type AppliedCoupon,
@@ -46,6 +47,14 @@ export function CheckoutForm() {
       ? crypto.randomUUID()
       : `ck-${Date.now()}`,
   )
+  const initiateCheckoutTracked = useRef(false)
+
+  useEffect(() => {
+    if (initiateCheckoutTracked.current) return
+    if (items.length === 0) return
+    initiateCheckoutTracked.current = true
+    trackInitiateCheckout(items, subtotal)
+  }, [items, subtotal])
 
   const [form, setForm] = useState<FormState>({
     name: '',

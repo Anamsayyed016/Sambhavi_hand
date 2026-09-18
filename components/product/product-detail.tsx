@@ -1,12 +1,13 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ChevronRight, Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus, Plus, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { isGalleryVideoUrl } from '@/lib/gallery-media'
 import { getEditorialCollectionLabel, isChhabiliProduct, isDharviProduct, isJobaniyuProduct } from '@/lib/product-badges'
+import { trackViewContent } from '@/components/analytics/meta-pixel'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
@@ -37,6 +38,11 @@ export function ProductDetail({
   breadcrumbs?: Crumb[]
 }) {
   const { addItem, toggleWishlist, isWishlisted, openCart } = useCart()
+
+  useEffect(() => {
+    trackViewContent({ slug: product.slug, name: product.name, price: product.price })
+  }, [product.slug, product.name, product.price])
+
   const gallery = useMemo(
     () => (product.images.length > 0 ? product.images : [product.image]),
     [product.images, product.image],
