@@ -17,7 +17,6 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <Hero />
       <EditorialVideo />
       <LatestCollection />
       <FeaturedCollection />
