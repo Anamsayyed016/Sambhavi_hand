@@ -41,7 +41,7 @@ type FieldErrors = Partial<Record<keyof FormState, string>>
 
 export function CheckoutForm() {
   const router = useRouter()
-  const { items, subtotal, clearCart, revalidatePrices } = useCart()
+  const { items, subtotal, pricingReady, clearCart, revalidatePrices } = useCart()
   const idempotencyKey = useRef(
     typeof crypto !== 'undefined' && crypto.randomUUID
       ? crypto.randomUUID()
@@ -51,10 +51,11 @@ export function CheckoutForm() {
 
   useEffect(() => {
     if (initiateCheckoutTracked.current) return
+    if (!pricingReady) return
     if (items.length === 0) return
     initiateCheckoutTracked.current = true
     trackInitiateCheckout(items, subtotal)
-  }, [items, subtotal])
+  }, [items, subtotal, pricingReady])
 
   const [form, setForm] = useState<FormState>({
     name: '',

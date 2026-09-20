@@ -81,26 +81,53 @@ export function MetaPurchaseTracker({
   items: Array<{ productSlug: string; quantity: number }>
   value: number
 }) {
+  const itemsKey = items.map((item) => `${item.productSlug}:${item.quantity}`).join(',')
+
   useEffect(() => {
     if (!paid || !orderNumber) return
 
     const key = `${PURCHASE_STORAGE_PREFIX}${orderNumber}`
     try {
       if (sessionStorage.getItem(key)) return
-      sessionStorage.setItem(key, '1')
     } catch {
-      // sessionStorage unavailable — fall through; React Strict Mode may double-invoke in dev only
+      // sessionStorage unavailable — still attempt a single send below
     }
 
+    const contentIds = items.map((item) => item.productSlug)
     const numItems = items.reduce((sum, item) => sum + item.quantity, 0)
-    trackMetaEvent('Purchase', {
-      content_ids: items.map((item) => item.productSlug),
-      content_type: 'product',
-      num_items: numItems,
-      value,
-      currency: 'INR',
-    })
-  }, [orderNumber, paid, items, value])
+    let cancelled = false
+    let attempts = 0
+
+    const trySend = () => {
+      if (cancelled) return
+      try {
+        if (sessionStorage.getItem(key)) return
+      } catch {
+        // ignore
+      }
+      if (typeof window.fbq !== 'function') {
+        if (attempts++ < 40) window.setTimeout(trySend, 250)
+        return
+      }
+      try {
+        sessionStorage.setItem(key, '1')
+      } catch {
+        // private mode: cannot persist; still send once this mount
+      }
+      window.fbq('track', 'Purchase', {
+        content_ids: contentIds,
+        content_type: 'product',
+        num_items: numItems,
+        value,
+        currency: 'INR',
+      })
+    }
+
+    trySend()
+    return () => {
+      cancelled = true
+    }
+  }, [orderNumber, paid, value, itemsKey, items])
 
   return null
 }
