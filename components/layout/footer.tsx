@@ -30,9 +30,9 @@ export function Footer() {
   return (
     <footer className="bg-charcoal text-ivory">
       <div className="mx-auto max-w-7xl px-4 py-16 md:px-8">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:[&>*]:min-w-0 lg:grid-cols-4">
           {/* brand */}
-          <div className="flex flex-col gap-4 lg:col-span-1">
+          <div className="flex min-w-0 flex-col gap-4 lg:col-span-1">
             <Link href="/" className="inline-flex w-fit" aria-label="Sambhavi Handloom home">
               <BrandLogo className="h-[3.25rem] md:h-[3.75rem]" />
             </Link>
@@ -56,7 +56,7 @@ export function Footer() {
           </div>
 
           {/* quick links */}
-          <div className="flex flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-4">
             <h3 className="font-serif text-lg text-ivory">Quick Links</h3>
             <ul className="flex flex-col gap-2.5">
               {quickLinks.map((l) => (
@@ -73,7 +73,7 @@ export function Footer() {
           </div>
 
           {/* customer care */}
-          <div className="flex flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-4">
             <h3 className="font-serif text-lg text-ivory">Customer Care</h3>
             <ul className="flex flex-col gap-2.5">
               {customerCare.map((l) => (
@@ -90,24 +90,27 @@ export function Footer() {
           </div>
 
           {/* contact */}
-          <div className="flex flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-4">
             <h3 className="font-serif text-lg text-ivory">Contact</h3>
-            <ul className="flex flex-col gap-3 text-sm text-ivory/70">
-              <li className="flex items-center gap-3">
-                <Mail className="size-4 shrink-0 text-accent" strokeWidth={1.5} />
-                <a href={`mailto:${contactDetails.email}`} className="hover:text-accent">
+            <ul className="flex min-w-0 flex-col gap-3 text-sm text-ivory/70">
+              <li className="flex min-w-0 items-start gap-3">
+                <Mail className="mt-0.5 size-4 shrink-0 text-accent" strokeWidth={1.5} />
+                <a
+                  href={`mailto:${contactDetails.email}`}
+                  className="min-w-0 break-all hover:text-accent"
+                >
                   {contactDetails.email}
                 </a>
               </li>
-              <li className="flex items-center gap-3">
+              <li className="flex min-w-0 items-center gap-3">
                 <Phone className="size-4 shrink-0 text-accent" strokeWidth={1.5} />
-                <a href={`tel:${contactDetails.phoneTel}`} className="hover:text-accent">
+                <a href={`tel:${contactDetails.phoneTel}`} className="min-w-0 hover:text-accent">
                   {contactDetails.phoneDisplay}
                 </a>
               </li>
-              <li className="flex items-start gap-3">
+              <li className="flex min-w-0 items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-accent" strokeWidth={1.5} />
-                <span>{contactDetails.address}</span>
+                <span className="min-w-0 text-pretty break-words">{contactDetails.address}</span>
               </li>
             </ul>
           </div>

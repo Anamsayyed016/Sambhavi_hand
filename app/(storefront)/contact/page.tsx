@@ -43,26 +43,29 @@ export default function ContactPage() {
       />
 
       <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:gap-16">
           {/* details */}
-          <div className="flex flex-col gap-8">
-            <div>
+          <div className="flex min-w-0 flex-col gap-8">
+            <div className="min-w-0">
               <h2 className="font-serif text-2xl text-foreground">Reach Us Directly</h2>
               <p className="mt-2 font-sans text-sm leading-relaxed text-muted-foreground text-pretty">
                 Our team is here to help you find the perfect drape and answer any questions along
                 the way.
               </p>
             </div>
-            <ul className="flex flex-col gap-6">
+            <ul className="flex min-w-0 flex-col gap-6">
               {details.map(({ icon: Icon, title, lines }) => (
-                <li key={title} className="flex gap-4">
+                <li key={title} className="flex min-w-0 gap-4">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary text-primary">
                     <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="font-serif text-lg text-foreground">{title}</h3>
                     {lines.map((line) => (
-                      <p key={line} className="font-sans text-sm text-muted-foreground">
+                      <p
+                        key={line}
+                        className="min-w-0 break-words font-sans text-sm text-muted-foreground [overflow-wrap:anywhere]"
+                      >
                         {line}
                       </p>
                     ))}
@@ -73,7 +76,7 @@ export default function ContactPage() {
           </div>
 
           {/* form */}
-          <div className="rounded-md border border-border bg-card p-6 md:p-10">
+          <div className="min-w-0 rounded-md border border-border bg-card p-6 md:p-10">
             <h2 className="mb-6 font-serif text-2xl text-foreground">Send Us a Message</h2>
             <ContactForm />
           </div>

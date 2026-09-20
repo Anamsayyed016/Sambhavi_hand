@@ -293,7 +293,7 @@ export function EditorialVideo() {
             ref={stageRef}
             onMouseMove={onPointerMove}
             onMouseLeave={onPointerLeave}
-            className="relative h-full min-h-[32rem] w-full"
+            className="relative h-full min-h-[32rem] w-full min-w-0"
             style={{ perspective: '1600px', perspectiveOrigin: '45% 42%' }}
           >
             <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>

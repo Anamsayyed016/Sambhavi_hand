@@ -11,7 +11,7 @@ export function BrandStory() {
     <section className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         {/* images */}
-        <div className="relative">
+        <div className="relative overflow-hidden sm:overflow-visible">
           <motion.div
             initial={{ opacity: 0, scale: 1.04 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -32,7 +32,7 @@ export function BrandStory() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.9, delay: 0.15 }}
-            className="absolute -bottom-8 -right-4 hidden aspect-square w-40 overflow-hidden rounded-sm border-4 border-background shadow-xl sm:block md:w-52"
+            className="absolute bottom-0 right-0 hidden aspect-square w-40 overflow-hidden rounded-sm border-4 border-background shadow-xl sm:block sm:bottom-[-1.5rem] sm:right-2 md:w-52 lg:right-0"
           >
             <Image
               src="/images/editorial-drape.png"
