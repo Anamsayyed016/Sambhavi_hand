@@ -27,6 +27,9 @@ type Crumb = { label: string; href?: string }
 /** Color galleries for Dharvi Karva only — Pink uses the product catalog gallery. */
 const DHARVI_KARVA_RED_GALLERY = [
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0253.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246490/IMG-20260924-WA0254.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246489/IMG-20260924-WA0257.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246488/IMG-20260924-WA0255.jpg',
 ] as const
 
 function initialGalleryIndex(gallery: string[], preferVideo: boolean): number {
