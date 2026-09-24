@@ -78,6 +78,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'dharvi-karva-chauth-saree') {
+    return {
+      title: 'Dharvi Karva Chauth Saree | Sambhavi Handloom',
+      description:
+        'Explore Dharvi Karva Chauth Saree from the Navratri Collection festive edit by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'lehenga-choli') {
     return {
       title: 'LEHENGA CHOLI | Sambhavi Handloom',

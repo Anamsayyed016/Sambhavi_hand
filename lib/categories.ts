@@ -122,6 +122,13 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'navratri-collection',
     groupSlug: 'festive-edition',
   },
+  {
+    name: 'Dharvi Karva Chauth Saree',
+    /** Canonical route: /collections/dharvi-karva-chauth-saree */
+    slug: 'dharvi-karva-chauth-saree',
+    parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
 ]
 
 export function nameToSlug(name: string): string {

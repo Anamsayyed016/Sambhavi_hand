@@ -92,7 +92,11 @@ function buildSeedCollections(): {
             ? 'NEW COLLECTION · Explore the Jobaniyu festive collection.'
             : category.slug === 'lehanga'
               ? 'NAVRATRI COLLECTION · Explore the Lehenga Collection.'
-              : `Browse ${category.name} sarees.`,
+              : category.slug === 'dharvi-durga-pooja-edition'
+                ? 'NAVRATRI COLLECTION · Explore the Dharvi Durga Pooja Edition.'
+                : category.slug === 'dharvi-karva-chauth-saree'
+                  ? 'NAVRATRI COLLECTION · Explore the Dharvi Karva Chauth Saree collection.'
+                  : `Browse ${category.name} sarees.`,
       image: '/images/collection-silk.png',
     })
   }
