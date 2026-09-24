@@ -24,6 +24,11 @@ const detailRows = (product: Product) => [
 
 type Crumb = { label: string; href?: string }
 
+/** Color galleries for Dharvi Karva only — Pink uses the product catalog gallery. */
+const DHARVI_KARVA_RED_GALLERY = [
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0253.jpg',
+] as const
+
 function initialGalleryIndex(gallery: string[], preferVideo: boolean): number {
   if (!preferVideo) return 0
   const videoIndex = gallery.findIndex((url) => isGalleryVideoUrl(url))
@@ -43,22 +48,36 @@ export function ProductDetail({
     trackViewContent({ slug: product.slug, name: product.name, price: product.price })
   }, [product.slug, product.name, product.price])
 
-  const gallery = useMemo(
+  const pinkGallery = useMemo(
     () => (product.images.length > 0 ? product.images : [product.image]),
     [product.images, product.image],
   )
+  const showKarvaColorSelector = isDharviKarvaProduct(product)
+  const redGallery = useMemo(() => {
+    if (!showKarvaColorSelector) return [] as string[]
+    // Dedupe while preserving order — Red media only.
+    const seen = new Set<string>()
+    const out: string[] = []
+    for (const url of DHARVI_KARVA_RED_GALLERY) {
+      if (!url || seen.has(url)) continue
+      seen.add(url)
+      out.push(url)
+    }
+    return out
+  }, [showKarvaColorSelector])
+
+  const [colorOption, setColorOption] = useState<'pink' | 'red'>('pink')
+  const gallery = colorOption === 'red' && redGallery.length > 0 ? redGallery : pinkGallery
   const [activeImage, setActiveImage] = useState(() =>
-    initialGalleryIndex(gallery, isChhabiliProduct(product)),
+    initialGalleryIndex(pinkGallery, isChhabiliProduct(product)),
   )
   const [qty, setQty] = useState(1)
-  const [colorOption, setColorOption] = useState<'pink' | 'red'>('pink')
   const wishlisted = isWishlisted(product.slug)
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
   const editorialLabel = getEditorialCollectionLabel(product)
   const isDharvi = isDharviProduct(product)
-  const showKarvaColorSelector = isDharviKarvaProduct(product)
   const backFallback = isChhabiliProduct(product)
     ? '/collections/chhabili'
     : isJobaniyuProduct(product)
@@ -77,12 +96,15 @@ export function ProductDetail({
   }
 
   const handleColorSelect = (next: 'pink' | 'red') => {
-    if (next === 'red') {
-      // Red media is not attached yet — keep Pink gallery; surface Coming Soon only.
+    if (next === 'red' && redGallery.length === 0) {
+      // Red media not ready — keep Pink gallery visible.
       setColorOption('red')
       return
     }
-    setColorOption('pink')
+    setColorOption(next)
+    const nextGallery =
+      next === 'red' && redGallery.length > 0 ? redGallery : pinkGallery
+    setActiveImage(initialGalleryIndex(nextGallery, false))
   }
 
   return (
@@ -207,7 +229,7 @@ export function ProductDetail({
                   Red
                 </button>
               </div>
-              {colorOption === 'red' ? (
+              {colorOption === 'red' && redGallery.length === 0 ? (
                 <p className="mt-2.5 font-sans text-xs text-muted-foreground" aria-live="polite">
                   Red — Coming soon
                 </p>
