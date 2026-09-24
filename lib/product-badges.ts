@@ -41,18 +41,9 @@ export function isDharviKarvaProduct(product: Product): boolean {
   )
 }
 
-/** True when a product belongs to DHARVI Karvachauth Special DULHAN (Navratri nested). */
-export function isDharviDulhanProduct(product: Product): boolean {
-  return (
-    product.category.trim() === 'DHARVI Karvachauth Special 🎉 DULHAN❤️' ||
-    product.collections.includes('dharvi-karvachauth-special-dulhan') ||
-    product.slug === 'dharvi-karvachauth-special-dulhan'
-  )
-}
-
 /** True when a product belongs to DHARVI — DURGA POOJA EDITION (Navratri nested). */
 export function isDharviProduct(product: Product): boolean {
-  if (isDharviKarvaProduct(product) || isDharviDulhanProduct(product)) return false
+  if (isDharviKarvaProduct(product)) return false
   return (
     product.category.trim() === 'DHARVI — DURGA POOJA EDITION' ||
     product.collections.includes('dharvi-durga-pooja-edition') ||
@@ -63,7 +54,6 @@ export function isDharviProduct(product: Product): boolean {
 
 /** Subtle editorial collection label for latest edits. */
 export function getEditorialCollectionLabel(product: Product): string | null {
-  if (isDharviDulhanProduct(product)) return 'NEW COLLECTION'
   if (isDharviKarvaProduct(product)) return 'NEW COLLECTION'
   if (isDharviProduct(product)) return 'NEW COLLECTION'
   if (isJobaniyuProduct(product)) return 'NEW COLLECTION'

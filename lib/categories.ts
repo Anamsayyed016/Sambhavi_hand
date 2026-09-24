@@ -129,13 +129,6 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'navratri-collection',
     groupSlug: 'festive-edition',
   },
-  {
-    name: 'DHARVI Karvachauth Special 🎉 DULHAN❤️',
-    /** Canonical route: /collections/dharvi-karvachauth-special-dulhan */
-    slug: 'dharvi-karvachauth-special-dulhan',
-    parentSlug: 'navratri-collection',
-    groupSlug: 'festive-edition',
-  },
 ]
 
 export function nameToSlug(name: string): string {

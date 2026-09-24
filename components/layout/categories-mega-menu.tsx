@@ -13,44 +13,11 @@ import {
 } from '@/lib/catalog-nav'
 import { getStorefrontProducts } from '@/lib/products'
 
-const DULHAN_SPECIAL_SLUG = 'dharvi-karvachauth-special-dulhan'
 const NAVRATRI_SLUG = 'navratri-collection'
 
 function isActiveHref(pathname: string | null, href: string) {
   if (!pathname) return false
   return pathname === href || pathname.startsWith(`${href}/`)
-}
-
-/** Editorial two-line label for DHARVI Karvachauth Special / DULHAN. */
-function DulhanSpecialLabel({
-  compact = false,
-  active = false,
-}: {
-  compact?: boolean
-  active?: boolean
-}) {
-  return (
-    <span className="flex min-w-0 flex-col gap-0.5">
-      <span
-        className={cn(
-          'font-sans font-medium leading-snug tracking-[0.02em] text-charcoal/88 transition-colors duration-200',
-          compact ? 'text-[0.875rem]' : 'text-[0.9375rem]',
-          active && 'text-primary',
-        )}
-      >
-        DHARVI Karvachauth Special 🎉
-      </span>
-      <span
-        className={cn(
-          'font-serif italic leading-tight tracking-[0.18em] text-wine/90 transition-colors duration-200',
-          compact ? 'text-[0.8rem]' : 'text-[0.875rem]',
-          active && 'text-primary',
-        )}
-      >
-        DULHAN❤️
-      </span>
-    </span>
-  )
 }
 
 function CategoryLinkLabel({
@@ -62,10 +29,6 @@ function CategoryLinkLabel({
   active?: boolean
   compact?: boolean
 }) {
-  if (category.slug === DULHAN_SPECIAL_SLUG) {
-    return <DulhanSpecialLabel compact={compact} active={active} />
-  }
-
   return (
     <span
       className={cn(
@@ -87,17 +50,14 @@ function NavCategoryLink({
   onNavigate,
   pathname,
   nested = false,
-  featured = false,
 }: {
   category: SareeCategory
   onNavigate?: () => void
   pathname: string | null
   nested?: boolean
-  featured?: boolean
 }) {
   const href = `/collections/${category.slug}`
   const active = isActiveHref(pathname, href)
-  const isDulhan = category.slug === DULHAN_SPECIAL_SLUG
 
   return (
     <Link
@@ -108,7 +68,6 @@ function NavCategoryLink({
         'group/link relative flex min-w-0 items-start gap-2.5 py-1 transition-transform duration-200 ease-out',
         'hover:translate-x-1',
         nested && 'pl-0.5',
-        featured && 'py-1.5',
         active && 'translate-x-1',
       )}
     >
@@ -118,13 +77,12 @@ function NavCategoryLink({
           'mt-[0.55rem] h-px w-0 shrink-0 bg-gold/80 transition-all duration-200',
           'group-hover/link:w-3',
           active && 'w-3 bg-primary',
-          isDulhan && 'mt-[0.65rem]',
         )}
       />
       <CategoryLinkLabel
         category={category}
         active={active}
-        compact={nested && !isDulhan}
+        compact={nested}
       />
     </Link>
   )
@@ -187,7 +145,6 @@ function CategoryLinks({
                       onNavigate={onNavigate}
                       pathname={pathname}
                       nested
-                      featured={child.slug === DULHAN_SPECIAL_SLUG}
                     />
                   </li>
                 ))}
@@ -212,7 +169,6 @@ function CategoryLinks({
                       onNavigate={onNavigate}
                       pathname={pathname}
                       nested
-                      featured={child.slug === DULHAN_SPECIAL_SLUG}
                     />
                   </li>
                 ))}
@@ -532,7 +488,6 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                                           onNavigate={handleNavigate}
                                           pathname={pathname}
                                           nested
-                                          featured={child.slug === DULHAN_SPECIAL_SLUG}
                                         />
                                       </li>
                                     ))}
@@ -557,7 +512,6 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                                           onNavigate={handleNavigate}
                                           pathname={pathname}
                                           nested
-                                          featured={child.slug === DULHAN_SPECIAL_SLUG}
                                         />
                                       </li>
                                     ))}
