@@ -6,7 +6,7 @@ import { ChevronRight, Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus,
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { isGalleryVideoUrl } from '@/lib/gallery-media'
-import { getEditorialCollectionLabel, isChhabiliProduct, isDharviProduct, isJobaniyuProduct } from '@/lib/product-badges'
+import { getEditorialCollectionLabel, isChhabiliProduct, isDharviKarvaProduct, isDharviProduct, isJobaniyuProduct } from '@/lib/product-badges'
 import { trackViewContent } from '@/components/analytics/meta-pixel'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
@@ -61,11 +61,13 @@ export function ProductDetail({
     ? '/collections/chhabili'
     : isJobaniyuProduct(product)
       ? '/collections/jobaniyu'
-      : isDharvi
-        ? '/collections/dharvi-durga-pooja-edition'
-        : product.collections[0]
-          ? `/collections/${product.collections[0]}`
-          : '/shop'
+      : isDharviKarvaProduct(product)
+        ? '/collections/dharvi-karva-chauth-saree'
+        : isDharvi
+          ? '/collections/dharvi-durga-pooja-edition'
+          : product.collections[0]
+            ? `/collections/${product.collections[0]}`
+            : '/shop'
 
   const handleAdd = () => {
     addItem(product, qty)

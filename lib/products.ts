@@ -2755,6 +2755,35 @@ export const products: Product[] = [
       '✦ ₹2,550/-',
     ].join('\n'),
   },
+  {
+    slug: 'dharvi-karva-chauth-saree',
+    name: 'Dharvi karva Chauth saree',
+    price: 999,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246484/file_00000000948c824391f9226eeb656d5b.png',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246484/file_00000000948c824391f9226eeb656d5b.png',
+    ],
+    category: 'Dharvi Karva Chauth Saree',
+    collections: ['dharvi-karva-chauth-saree', 'navratri-collection'],
+    fabric:
+      'Soft Shinon Fabric With Beautiful Karva Chauth Pooja Pallu Concept Print And Contrast Arco Cutwork Bordar With Contrast Blouse 👚',
+    weave: 'Karva Chauth',
+    length: 'Catalogue: Karva Chauth',
+    blouse: 'Contrast Blouse',
+    care: 'Wow Price: ₹999/- Only',
+    availability: 'In Stock',
+    isNew: true,
+    description: [
+      '🥰 New Exclusive Design Launch For Karva Chauth Pooja',
+      '',
+      '▶️ Catalogue: Karva Chauth',
+      '',
+      '▶️ Fabric: Soft Shinon Fabric With Beautiful Karva Chauth Pooja Pallu Concept Print And Contrast Arco Cutwork Bordar With Contrast Blouse 👚',
+      '',
+      '▶️ Wow Price: ₹999/- Only',
+    ].join('\n'),
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {

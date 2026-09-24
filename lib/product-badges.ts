@@ -31,8 +31,19 @@ export function isLehangaProduct(product: Product): boolean {
   )
 }
 
+/** True when a product belongs to Dharvi Karva Chauth Saree (Navratri nested). */
+export function isDharviKarvaProduct(product: Product): boolean {
+  return (
+    product.category.trim() === 'Dharvi Karva Chauth Saree' ||
+    product.collections.includes('dharvi-karva-chauth-saree') ||
+    product.slug === 'dharvi-karva-chauth-saree' ||
+    product.slug.startsWith('dharvi-karva-')
+  )
+}
+
 /** True when a product belongs to DHARVI — DURGA POOJA EDITION (Navratri nested). */
 export function isDharviProduct(product: Product): boolean {
+  if (isDharviKarvaProduct(product)) return false
   return (
     product.category.trim() === 'DHARVI — DURGA POOJA EDITION' ||
     product.collections.includes('dharvi-durga-pooja-edition') ||
@@ -43,6 +54,7 @@ export function isDharviProduct(product: Product): boolean {
 
 /** Subtle editorial collection label for latest edits. */
 export function getEditorialCollectionLabel(product: Product): string | null {
+  if (isDharviKarvaProduct(product)) return 'NEW COLLECTION'
   if (isDharviProduct(product)) return 'NEW COLLECTION'
   if (isJobaniyuProduct(product)) return 'NEW COLLECTION'
   if (isLehangaProduct(product)) return 'NEW EXCLUSIVE DESIGNER LEHENGA'
