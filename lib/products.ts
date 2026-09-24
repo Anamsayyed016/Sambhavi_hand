@@ -2763,6 +2763,10 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246484/file_00000000948c824391f9226eeb656d5b.png',
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246484/file_00000000948c824391f9226eeb656d5b.png',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0238.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0244.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246485/IMG-20260924-WA0239.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246485/IMG-20260924-WA0243_1.jpg',
     ],
     category: 'Dharvi Karva Chauth Saree',
     collections: ['dharvi-karva-chauth-saree', 'navratri-collection'],
