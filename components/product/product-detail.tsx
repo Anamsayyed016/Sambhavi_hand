@@ -51,12 +51,14 @@ export function ProductDetail({
     initialGalleryIndex(gallery, isChhabiliProduct(product)),
   )
   const [qty, setQty] = useState(1)
+  const [colorOption, setColorOption] = useState<'pink' | 'red'>('pink')
   const wishlisted = isWishlisted(product.slug)
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
   const editorialLabel = getEditorialCollectionLabel(product)
   const isDharvi = isDharviProduct(product)
+  const showKarvaColorSelector = isDharviKarvaProduct(product)
   const backFallback = isChhabiliProduct(product)
     ? '/collections/chhabili'
     : isJobaniyuProduct(product)
@@ -72,6 +74,15 @@ export function ProductDetail({
   const handleAdd = () => {
     addItem(product, qty)
     openCart()
+  }
+
+  const handleColorSelect = (next: 'pink' | 'red') => {
+    if (next === 'red') {
+      // Red media is not attached yet — keep Pink gallery; surface Coming Soon only.
+      setColorOption('red')
+      return
+    }
+    setColorOption('pink')
   }
 
   return (
@@ -148,6 +159,61 @@ export function ProductDetail({
           <p className="mt-2 font-sans text-sm text-muted-foreground">
             Inclusive of all taxes
           </p>
+
+          {showKarvaColorSelector ? (
+            <div className="mt-6">
+              <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                Color
+              </p>
+              <div
+                role="radiogroup"
+                aria-label="Color"
+                className="mt-3 flex min-w-0 flex-wrap items-center gap-2.5"
+              >
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={colorOption === 'pink'}
+                  onClick={() => handleColorSelect('pink')}
+                  className={cn(
+                    'inline-flex h-10 items-center gap-2.5 rounded-none border px-3.5 font-sans text-xs uppercase tracking-[0.14em] transition-[border-color,background-color,color] duration-300',
+                    colorOption === 'pink'
+                      ? 'border-charcoal bg-charcoal text-ivory'
+                      : 'border-border bg-background text-foreground hover:border-charcoal/40',
+                  )}
+                >
+                  <span
+                    aria-hidden
+                    className="size-3.5 shrink-0 rounded-full border border-black/10 bg-[#e8a4b8]"
+                  />
+                  Pink
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={colorOption === 'red'}
+                  onClick={() => handleColorSelect('red')}
+                  className={cn(
+                    'inline-flex h-10 items-center gap-2.5 rounded-none border px-3.5 font-sans text-xs uppercase tracking-[0.14em] transition-[border-color,background-color,color] duration-300',
+                    colorOption === 'red'
+                      ? 'border-charcoal bg-charcoal text-ivory'
+                      : 'border-border bg-background text-foreground hover:border-charcoal/40',
+                  )}
+                >
+                  <span
+                    aria-hidden
+                    className="size-3.5 shrink-0 rounded-full border border-black/10 bg-[#9b1c2e]"
+                  />
+                  Red
+                </button>
+              </div>
+              {colorOption === 'red' ? (
+                <p className="mt-2.5 font-sans text-xs text-muted-foreground" aria-live="polite">
+                  Red — Coming soon
+                </p>
+              ) : null}
+            </div>
+          ) : null}
 
           <span
             className={cn(
