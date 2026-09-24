@@ -6,7 +6,7 @@ import { ChevronRight, Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus,
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { isGalleryVideoUrl } from '@/lib/gallery-media'
-import { getEditorialCollectionLabel, isChhabiliProduct, isDharviKarvaProduct, isDharviProduct, isJobaniyuProduct } from '@/lib/product-badges'
+import { getEditorialCollectionLabel, isChhabiliProduct, isDharviDulhanProduct, isDharviKarvaProduct, isDharviProduct, isJobaniyuProduct } from '@/lib/product-badges'
 import { trackViewContent } from '@/components/analytics/meta-pixel'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,7 @@ import { BackButton } from '@/components/layout/back-button'
 import { ProductImageZoom } from '@/components/product/product-image-zoom'
 import { ChhabiliProductDescription } from '@/components/product/chhabili-product-description'
 import { DharviKarvaProductInfo, DharviKarvaProductSpecs } from '@/components/product/dharvi-karva-product-info'
+import { DharviDulhanProductInfo, DharviDulhanProductSpecs } from '@/components/product/dharvi-dulhan-product-info'
 
 const detailRows = (product: Product) => [
   { label: 'Fabric', value: product.fabric },
@@ -86,13 +87,15 @@ export function ProductDetail({
     ? '/collections/chhabili'
     : isJobaniyuProduct(product)
       ? '/collections/jobaniyu'
-      : isDharviKarvaProduct(product)
-        ? '/collections/dharvi-karva-chauth-saree'
-        : isDharvi
-          ? '/collections/dharvi-durga-pooja-edition'
-          : product.collections[0]
-            ? `/collections/${product.collections[0]}`
-            : '/shop'
+      : isDharviDulhanProduct(product)
+        ? '/collections/dharvi-karvachauth-special-dulhan'
+        : isDharviKarvaProduct(product)
+          ? '/collections/dharvi-karva-chauth-saree'
+          : isDharvi
+            ? '/collections/dharvi-durga-pooja-edition'
+            : product.collections[0]
+              ? `/collections/${product.collections[0]}`
+              : '/shop'
 
   const handleAdd = () => {
     addItem(product, qty)
@@ -254,6 +257,8 @@ export function ProductDetail({
 
           {isChhabiliProduct(product) ? (
             <ChhabiliProductDescription description={product.description} className="mt-6" />
+          ) : isDharviDulhanProduct(product) ? (
+            <DharviDulhanProductInfo product={product} showSpecs={false} className="mt-7" />
           ) : isDharviKarvaProduct(product) ? (
             <DharviKarvaProductInfo product={product} showSpecs={false} className="mt-7" />
           ) : (
@@ -322,7 +327,9 @@ export function ProductDetail({
             ))}
           </ul>
 
-          {!isDharviKarvaProduct(product) ? (
+          {isDharviDulhanProduct(product) ? (
+            <DharviDulhanProductSpecs product={product} className="mt-8" />
+          ) : !isDharviKarvaProduct(product) ? (
             <dl className="mt-8 flex flex-col divide-y divide-border">
               {detailRows(product).map((row) => (
                 <div key={row.label} className="flex gap-4 py-3">
