@@ -6,7 +6,7 @@ import { ChevronRight, Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus,
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { isGalleryVideoUrl } from '@/lib/gallery-media'
-import { getEditorialCollectionLabel, isChhabiliProduct, isDharviDulhanProduct, isDharviKarvaProduct, isDharviProduct, isJobaniyuProduct } from '@/lib/product-badges'
+import { getEditorialCollectionLabel, isChhabiliProduct, isDharviDulhanProduct, isDharviKarvaProduct, isDharviProduct, isJobaniyuProduct, isTirupatiDurgaProduct } from '@/lib/product-badges'
 import { trackViewContent } from '@/components/analytics/meta-pixel'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ import { ProductImageZoom } from '@/components/product/product-image-zoom'
 import { ChhabiliProductDescription } from '@/components/product/chhabili-product-description'
 import { DharviKarvaProductInfo, DharviKarvaProductSpecs } from '@/components/product/dharvi-karva-product-info'
 import { DharviDulhanProductInfo, DharviDulhanProductSpecs } from '@/components/product/dharvi-dulhan-product-info'
+import { TirupatiDurgaProductInfo, TirupatiDurgaProductSpecs } from '@/components/product/tirupati-durga-product-info'
 
 const detailRows = (product: Product) => [
   { label: 'Fabric', value: product.fabric },
@@ -61,19 +62,22 @@ export function ProductDetail({
   const isDharvi = isDharviProduct(product)
   const isKarvaPink = isDharviKarvaProduct(product)
   const isDulhan = isDharviDulhanProduct(product)
+  const isTirupati = isTirupatiDurgaProduct(product)
   const backFallback = isChhabiliProduct(product)
     ? '/collections/chhabili'
     : isJobaniyuProduct(product)
       ? '/collections/jobaniyu'
-      : isDulhan
-        ? '/collections/dharvi-karva-chauth-saree'
-        : isKarvaPink
+      : isTirupati
+        ? '/collections/tirupati-durga-puja-special'
+        : isDulhan
           ? '/collections/dharvi-karva-chauth-saree'
-          : isDharvi
-            ? '/collections/dharvi-durga-pooja-edition'
-            : product.collections[0]
-              ? `/collections/${product.collections[0]}`
-              : '/shop'
+          : isKarvaPink
+            ? '/collections/dharvi-karva-chauth-saree'
+            : isDharvi
+              ? '/collections/dharvi-durga-pooja-edition'
+              : product.collections[0]
+                ? `/collections/${product.collections[0]}`
+                : '/shop'
 
   const handleAdd = () => {
     addItem(product, qty)
@@ -183,6 +187,8 @@ export function ProductDetail({
 
           {isChhabiliProduct(product) ? (
             <ChhabiliProductDescription description={product.description} className="mt-6" />
+          ) : isTirupati ? (
+            <TirupatiDurgaProductInfo product={product} showSpecs={false} className="mt-7" />
           ) : isDulhan ? (
             <DharviDulhanProductInfo product={product} showSpecs={false} className="mt-7" />
           ) : isKarvaPink ? (
@@ -253,7 +259,9 @@ export function ProductDetail({
             ))}
           </ul>
 
-          {isDulhan ? (
+          {isTirupati ? (
+            <TirupatiDurgaProductSpecs product={product} className="mt-8" />
+          ) : isDulhan ? (
             <DharviDulhanProductSpecs product={product} className="mt-8" />
           ) : !isKarvaPink ? (
             <dl className="mt-8 flex flex-col divide-y divide-border">

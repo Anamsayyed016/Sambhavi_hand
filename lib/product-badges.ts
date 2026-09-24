@@ -51,6 +51,15 @@ export function isDharviKarvaProduct(product: Product): boolean {
   )
 }
 
+/** True when a product belongs to 🍁Tirupati Durga Puja Special 🍁 (Navratri nested). */
+export function isTirupatiDurgaProduct(product: Product): boolean {
+  return (
+    product.category.trim() === '🍁Tirupati Durga Puja Special 🍁' ||
+    product.collections.includes('tirupati-durga-puja-special') ||
+    product.slug === 'tirupati-durga-puja-special'
+  )
+}
+
 /** True when a product belongs to DHARVI — DURGA POOJA EDITION (Navratri nested). */
 export function isDharviProduct(product: Product): boolean {
   if (isDharviKarvaProduct(product) || isDharviDulhanProduct(product)) return false
@@ -64,6 +73,7 @@ export function isDharviProduct(product: Product): boolean {
 
 /** Subtle editorial collection label for latest edits. */
 export function getEditorialCollectionLabel(product: Product): string | null {
+  if (isTirupatiDurgaProduct(product)) return 'NEW COLLECTION'
   if (isDharviDulhanProduct(product)) return 'NEW COLLECTION'
   if (isDharviKarvaProduct(product)) return 'NEW COLLECTION'
   if (isDharviProduct(product)) return 'NEW COLLECTION'
