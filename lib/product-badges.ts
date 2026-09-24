@@ -31,22 +31,23 @@ export function isLehangaProduct(product: Product): boolean {
   )
 }
 
-/** True when a product belongs to Dharvi Karva Chauth Saree (Navratri nested). */
+/** True when a product is the separate Red Dulhan saree (not a Pink color variant). */
+export function isDharviDulhanProduct(product: Product): boolean {
+  return (
+    product.slug === 'dharvi-karvachauth-special-dulhan' ||
+    product.name.trim() === 'DHARVI Karvachauth Special 🎉 DULHAN❤️'
+  )
+}
+
+/** True when a product belongs to Dharvi Karva Chauth Saree Pink catalog (Navratri nested). */
 export function isDharviKarvaProduct(product: Product): boolean {
+  // Dulhan shares the same category but is a separate product — never treat as Pink Karva UI.
+  if (isDharviDulhanProduct(product)) return false
   return (
     product.category.trim() === 'Dharvi Karva Chauth Saree' ||
     product.collections.includes('dharvi-karva-chauth-saree') ||
     product.slug === 'dharvi-karva-chauth-saree' ||
     product.slug.startsWith('dharvi-karva-')
-  )
-}
-
-/** True when a product belongs to DHARVI Karvachauth Special DULHAN (Navratri nested). */
-export function isDharviDulhanProduct(product: Product): boolean {
-  return (
-    product.category.trim() === 'DHARVI Karvachauth Special 🎉 DULHAN❤️' ||
-    product.collections.includes('dharvi-karvachauth-special-dulhan') ||
-    product.slug === 'dharvi-karvachauth-special-dulhan'
   )
 }
 

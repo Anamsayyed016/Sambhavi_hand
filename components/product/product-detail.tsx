@@ -66,7 +66,7 @@ export function ProductDetail({
     : isJobaniyuProduct(product)
       ? '/collections/jobaniyu'
       : isDulhan
-        ? '/collections/dharvi-karvachauth-special-dulhan'
+        ? '/collections/dharvi-karva-chauth-saree'
         : isKarvaPink
           ? '/collections/dharvi-karva-chauth-saree'
           : isDharvi

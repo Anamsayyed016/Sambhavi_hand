@@ -1,13 +1,14 @@
 /**
- * Upserts DHARVI Karvachauth Special DULHAN as a separate Navratri product.
- * Gallery = former Red-variant images moved off Dharvi Karva Chauth saree.
- * Does not modify the Pink Karva product or other categories.
+ * Upserts DHARVI Karvachauth Special DULHAN as a separate product under the
+ * existing `Dharvi Karva Chauth Saree` category (same listing as the Pink saree).
+ * Does not create a separate Dulhan category. Does not modify Pink product data
+ * beyond stripping any accidental red image URLs.
  */
 import { PrismaClient, ProductAvailability } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-/** Exact former DHARVI_KARVA_RED_GALLERY order from product-detail.tsx. */
+/** Former Red-variant gallery (moved off Pink product) — exact prior order. */
 const RED_IMAGES = [
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0253.jpg',
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246490/IMG-20260924-WA0254.jpg',
@@ -23,17 +24,13 @@ const DESCRIPTION = [
   'Saree With Stitch Blouse ~ 2450 rs✔️',
 ].join('\n')
 
-const SLUG = 'dharvi-karvachauth-special-dulhan'
-const CATEGORY_NAME = 'DHARVI Karvachauth Special 🎉 DULHAN❤️'
+const PRODUCT_SLUG = 'dharvi-karvachauth-special-dulhan'
 const PRODUCT_NAME = 'DHARVI Karvachauth Special 🎉 DULHAN❤️'
+/** Shared category with the Pink Karva product — not a separate Dulhan category. */
+const CATEGORY_NAME = 'Dharvi Karva Chauth Saree'
+const CATEGORY_SLUG = 'dharvi-karva-chauth-saree'
+const ORPHAN_CATEGORY_SLUG = 'dharvi-karvachauth-special-dulhan'
 const KARVA_SLUG = 'dharvi-karva-chauth-saree'
-const PINK_IMAGES = [
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246484/file_00000000948c824391f9226eeb656d5b.png',
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0238.jpg',
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0244.jpg',
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246485/IMG-20260924-WA0239.jpg',
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246485/IMG-20260924-WA0243_1.jpg',
-] as const
 
 async function main() {
   await prisma.collection.upsert({
@@ -52,49 +49,64 @@ async function main() {
   })
 
   await prisma.collection.upsert({
-    where: { slug: SLUG },
+    where: { slug: CATEGORY_SLUG },
     create: {
-      slug: SLUG,
+      slug: CATEGORY_SLUG,
       name: CATEGORY_NAME,
-      description:
-        'NAVRATRI COLLECTION · Explore the DHARVI Karvachauth Special DULHAN collection.',
-      image: RED_IMAGES[0],
+      description: 'NAVRATRI COLLECTION · Explore the Dharvi Karva Chauth Saree collection.',
+      image:
+        'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246484/file_00000000948c824391f9226eeb656d5b.png',
       active: true,
       featured: false,
     },
     update: {
       name: CATEGORY_NAME,
       active: true,
-      image: RED_IMAGES[0],
     },
   })
 
-  // Ensure Pink Karva gallery stays pink-only (strip any accidental red URLs).
+  // Remove incorrectly created separate Dulhan category (product name ≠ category).
+  const orphan = await prisma.collection.findUnique({
+    where: { slug: ORPHAN_CATEGORY_SLUG },
+  })
+  if (orphan) {
+    await prisma.collection.delete({ where: { slug: ORPHAN_CATEGORY_SLUG } })
+    console.log(`Deleted orphan Dulhan category collection: ${ORPHAN_CATEGORY_SLUG}`)
+  }
+
+  // Guard Pink gallery — strip red URLs if present; do not rewrite other fields.
   const karva = await prisma.product.findUnique({ where: { slug: KARVA_SLUG } })
   if (karva) {
     const redSet = new Set<string>(RED_IMAGES)
     const cleaned = (karva.images ?? []).filter((url) => !redSet.has(url))
-    const pinkImages =
-      cleaned.length > 0 ? cleaned : [...PINK_IMAGES]
-    const primary =
-      karva.image && !redSet.has(karva.image) ? karva.image : pinkImages[0]
-    await prisma.product.update({
-      where: { slug: KARVA_SLUG },
-      data: {
-        image: primary,
-        images: pinkImages,
-      },
-    })
-    console.log(`Karva pink gallery preserved (${pinkImages.length} images), red URLs stripped if any`)
-  } else {
-    console.log('Karva product not found in DB — skipped pink gallery guard')
+    if (cleaned.length !== (karva.images?.length ?? 0) || (karva.image && redSet.has(karva.image))) {
+      const pinkImages =
+        cleaned.length > 0
+          ? cleaned
+          : [
+              'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246484/file_00000000948c824391f9226eeb656d5b.png',
+              'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0238.jpg',
+              'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0244.jpg',
+              'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246485/IMG-20260924-WA0239.jpg',
+              'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246485/IMG-20260924-WA0243_1.jpg',
+            ]
+      const primary =
+        karva.image && !redSet.has(karva.image) ? karva.image : pinkImages[0]
+      await prisma.product.update({
+        where: { slug: KARVA_SLUG },
+        data: { image: primary, images: pinkImages },
+      })
+      console.log(`Karva pink gallery cleaned (${pinkImages.length} images)`)
+    } else {
+      console.log(`Karva pink gallery already clean (${karva.images?.length ?? 0} images)`)
+    }
   }
 
-  const existing = await prisma.product.findUnique({ where: { slug: SLUG } })
+  const existing = await prisma.product.findUnique({ where: { slug: PRODUCT_SLUG } })
   const product = await prisma.product.upsert({
-    where: { slug: SLUG },
+    where: { slug: PRODUCT_SLUG },
     create: {
-      slug: SLUG,
+      slug: PRODUCT_SLUG,
       sku: 'SH-DHARVI-DULHAN-01',
       name: PRODUCT_NAME,
       description: DESCRIPTION,
@@ -103,7 +115,7 @@ async function main() {
       image: RED_IMAGES[0],
       images: [...RED_IMAGES],
       category: CATEGORY_NAME,
-      collections: [SLUG, 'navratri-collection'],
+      collections: [CATEGORY_SLUG, 'navratri-collection'],
       fabric:
         'Soft Space Silk Saree With Heavy Embroider Sequins Jari,Thread Work With Scallop Border And All Over Peacock Butties❤️🔥',
       weave: '',
@@ -125,7 +137,7 @@ async function main() {
       image: RED_IMAGES[0],
       images: [...RED_IMAGES],
       category: CATEGORY_NAME,
-      collections: [SLUG, 'navratri-collection'],
+      collections: [CATEGORY_SLUG, 'navratri-collection'],
       fabric:
         'Soft Space Silk Saree With Heavy Embroider Sequins Jari,Thread Work With Scallop Border And All Over Peacock Butties❤️🔥',
       weave: '',
@@ -140,10 +152,12 @@ async function main() {
   })
 
   console.log(
-    `DHARVI Karvachauth Special DULHAN ${existing ? 'updated' : 'created'}: ${product.id}`,
+    `Dulhan product ${existing ? 'updated' : 'created'}: ${product.id}`,
   )
   console.log(`  slug: ${product.slug}`)
+  console.log(`  name: ${product.name}`)
   console.log(`  category: ${product.category}`)
+  console.log(`  collections: ${product.collections.join(', ')}`)
   console.log(`  price: ₹${product.price.toLocaleString('en-IN')}`)
   console.log(`  gallery (${product.images.length}):`)
   for (const url of product.images) console.log(`    - ${url}`)

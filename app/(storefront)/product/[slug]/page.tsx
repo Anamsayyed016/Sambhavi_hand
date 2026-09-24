@@ -86,8 +86,8 @@ export default async function ProductPage({
             { label: 'Categories' },
             { label: 'Navratri Collection', href: '/collections/navratri-collection' },
             {
-              label: 'DHARVI Karvachauth Special 🎉 DULHAN❤️',
-              href: '/collections/dharvi-karvachauth-special-dulhan',
+              label: 'Dharvi Karva Chauth Saree',
+              href: '/collections/dharvi-karva-chauth-saree',
             },
             { label: product.name },
           ]

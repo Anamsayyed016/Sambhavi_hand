@@ -2801,8 +2801,8 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246489/IMG-20260924-WA0257.jpg',
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246488/IMG-20260924-WA0255.jpg',
     ],
-    category: 'DHARVI Karvachauth Special 🎉 DULHAN❤️',
-    collections: ['dharvi-karvachauth-special-dulhan', 'navratri-collection'],
+    category: 'Dharvi Karva Chauth Saree',
+    collections: ['dharvi-karva-chauth-saree', 'navratri-collection'],
     fabric:
       'Soft Space Silk Saree With Heavy Embroider Sequins Jari,Thread Work With Scallop Border And All Over Peacock Butties❤️🔥',
     weave: '',
