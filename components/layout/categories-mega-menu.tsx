@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
@@ -12,46 +13,207 @@ import {
 } from '@/lib/catalog-nav'
 import { getStorefrontProducts } from '@/lib/products'
 
+const DULHAN_SPECIAL_SLUG = 'dharvi-karvachauth-special-dulhan'
+const NAVRATRI_SLUG = 'navratri-collection'
+
+function isActiveHref(pathname: string | null, href: string) {
+  if (!pathname) return false
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
+
+/** Editorial two-line label for DHARVI Karvachauth Special / DULHAN. */
+function DulhanSpecialLabel({
+  compact = false,
+  active = false,
+}: {
+  compact?: boolean
+  active?: boolean
+}) {
+  return (
+    <span className="flex min-w-0 flex-col gap-0.5">
+      <span
+        className={cn(
+          'font-sans font-medium leading-snug tracking-[0.02em] text-charcoal/88 transition-colors duration-200',
+          compact ? 'text-[0.875rem]' : 'text-[0.9375rem]',
+          active && 'text-primary',
+        )}
+      >
+        DHARVI Karvachauth Special 🎉
+      </span>
+      <span
+        className={cn(
+          'font-serif italic leading-tight tracking-[0.18em] text-wine/90 transition-colors duration-200',
+          compact ? 'text-[0.8rem]' : 'text-[0.875rem]',
+          active && 'text-primary',
+        )}
+      >
+        DULHAN❤️
+      </span>
+    </span>
+  )
+}
+
+function CategoryLinkLabel({
+  category,
+  active = false,
+  compact = false,
+}: {
+  category: SareeCategory
+  active?: boolean
+  compact?: boolean
+}) {
+  if (category.slug === DULHAN_SPECIAL_SLUG) {
+    return <DulhanSpecialLabel compact={compact} active={active} />
+  }
+
+  return (
+    <span
+      className={cn(
+        'font-sans leading-snug tracking-[0.03em] transition-colors duration-200',
+        compact ? 'text-[0.875rem]' : 'text-[0.9375rem]',
+        category.prominent
+          ? 'font-medium text-charcoal/90'
+          : 'font-normal text-charcoal/70',
+        active && 'text-primary',
+      )}
+    >
+      {category.name}
+    </span>
+  )
+}
+
+function NavCategoryLink({
+  category,
+  onNavigate,
+  pathname,
+  nested = false,
+  featured = false,
+}: {
+  category: SareeCategory
+  onNavigate?: () => void
+  pathname: string | null
+  nested?: boolean
+  featured?: boolean
+}) {
+  const href = `/collections/${category.slug}`
+  const active = isActiveHref(pathname, href)
+  const isDulhan = category.slug === DULHAN_SPECIAL_SLUG
+
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        'group/link relative flex min-w-0 items-start gap-2.5 py-1 transition-transform duration-200 ease-out',
+        'hover:translate-x-1',
+        nested && 'pl-0.5',
+        featured && 'py-1.5',
+        active && 'translate-x-1',
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          'mt-[0.55rem] h-px w-0 shrink-0 bg-gold/80 transition-all duration-200',
+          'group-hover/link:w-3',
+          active && 'w-3 bg-primary',
+          isDulhan && 'mt-[0.65rem]',
+        )}
+      />
+      <CategoryLinkLabel
+        category={category}
+        active={active}
+        compact={nested && !isDulhan}
+      />
+    </Link>
+  )
+}
+
 function CategoryLinks({
   categories,
   onNavigate,
   className,
+  pathname,
 }: {
   categories: SareeCategory[]
   onNavigate?: () => void
   className?: string
+  pathname: string | null
 }) {
   const products = useMemo(() => getStorefrontProducts(), [])
 
   return (
-    <ul className={cn('flex flex-col gap-2.5', className)}>
+    <ul className={cn('flex flex-col gap-1', className)}>
       {categories.map((category) => {
         const children = getVisibleNavChildCategories(category.slug, products)
-        return (
-          <li key={category.slug}>
-            <Link
-              href={`/collections/${category.slug}`}
-              onClick={onNavigate}
-              className={cn(
-                'font-sans leading-snug tracking-nav transition-colors duration-300 hover:text-primary',
-                category.prominent
-                  ? 'text-[0.9375rem] font-medium text-foreground/90'
-                  : 'text-[0.9375rem] font-normal text-muted-foreground',
-              )}
-            >
-              {category.name}
-            </Link>
-            {children.length > 0 ? (
-              <ul className="mt-2 space-y-1.5 border-l border-border/50 pl-3">
+        const isNavratri = category.slug === NAVRATRI_SLUG
+
+        if (isNavratri && children.length > 0) {
+          return (
+            <li key={category.slug} className="mt-1 space-y-3 pt-1">
+              <div className="space-y-2.5">
+                <Link
+                  href={`/collections/${category.slug}`}
+                  onClick={onNavigate}
+                  aria-current={
+                    isActiveHref(pathname, `/collections/${category.slug}`)
+                      ? 'page'
+                      : undefined
+                  }
+                  className="group/navratri inline-flex flex-col gap-2"
+                >
+                  <span
+                    className={cn(
+                      'font-sans text-[0.6875rem] font-medium uppercase tracking-[0.22em] text-wine/75 transition-colors duration-200',
+                      'group-hover/navratri:text-primary',
+                      isActiveHref(pathname, `/collections/${category.slug}`) &&
+                        'text-primary',
+                    )}
+                  >
+                    Navratri Collection
+                  </span>
+                  <span
+                    aria-hidden
+                    className="h-px w-10 bg-gradient-to-r from-gold/70 to-transparent"
+                  />
+                </Link>
+              </div>
+              <ul className="space-y-1.5 border-l border-gold/25 pl-3.5">
                 {children.map((child) => (
                   <li key={child.slug}>
-                    <Link
-                      href={`/collections/${child.slug}`}
-                      onClick={onNavigate}
-                      className="font-sans text-[0.875rem] tracking-nav text-muted-foreground transition-colors hover:text-primary"
-                    >
-                      {child.name}
-                    </Link>
+                    <NavCategoryLink
+                      category={child}
+                      onNavigate={onNavigate}
+                      pathname={pathname}
+                      nested
+                      featured={child.slug === DULHAN_SPECIAL_SLUG}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </li>
+          )
+        }
+
+        return (
+          <li key={category.slug}>
+            <NavCategoryLink
+              category={category}
+              onNavigate={onNavigate}
+              pathname={pathname}
+            />
+            {children.length > 0 ? (
+              <ul className="mt-1.5 space-y-1 border-l border-border/45 pl-3.5">
+                {children.map((child) => (
+                  <li key={child.slug}>
+                    <NavCategoryLink
+                      category={child}
+                      onNavigate={onNavigate}
+                      pathname={pathname}
+                      nested
+                      featured={child.slug === DULHAN_SPECIAL_SLUG}
+                    />
                   </li>
                 ))}
               </ul>
@@ -67,25 +229,41 @@ function GroupHeading({
   group,
   onNavigate,
   variant = 'default',
+  pathname,
 }: {
   group: CategoryGroup
   onNavigate?: () => void
   variant?: 'primary' | 'default'
+  pathname: string | null
 }) {
+  const href = `/collections/${group.slug}`
+  const active = isActiveHref(pathname, href)
+
   return (
-    <Link
-      href={`/collections/${group.slug}`}
-      onClick={onNavigate}
-      className={cn(
-        'font-serif uppercase transition-colors duration-300 hover:text-primary',
-        variant === 'primary' &&
-          'text-2xl tracking-[0.12em] text-primary md:text-[1.75rem]',
-        variant === 'default' &&
-          'text-base tracking-[0.14em] text-foreground/85 md:text-lg',
-      )}
-    >
-      {group.name}
-    </Link>
+    <div className="space-y-3">
+      <Link
+        href={href}
+        onClick={onNavigate}
+        aria-current={active ? 'page' : undefined}
+        className={cn(
+          'inline-block font-serif uppercase transition-colors duration-200 hover:text-primary',
+          variant === 'primary' &&
+            'text-[1.35rem] tracking-[0.14em] text-wine md:text-[1.5rem]',
+          variant === 'default' &&
+            'text-[1.05rem] tracking-[0.16em] text-wine/90 md:text-[1.15rem]',
+          active && 'text-primary',
+        )}
+      >
+        {group.name}
+      </Link>
+      <span
+        aria-hidden
+        className={cn(
+          'block h-px bg-gradient-to-r from-gold/55 via-gold/20 to-transparent',
+          variant === 'primary' ? 'w-16' : 'w-12',
+        )}
+      />
+    </div>
   )
 }
 
@@ -93,6 +271,7 @@ export function CategoriesMegaMenu() {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pathname = usePathname()
   const visibleGroups = useMemo(
     () => getVisibleNavCategoryGroups(getStorefrontProducts()),
     [],
@@ -188,25 +367,39 @@ export function CategoriesMegaMenu() {
             <div className="mx-auto max-h-[min(78vh,720px)] max-w-7xl overflow-y-auto px-6 py-10 md:px-8 md:py-12">
               <div
                 className={cn(
-                  'grid gap-10 lg:gap-x-10 xl:gap-x-12',
+                  'grid gap-10 lg:gap-x-12 xl:gap-x-14',
                   secondaryGroups.length > 0
-                    ? 'lg:grid-cols-[minmax(0,2.2fr)_repeat(auto-fit,minmax(0,1fr))]'
+                    ? 'lg:grid-cols-[minmax(0,2.15fr)_repeat(auto-fit,minmax(0,1fr))]'
                     : 'lg:grid-cols-1',
                 )}
               >
-                <div className="space-y-5 border-border/40 lg:border-r lg:pr-10">
-                  <GroupHeading group={primaryGroup} onNavigate={closeMenu} variant="primary" />
+                <div className="space-y-6 border-border/35 lg:border-r lg:pr-11">
+                  <GroupHeading
+                    group={primaryGroup}
+                    onNavigate={closeMenu}
+                    variant="primary"
+                    pathname={pathname}
+                  />
                   <CategoryLinks
                     categories={primaryGroup.categories}
                     onNavigate={closeMenu}
-                    className="sm:grid sm:grid-cols-2 sm:gap-x-8 sm:gap-y-2.5"
+                    pathname={pathname}
+                    className="sm:grid sm:grid-cols-2 sm:gap-x-10 sm:gap-y-1"
                   />
                 </div>
 
                 {secondaryGroups.map((group) => (
-                  <div key={group.slug} className="space-y-4">
-                    <GroupHeading group={group} onNavigate={closeMenu} />
-                    <CategoryLinks categories={group.categories} onNavigate={closeMenu} />
+                  <div key={group.slug} className="space-y-5">
+                    <GroupHeading
+                      group={group}
+                      onNavigate={closeMenu}
+                      pathname={pathname}
+                    />
+                    <CategoryLinks
+                      categories={group.categories}
+                      onNavigate={closeMenu}
+                      pathname={pathname}
+                    />
                   </div>
                 ))}
               </div>
@@ -224,6 +417,7 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
     [],
   )
   const products = useMemo(() => getStorefrontProducts(), [])
+  const pathname = usePathname()
   const [expanded, setExpanded] = useState(false)
   const [openGroup, setOpenGroup] = useState<string | null>(visibleGroups[0]?.slug ?? null)
 
@@ -272,10 +466,10 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                       aria-expanded={isOpen}
                       onClick={() => setOpenGroup(isOpen ? null : group.slug)}
                       className={cn(
-                        'flex w-full items-center justify-between py-3 text-left font-serif uppercase tracking-[0.1em] transition-colors hover:text-primary',
+                        'flex w-full items-center justify-between py-3 text-left font-serif uppercase tracking-[0.12em] transition-colors hover:text-primary',
                         isPrimary
-                          ? 'text-[0.9375rem] font-medium text-primary'
-                          : 'text-sm font-normal text-foreground/85',
+                          ? 'text-[0.9375rem] font-medium text-wine'
+                          : 'text-sm font-normal text-wine/90',
                       )}
                     >
                       {group.name}
@@ -296,13 +490,13 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                          className="space-y-2.5 overflow-hidden pb-3 pl-2"
+                          className="space-y-2 overflow-hidden pb-3 pl-1"
                         >
-                          <li>
+                          <li className="pb-1">
                             <Link
                               href={`/collections/${group.slug}`}
                               onClick={handleNavigate}
-                              className="font-sans text-xs uppercase tracking-[0.14em] text-accent transition-colors hover:text-primary"
+                              className="font-sans text-[0.6875rem] uppercase tracking-[0.18em] text-gold transition-colors hover:text-primary"
                             >
                               All {group.name.toLowerCase()}
                             </Link>
@@ -312,31 +506,59 @@ export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => v
                               category.slug,
                               products,
                             )
+                            const isNavratri = category.slug === NAVRATRI_SLUG
+
+                            if (isNavratri && children.length > 0) {
+                              return (
+                                <li key={category.slug} className="space-y-2.5 pt-1">
+                                  <Link
+                                    href={`/collections/${category.slug}`}
+                                    onClick={handleNavigate}
+                                    className="inline-flex flex-col gap-1.5"
+                                  >
+                                    <span className="font-sans text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-wine/80">
+                                      Navratri Collection
+                                    </span>
+                                    <span
+                                      aria-hidden
+                                      className="h-px w-8 bg-gradient-to-r from-gold/70 to-transparent"
+                                    />
+                                  </Link>
+                                  <ul className="space-y-2 border-l border-gold/25 pl-3">
+                                    {children.map((child) => (
+                                      <li key={child.slug} className="min-w-0">
+                                        <NavCategoryLink
+                                          category={child}
+                                          onNavigate={handleNavigate}
+                                          pathname={pathname}
+                                          nested
+                                          featured={child.slug === DULHAN_SPECIAL_SLUG}
+                                        />
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </li>
+                              )
+                            }
+
                             return (
-                              <li key={category.slug}>
-                                <Link
-                                  href={`/collections/${category.slug}`}
-                                  onClick={handleNavigate}
-                                  className={cn(
-                                    'font-sans leading-snug tracking-nav transition-colors hover:text-primary',
-                                    category.prominent
-                                      ? 'text-[0.9375rem] font-medium text-foreground/90'
-                                      : 'text-[0.9375rem] font-normal text-muted-foreground',
-                                  )}
-                                >
-                                  {category.name}
-                                </Link>
+                              <li key={category.slug} className="min-w-0">
+                                <NavCategoryLink
+                                  category={category}
+                                  onNavigate={handleNavigate}
+                                  pathname={pathname}
+                                />
                                 {children.length > 0 ? (
                                   <ul className="mt-1.5 space-y-1.5 border-l border-border/40 pl-3">
                                     {children.map((child) => (
-                                      <li key={child.slug}>
-                                        <Link
-                                          href={`/collections/${child.slug}`}
-                                          onClick={handleNavigate}
-                                          className="font-sans text-[0.875rem] tracking-nav text-muted-foreground transition-colors hover:text-primary"
-                                        >
-                                          {child.name}
-                                        </Link>
+                                      <li key={child.slug} className="min-w-0">
+                                        <NavCategoryLink
+                                          category={child}
+                                          onNavigate={handleNavigate}
+                                          pathname={pathname}
+                                          nested
+                                          featured={child.slug === DULHAN_SPECIAL_SLUG}
+                                        />
                                       </li>
                                     ))}
                                   </ul>

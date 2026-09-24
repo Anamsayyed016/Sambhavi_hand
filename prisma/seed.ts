@@ -97,7 +97,7 @@ function buildSeedCollections(): {
                 : category.slug === 'dharvi-karva-chauth-saree'
                   ? 'NAVRATRI COLLECTION · Explore the Dharvi Karva Chauth Saree collection.'
                   : category.slug === 'dharvi-karvachauth-special-dulhan'
-                    ? 'NAVRATRI COLLECTION · Explore the DHARVI Karvachauth Special // DULHAN collection.'
+                    ? 'NAVRATRI COLLECTION · Explore the DHARVI Karvachauth Special DULHAN collection.'
                     : `Browse ${category.name} sarees.`,
       image: '/images/collection-silk.png',
     })

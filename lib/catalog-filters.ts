@@ -151,7 +151,7 @@ export function getCatalogSubtitle(slug: string, category?: SareeCategory): stri
       return 'NAVRATRI COLLECTION · Explore the Dharvi Karva Chauth Saree collection.'
     }
     if (category.slug === 'dharvi-karvachauth-special-dulhan') {
-      return 'NAVRATRI COLLECTION · Explore the DHARVI Karvachauth Special // DULHAN collection.'
+      return 'NAVRATRI COLLECTION · Explore the DHARVI Karvachauth Special DULHAN collection.'
     }
     const group = getCategoryGroup(category.groupSlug)
     return group ? `${group.name} · Browse ${category.name} sarees.` : `Browse ${category.name} sarees.`

@@ -88,9 +88,9 @@ export async function generateMetadata({
 
   if (category?.slug === 'dharvi-karvachauth-special-dulhan') {
     return {
-      title: 'DHARVI Karvachauth Special 🎉 // DULHAN❤️ | Sambhavi Handloom',
+      title: 'DHARVI Karvachauth Special 🎉 DULHAN❤️ | Sambhavi Handloom',
       description:
-        'Explore DHARVI Karvachauth Special // DULHAN from the Navratri Collection festive edit by Sambhavi Handloom.',
+        'Explore DHARVI Karvachauth Special DULHAN from the Navratri Collection festive edit by Sambhavi Handloom.',
     }
   }
 
