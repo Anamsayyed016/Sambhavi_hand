@@ -96,7 +96,9 @@ function buildSeedCollections(): {
                 ? 'NAVRATRI COLLECTION · Explore the Dharvi Durga Pooja Edition.'
                 : category.slug === 'dharvi-karva-chauth-saree'
                   ? 'NAVRATRI COLLECTION · Explore the Dharvi Karva Chauth Saree collection.'
-                  : `Browse ${category.name} sarees.`,
+                  : category.slug === 'dharvi-karvachauth-special-dulhan'
+                    ? 'NAVRATRI COLLECTION · Explore the DHARVI Karvachauth Special DULHAN collection.'
+                    : `Browse ${category.name} sarees.`,
       image: '/images/collection-silk.png',
     })
   }

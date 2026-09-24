@@ -6,7 +6,7 @@ import { ChevronRight, Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, Minus,
 import { cn } from '@/lib/utils'
 import { type Product, formatINR } from '@/lib/products'
 import { isGalleryVideoUrl } from '@/lib/gallery-media'
-import { getEditorialCollectionLabel, isChhabiliProduct, isDharviKarvaProduct, isDharviProduct, isJobaniyuProduct } from '@/lib/product-badges'
+import { getEditorialCollectionLabel, isChhabiliProduct, isDharviDulhanProduct, isDharviKarvaProduct, isDharviProduct, isJobaniyuProduct } from '@/lib/product-badges'
 import { trackViewContent } from '@/components/analytics/meta-pixel'
 import { useCart } from '@/components/cart/cart-provider'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,7 @@ import { BackButton } from '@/components/layout/back-button'
 import { ProductImageZoom } from '@/components/product/product-image-zoom'
 import { ChhabiliProductDescription } from '@/components/product/chhabili-product-description'
 import { DharviKarvaProductInfo, DharviKarvaProductSpecs } from '@/components/product/dharvi-karva-product-info'
+import { DharviDulhanProductInfo, DharviDulhanProductSpecs } from '@/components/product/dharvi-dulhan-product-info'
 
 const detailRows = (product: Product) => [
   { label: 'Fabric', value: product.fabric },
@@ -24,14 +25,6 @@ const detailRows = (product: Product) => [
 ]
 
 type Crumb = { label: string; href?: string }
-
-/** Color galleries for Dharvi Karva only — Pink uses the product catalog gallery. */
-const DHARVI_KARVA_RED_GALLERY = [
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0253.jpg',
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246490/IMG-20260924-WA0254.jpg',
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246489/IMG-20260924-WA0257.jpg',
-  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246488/IMG-20260924-WA0255.jpg',
-] as const
 
 function initialGalleryIndex(gallery: string[], preferVideo: boolean): number {
   if (!preferVideo) return 0
@@ -52,28 +45,12 @@ export function ProductDetail({
     trackViewContent({ slug: product.slug, name: product.name, price: product.price })
   }, [product.slug, product.name, product.price])
 
-  const pinkGallery = useMemo(
+  const gallery = useMemo(
     () => (product.images.length > 0 ? product.images : [product.image]),
     [product.images, product.image],
   )
-  const showKarvaColorSelector = isDharviKarvaProduct(product)
-  const redGallery = useMemo(() => {
-    if (!showKarvaColorSelector) return [] as string[]
-    // Dedupe while preserving order — Red media only.
-    const seen = new Set<string>()
-    const out: string[] = []
-    for (const url of DHARVI_KARVA_RED_GALLERY) {
-      if (!url || seen.has(url)) continue
-      seen.add(url)
-      out.push(url)
-    }
-    return out
-  }, [showKarvaColorSelector])
-
-  const [colorOption, setColorOption] = useState<'pink' | 'red'>('pink')
-  const gallery = colorOption === 'red' && redGallery.length > 0 ? redGallery : pinkGallery
   const [activeImage, setActiveImage] = useState(() =>
-    initialGalleryIndex(pinkGallery, isChhabiliProduct(product)),
+    initialGalleryIndex(gallery, isChhabiliProduct(product)),
   )
   const [qty, setQty] = useState(1)
   const wishlisted = isWishlisted(product.slug)
@@ -82,33 +59,25 @@ export function ProductDetail({
     : 0
   const editorialLabel = getEditorialCollectionLabel(product)
   const isDharvi = isDharviProduct(product)
+  const isKarvaPink = isDharviKarvaProduct(product)
+  const isDulhan = isDharviDulhanProduct(product)
   const backFallback = isChhabiliProduct(product)
     ? '/collections/chhabili'
     : isJobaniyuProduct(product)
       ? '/collections/jobaniyu'
-      : isDharviKarvaProduct(product)
-        ? '/collections/dharvi-karva-chauth-saree'
-        : isDharvi
-          ? '/collections/dharvi-durga-pooja-edition'
-          : product.collections[0]
-            ? `/collections/${product.collections[0]}`
-            : '/shop'
+      : isDulhan
+        ? '/collections/dharvi-karvachauth-special-dulhan'
+        : isKarvaPink
+          ? '/collections/dharvi-karva-chauth-saree'
+          : isDharvi
+            ? '/collections/dharvi-durga-pooja-edition'
+            : product.collections[0]
+              ? `/collections/${product.collections[0]}`
+              : '/shop'
 
   const handleAdd = () => {
     addItem(product, qty)
     openCart()
-  }
-
-  const handleColorSelect = (next: 'pink' | 'red') => {
-    if (next === 'red' && redGallery.length === 0) {
-      // Red media not ready — keep Pink gallery visible.
-      setColorOption('red')
-      return
-    }
-    setColorOption(next)
-    const nextGallery =
-      next === 'red' && redGallery.length > 0 ? redGallery : pinkGallery
-    setActiveImage(initialGalleryIndex(nextGallery, false))
   }
 
   return (
@@ -186,58 +155,18 @@ export function ProductDetail({
             Inclusive of all taxes
           </p>
 
-          {showKarvaColorSelector ? (
+          {isKarvaPink ? (
             <div className="mt-6">
               <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 Color
               </p>
-              <div
-                role="radiogroup"
-                aria-label="Color"
-                className="mt-3 flex min-w-0 flex-wrap items-center gap-2.5"
-              >
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={colorOption === 'pink'}
-                  onClick={() => handleColorSelect('pink')}
-                  className={cn(
-                    'inline-flex h-10 items-center gap-2.5 rounded-none border px-3.5 font-sans text-xs uppercase tracking-[0.14em] transition-[border-color,background-color,color] duration-300',
-                    colorOption === 'pink'
-                      ? 'border-charcoal bg-charcoal text-ivory'
-                      : 'border-border bg-background text-foreground hover:border-charcoal/40',
-                  )}
-                >
-                  <span
-                    aria-hidden
-                    className="size-3.5 shrink-0 rounded-full border border-black/10 bg-[#e8a4b8]"
-                  />
-                  Pink
-                </button>
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={colorOption === 'red'}
-                  onClick={() => handleColorSelect('red')}
-                  className={cn(
-                    'inline-flex h-10 items-center gap-2.5 rounded-none border px-3.5 font-sans text-xs uppercase tracking-[0.14em] transition-[border-color,background-color,color] duration-300',
-                    colorOption === 'red'
-                      ? 'border-charcoal bg-charcoal text-ivory'
-                      : 'border-border bg-background text-foreground hover:border-charcoal/40',
-                  )}
-                >
-                  <span
-                    aria-hidden
-                    className="size-3.5 shrink-0 rounded-full border border-black/10 bg-[#9b1c2e]"
-                  />
-                  Red
-                </button>
+              <div className="mt-3 inline-flex h-10 items-center gap-2.5 rounded-none border border-charcoal bg-charcoal px-3.5 font-sans text-xs uppercase tracking-[0.14em] text-ivory">
+                <span
+                  aria-hidden
+                  className="size-3.5 shrink-0 rounded-full border border-black/10 bg-[#e8a4b8]"
+                />
+                Pink
               </div>
-              {colorOption === 'red' && redGallery.length === 0 ? (
-                <p className="mt-2.5 font-sans text-xs text-muted-foreground" aria-live="polite">
-                  Red — Coming soon
-                </p>
-              ) : null}
             </div>
           ) : null}
 
@@ -254,7 +183,9 @@ export function ProductDetail({
 
           {isChhabiliProduct(product) ? (
             <ChhabiliProductDescription description={product.description} className="mt-6" />
-          ) : isDharviKarvaProduct(product) ? (
+          ) : isDulhan ? (
+            <DharviDulhanProductInfo product={product} showSpecs={false} className="mt-7" />
+          ) : isKarvaPink ? (
             <DharviKarvaProductInfo product={product} showSpecs={false} className="mt-7" />
           ) : (
             <p className="mt-6 whitespace-pre-line font-sans text-sm leading-relaxed text-foreground/85 text-pretty">
@@ -322,7 +253,9 @@ export function ProductDetail({
             ))}
           </ul>
 
-          {!isDharviKarvaProduct(product) ? (
+          {isDulhan ? (
+            <DharviDulhanProductSpecs product={product} className="mt-8" />
+          ) : !isKarvaPink ? (
             <dl className="mt-8 flex flex-col divide-y divide-border">
               {detailRows(product).map((row) => (
                 <div key={row.label} className="flex gap-4 py-3">

@@ -2788,6 +2788,38 @@ export const products: Product[] = [
       '▶️ Wow Price: ₹999/- Only',
     ].join('\n'),
   },
+  {
+    slug: 'dharvi-karvachauth-special-dulhan',
+    name: 'DHARVI Karvachauth Special 🎉 DULHAN❤️',
+    price: 2450,
+    /** Former Red-variant gallery from Dharvi Karva Chauth (moved — not a color variant). */
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0253.jpg',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246486/IMG-20260924-WA0253.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246490/IMG-20260924-WA0254.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246489/IMG-20260924-WA0257.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790246488/IMG-20260924-WA0255.jpg',
+    ],
+    category: 'DHARVI Karvachauth Special 🎉 DULHAN❤️',
+    collections: ['dharvi-karvachauth-special-dulhan', 'navratri-collection'],
+    fabric:
+      'Soft Space Silk Saree With Heavy Embroider Sequins Jari,Thread Work With Scallop Border And All Over Peacock Butties❤️🔥',
+    weave: '',
+    length: '',
+    blouse:
+      'Soft Space Silk Blouse With Front Back And Sleeves Work Done Of Embroidery With Sequins,Jari And Thread Work Designer Latkan Attached On Blouse For Premium Look 🥰',
+    care: 'Saree With Stitch Blouse',
+    availability: 'In Stock',
+    isNew: true,
+    description: [
+      'Soft Space Silk Saree With Heavy Embroider Sequins Jari,Thread Work With Scallop Border And All Over Peacock Butties❤️🔥',
+      '',
+      'Soft Space Silk Blouse With Front Back And Sleeves Work Done Of Embroidery With Sequins,Jari And Thread Work Designer Latkan Attached On Blouse For Premium Look 🥰',
+      '',
+      'Saree With Stitch Blouse ~ 2450 rs✔️',
+    ].join('\n'),
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
