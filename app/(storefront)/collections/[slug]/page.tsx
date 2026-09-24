@@ -86,6 +86,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'tirupati-durga-puja-special') {
+    return {
+      title: '🍁Tirupati Durga Puja Special 🍁 | Sambhavi Handloom',
+      description:
+        'Explore Tirupati Durga Puja Special from the Navratri Collection festive edit by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'lehenga-choli') {
     return {
       title: 'LEHENGA CHOLI | Sambhavi Handloom',

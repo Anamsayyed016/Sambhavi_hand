@@ -129,6 +129,13 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'navratri-collection',
     groupSlug: 'festive-edition',
   },
+  {
+    name: '🍁Tirupati Durga Puja Special 🍁',
+    /** Canonical route: /collections/tirupati-durga-puja-special */
+    slug: 'tirupati-durga-puja-special',
+    parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
 ]
 
 export function nameToSlug(name: string): string {
