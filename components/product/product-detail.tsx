@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { BackButton } from '@/components/layout/back-button'
 import { ProductImageZoom } from '@/components/product/product-image-zoom'
 import { ChhabiliProductDescription } from '@/components/product/chhabili-product-description'
+import { DharviKarvaProductInfo, DharviKarvaProductSpecs } from '@/components/product/dharvi-karva-product-info'
 
 const detailRows = (product: Product) => [
   { label: 'Fabric', value: product.fabric },
@@ -253,6 +254,8 @@ export function ProductDetail({
 
           {isChhabiliProduct(product) ? (
             <ChhabiliProductDescription description={product.description} className="mt-6" />
+          ) : isDharviKarvaProduct(product) ? (
+            <DharviKarvaProductInfo product={product} showSpecs={false} className="mt-7" />
           ) : (
             <p className="mt-6 whitespace-pre-line font-sans text-sm leading-relaxed text-foreground/85 text-pretty">
               {product.description}
@@ -319,16 +322,20 @@ export function ProductDetail({
             ))}
           </ul>
 
-          <dl className="mt-8 flex flex-col divide-y divide-border">
-            {detailRows(product).map((row) => (
-              <div key={row.label} className="flex gap-4 py-3">
-                <dt className="w-28 shrink-0 font-sans text-xs uppercase tracking-wider text-muted-foreground">
-                  {row.label}
-                </dt>
-                <dd className="font-sans text-sm text-foreground text-pretty">{row.value}</dd>
-              </div>
-            ))}
-          </dl>
+          {!isDharviKarvaProduct(product) ? (
+            <dl className="mt-8 flex flex-col divide-y divide-border">
+              {detailRows(product).map((row) => (
+                <div key={row.label} className="flex gap-4 py-3">
+                  <dt className="w-28 shrink-0 font-sans text-xs uppercase tracking-wider text-muted-foreground">
+                    {row.label}
+                  </dt>
+                  <dd className="font-sans text-sm text-foreground text-pretty">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <DharviKarvaProductSpecs product={product} className="mt-8" />
+          )}
 
           <ul className="mt-6 flex flex-col gap-2">
             {['Handcrafted by master weavers', 'Directly supports weaving communities', 'Ships in premium gift packaging'].map(
