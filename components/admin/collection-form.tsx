@@ -7,6 +7,16 @@ import Link from 'next/link'
 import { slugify } from '@/lib/admin/format'
 import { Button } from '@/components/ui/button'
 
+/** Same rules as isValidCoverImageUrl — kept local to avoid pulling server catalog modules into the client bundle. */
+function isRenderableCollectionImage(url: string | null | undefined): boolean {
+  const value = url?.trim() ?? ''
+  if (!value) return false
+  if (value.startsWith('/images/collection-')) return false
+  if (value === '/placeholder.svg') return false
+  if (value.startsWith('/')) return false
+  return /^https?:\/\//i.test(value)
+}
+
 const field =
   'mt-1.5 w-full rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-ring'
 
@@ -30,6 +40,7 @@ export function CollectionForm({
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [archiving, setArchiving] = useState(false)
 
   async function uploadCover(file: File) {
     setUploading(true)
@@ -73,6 +84,30 @@ export function CollectionForm({
     }
     router.push(`/admin/collections/${data.collection.id}`)
     router.refresh()
+  }
+
+  async function archiveCollection() {
+    if (mode !== 'edit' || !initial?.id) return
+    const ok = window.confirm(
+      'Archive this collection? It will be marked inactive. Products will not be deleted.',
+    )
+    if (!ok) return
+    setArchiving(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/admin/collections/${initial.id}`, { method: 'DELETE' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data.error ?? 'Archive failed')
+        return
+      }
+      router.push('/admin/collections')
+      router.refresh()
+    } catch {
+      setError('Archive failed')
+    } finally {
+      setArchiving(false)
+    }
   }
 
   return (
@@ -128,7 +163,7 @@ export function CollectionForm({
               type="file"
               accept="image/jpeg,image/png,image/webp,image/gif"
               className="sr-only"
-              disabled={uploading || saving}
+              disabled={uploading || saving || archiving}
               onChange={(e) => {
                 const file = e.target.files?.[0]
                 if (file) void uploadCover(file)
@@ -142,15 +177,22 @@ export function CollectionForm({
           </p>
         </div>
         {form.image ? (
-          <div className="relative mt-3 aspect-[4/3] w-full max-w-sm overflow-hidden rounded-md border border-border bg-beige">
-            <Image
-              src={form.image}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="384px"
-            />
-          </div>
+          isRenderableCollectionImage(form.image) ? (
+            <div className="relative mt-3 aspect-[4/3] w-full max-w-sm overflow-hidden rounded-md border border-border bg-beige">
+              <Image
+                src={form.image}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="384px"
+              />
+            </div>
+          ) : (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Current cover path is not a valid public image URL. Upload to Cloudinary or paste an
+              https:// image URL.
+            </p>
+          )
         ) : null}
       </div>
       <label className="flex items-center gap-2 text-sm">
@@ -169,13 +211,23 @@ export function CollectionForm({
         />{' '}
         Featured
       </label>
-      <div className="flex gap-2">
-        <Button type="submit" disabled={saving || uploading}>
+      <div className="flex flex-wrap gap-2">
+        <Button type="submit" disabled={saving || uploading || archiving}>
           {saving ? 'Saving…' : 'Save'}
         </Button>
         <Button type="button" variant="outline" render={<Link href="/admin/collections" />}>
           Cancel
         </Button>
+        {mode === 'edit' && form.active ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={saving || uploading || archiving}
+            onClick={() => void archiveCollection()}
+          >
+            {archiving ? 'Archiving…' : 'Archive'}
+          </Button>
+        ) : null}
       </div>
     </form>
   )

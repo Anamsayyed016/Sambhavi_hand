@@ -10,7 +10,37 @@ export type CollectionInput = {
   featured?: boolean
 }
 
-export async function listCollections(params?: { q?: string; active?: 'true' | 'false' | 'all' }) {
+export type CollectionSort =
+  | 'name_asc'
+  | 'name_desc'
+  | 'newest'
+  | 'oldest'
+  | 'products_desc'
+  | 'products_asc'
+
+export type CollectionListParams = {
+  q?: string
+  active?: 'true' | 'false' | 'all'
+  sort?: CollectionSort
+}
+
+function collectionOrderBy(
+  sort: CollectionSort | undefined,
+): Prisma.CollectionOrderByWithRelationInput {
+  switch (sort) {
+    case 'name_desc':
+      return { name: 'desc' }
+    case 'newest':
+      return { createdAt: 'desc' }
+    case 'oldest':
+      return { createdAt: 'asc' }
+    case 'name_asc':
+    default:
+      return { name: 'asc' }
+  }
+}
+
+export async function listCollections(params?: CollectionListParams) {
   const where: Prisma.CollectionWhereInput = {}
   if (params?.q?.trim()) {
     where.OR = [
@@ -21,9 +51,14 @@ export async function listCollections(params?: { q?: string; active?: 'true' | '
   if (params?.active === 'true') where.active = true
   if (params?.active === 'false') where.active = false
 
+  // Product-count sorts are applied in the page after joining counts.
+  const sort = params?.sort
+  const dbSort: CollectionSort | undefined =
+    sort === 'products_desc' || sort === 'products_asc' ? 'name_asc' : sort
+
   return prisma.collection.findMany({
     where,
-    orderBy: { name: 'asc' },
+    orderBy: collectionOrderBy(dbSort),
   })
 }
 
@@ -60,8 +95,9 @@ export async function archiveCollection(id: string): Promise<Collection> {
 }
 
 export async function getCollectionProductCounts() {
+  // Admin membership count — all products that list this collection slug
+  // (matches Edit Collection page query; not storefront-visible-only).
   const products = await prisma.product.findMany({
-    where: { active: true },
     select: { collections: true },
   })
   const counts = new Map<string, number>()
@@ -73,22 +109,53 @@ export async function getCollectionProductCounts() {
   return counts
 }
 
+/**
+ * Set exact membership for one collection slug.
+ * - Adds the slug to selected products that lack it
+ * - Removes the slug from current members not in productIds
+ * - Never removes other collection slugs from a product
+ */
 export async function setCollectionProducts(collectionSlug: string, productIds: string[]) {
-  const products = await prisma.product.findMany({
-    where: { id: { in: productIds } },
+  const desiredIds = Array.from(new Set(productIds))
+  const desired = new Set(desiredIds)
+
+  const currentMembers = await prisma.product.findMany({
+    where: { collections: { has: collectionSlug } },
     select: { id: true, collections: true },
   })
+  const currentIds = new Set(currentMembers.map((p) => p.id))
 
-  await prisma.$transaction(
-    products.map((p) => {
-      const set = new Set(p.collections)
-      set.add(collectionSlug)
+  const toAddIds = desiredIds.filter((id) => !currentIds.has(id))
+  const toRemove = currentMembers.filter((p) => !desired.has(p.id))
+
+  const toAdd =
+    toAddIds.length > 0
+      ? await prisma.product.findMany({
+          where: { id: { in: toAddIds } },
+          select: { id: true, collections: true },
+        })
+      : []
+
+  const updates = [
+    ...toAdd.map((p) => {
+      const next = new Set(p.collections)
+      next.add(collectionSlug)
       return prisma.product.update({
         where: { id: p.id },
-        data: { collections: Array.from(set) },
+        data: { collections: Array.from(next) },
       })
     }),
-  )
+    ...toRemove.map((p) =>
+      prisma.product.update({
+        where: { id: p.id },
+        data: { collections: p.collections.filter((s) => s !== collectionSlug) },
+      }),
+    ),
+  ]
+
+  if (updates.length > 0) {
+    await prisma.$transaction(updates)
+  }
 }
 
 export async function removeProductFromCollection(productId: string, collectionSlug: string) {

@@ -7,11 +7,8 @@ import {
   requireAdminAccess,
 } from '@/lib/admin/auth'
 import {
-  archiveCollection,
   createCollection,
-  getCollectionById,
   listCollections,
-  updateCollection,
 } from '@/lib/admin/collections'
 import { slugify } from '@/lib/admin/format'
 import { z } from 'zod'
@@ -28,9 +25,20 @@ const collectionSchema = z.object({
 export async function GET(request: Request) {
   try {
     await requireAdminAccess()
-    const q = new URL(request.url).searchParams.get('q') ?? undefined
-    const active = (new URL(request.url).searchParams.get('active') as 'true' | 'false' | 'all' | null) ?? 'all'
-    const items = await listCollections({ q, active })
+    const searchParams = new URL(request.url).searchParams
+    const q = searchParams.get('q') ?? undefined
+    const active =
+      (searchParams.get('active') as 'true' | 'false' | 'all' | null) ?? 'all'
+    const sort =
+      (searchParams.get('sort') as
+        | 'name_asc'
+        | 'name_desc'
+        | 'newest'
+        | 'oldest'
+        | 'products_desc'
+        | 'products_asc'
+        | null) ?? 'name_asc'
+    const items = await listCollections({ q, active, sort })
     return NextResponse.json({ items })
   } catch (error) {
     return adminAuthErrorResponse(error)

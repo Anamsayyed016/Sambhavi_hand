@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { getCollectionById } from '@/lib/admin/collections'
 import { prisma } from '@/lib/prisma'
 import { CollectionForm } from '@/components/admin/collection-form'
-import { AdminEmptyState } from '@/components/admin/empty-state'
+import { CollectionProductsEditor } from '@/components/admin/collection-products-editor'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,24 +22,22 @@ export default async function EditCollectionPage({ params }: Params) {
 
   return (
     <div className="space-y-6">
-      <Link href="/admin/collections" className="text-xs text-muted-foreground hover:text-wine">← Collections</Link>
-      <h1 className="font-serif text-3xl text-charcoal">Edit collection</h1>
+      <Link href="/admin/collections" className="text-xs text-muted-foreground hover:text-wine">
+        ← Collections
+      </Link>
+      <div>
+        <h1 className="font-serif text-3xl text-charcoal">Edit collection</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {products.length} product{products.length === 1 ? '' : 's'} ·{' '}
+          {collection.active ? 'Active' : 'Inactive'}
+        </p>
+      </div>
       <CollectionForm mode="edit" initial={{ ...collection, id: collection.id }} />
-      <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-        <h2 className="text-sm font-medium">Products in this collection ({products.length})</h2>
-        {products.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">No products linked. Assign collection slugs on product edit pages.</p>
-        ) : (
-          <ul className="mt-3 divide-y divide-border text-sm">
-            {products.map((p) => (
-              <li key={p.id} className="flex justify-between py-2">
-                <Link href={`/admin/products/${p.id}`} className="hover:text-wine">{p.name}</Link>
-                <span className="text-muted-foreground">{p.sku}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <CollectionProductsEditor
+        collectionId={collection.id}
+        collectionSlug={collection.slug}
+        initialProducts={products}
+      />
     </div>
   )
 }
