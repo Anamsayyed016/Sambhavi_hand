@@ -1,11 +1,22 @@
 'use client'
 
+import Image from 'next/image'
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Product } from '@prisma/client'
 import { ProductAvailability } from '@prisma/client'
 import { slugify } from '@/lib/admin/format'
 import { Button } from '@/components/ui/button'
+
+const PRODUCT_UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif'
+const PRODUCT_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+
+function parseGalleryLines(raw: string): string[] {
+  return raw
+    .split(/[\n,]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
 
 type CollectionOption = { slug: string; name: string }
 
@@ -101,6 +112,61 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
   const [message, setMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
   const [isPending, startTransition] = useTransition()
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  function applyUploadedImageUrl(url: string) {
+    setForm((prev) => {
+      const gallery = parseGalleryLines(prev.images)
+      const primary = prev.image.trim()
+
+      if (!primary) {
+        const nextGallery = gallery.includes(url) ? gallery : [...gallery, url]
+        return { ...prev, image: url, images: nextGallery.join('\n') }
+      }
+
+      if (primary === url || gallery.includes(url)) {
+        return prev
+      }
+
+      return { ...prev, images: [...gallery, url].join('\n') }
+    })
+  }
+
+  async function uploadProductImage(file: File) {
+    if (!PRODUCT_UPLOAD_TYPES.has(file.type)) {
+      setUploadError('Invalid file type. Use JPG, PNG, WebP, or GIF.')
+      return
+    }
+
+    setUploading(true)
+    setUploadError(null)
+    try {
+      const body = new FormData()
+      body.append('file', file)
+      body.append('folder', 'sambhavi/products')
+      body.append('purpose', 'product')
+      const res = await fetch('/api/admin/media/upload', {
+        method: 'POST',
+        body,
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setUploadError(typeof data.error === 'string' ? data.error : 'Image upload failed.')
+        return
+      }
+      const url = typeof data.url === 'string' ? data.url.trim() : ''
+      if (!url) {
+        setUploadError('Upload succeeded but no image URL was returned.')
+        return
+      }
+      applyUploadedImageUrl(url)
+    } catch {
+      setUploadError('Image upload failed. Existing images were not changed.')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const categoryOptions = useMemo(() => {
     const set = new Set(categories)
@@ -484,27 +550,58 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       <section className="rounded-md border border-border bg-[#faf8f4] p-5">
         <h2 className="font-medium">Images</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Use existing public paths (e.g. /images/product-silk.png). File upload storage comes in a
-          later phase.
+          Upload to Cloudflare R2, or paste an existing public path / URL. Existing Cloudinary and
+          local paths keep working.
         </p>
         <div className="mt-4 grid gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="inline-flex cursor-pointer items-center rounded-md border border-border bg-white px-3 py-2 text-sm hover:bg-beige/50">
+              <input
+                type="file"
+                accept={PRODUCT_UPLOAD_ACCEPT}
+                className="sr-only"
+                disabled={uploading || isPending || status === 'saving'}
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) void uploadProductImage(file)
+                  e.target.value = ''
+                }}
+              />
+              {uploading ? 'Uploading…' : 'Upload Image'}
+            </label>
+            <p className="text-xs text-muted-foreground">
+              First upload sets the main image when empty; later uploads add to the gallery.
+            </p>
+          </div>
+          {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
           <div>
             <label className={labelClass} htmlFor="image">
-              Main image path
+              Main image path / URL
             </label>
             <input
               id="image"
               className={fieldClass}
               value={form.image}
               onChange={(e) => update('image', e.target.value)}
-              placeholder="/images/product-silk.png"
+              placeholder="/images/product-silk.png or https://…"
               required
             />
             {err('image') ? <p className="mt-1 text-xs text-destructive">{err('image')}</p> : null}
+            {form.image.trim() ? (
+              <div className="relative mt-3 aspect-[3/4] w-full max-w-xs overflow-hidden rounded-md border border-border bg-beige">
+                <Image
+                  src={form.image.trim()}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="320px"
+                />
+              </div>
+            ) : null}
           </div>
           <div>
             <label className={labelClass} htmlFor="images">
-              Additional images (one path per line)
+              Additional images (one path / URL per line)
             </label>
             <textarea
               id="images"
