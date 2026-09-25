@@ -163,6 +163,13 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'navratri-collection',
     groupSlug: 'festive-edition',
   },
+  {
+    name: 'vinayaka Pure Dola Silk Softy Fully Jari Jaqurad',
+    /** Canonical route: /collections/vinayaka-pure-dola-silk-softy-fully-jari-jaqurad */
+    slug: 'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad',
+    parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
 ]
 
 export function nameToSlug(name: string): string {

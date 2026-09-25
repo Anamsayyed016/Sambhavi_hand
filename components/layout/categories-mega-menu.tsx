@@ -20,31 +20,6 @@ function isActiveHref(pathname: string | null, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-function CategoryLinkLabel({
-  category,
-  active = false,
-  compact = false,
-}: {
-  category: SareeCategory
-  active?: boolean
-  compact?: boolean
-}) {
-  return (
-    <span
-      className={cn(
-        'font-sans leading-snug tracking-[0.03em] transition-colors duration-200',
-        compact ? 'text-[0.875rem]' : 'text-[0.9375rem]',
-        category.prominent
-          ? 'font-medium text-charcoal/90'
-          : 'font-normal text-charcoal/70',
-        active && 'text-primary',
-      )}
-    >
-      {category.name}
-    </span>
-  )
-}
-
 function NavCategoryLink({
   category,
   onNavigate,
@@ -65,25 +40,31 @@ function NavCategoryLink({
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'group/link relative flex min-w-0 items-start gap-2.5 py-1 transition-transform duration-200 ease-out',
-        'hover:translate-x-1',
-        nested && 'pl-0.5',
-        active && 'translate-x-1',
+        'group/link relative flex min-w-0 items-baseline gap-2 py-[0.28rem] transition-colors duration-150',
+        nested ? 'pl-0.5' : '',
       )}
     >
       <span
         aria-hidden
         className={cn(
-          'mt-[0.55rem] h-px w-0 shrink-0 bg-gold/80 transition-all duration-200',
-          'group-hover/link:w-3',
-          active && 'w-3 bg-primary',
+          'mt-[0.55em] h-px w-0 shrink-0 bg-gold/75 transition-all duration-150',
+          'group-hover/link:w-2.5',
+          active && 'w-2.5 bg-primary',
         )}
       />
-      <CategoryLinkLabel
-        category={category}
-        active={active}
-        compact={nested}
-      />
+      <span
+        className={cn(
+          'font-sans leading-snug tracking-[0.02em] transition-colors duration-150',
+          nested ? 'text-[0.8125rem]' : 'text-[0.875rem]',
+          category.prominent
+            ? 'font-medium text-charcoal/88'
+            : 'font-normal text-charcoal/68',
+          'group-hover/link:text-primary',
+          active && 'text-primary',
+        )}
+      >
+        {category.name}
+      </span>
     </Link>
   )
 }
@@ -102,42 +83,40 @@ function CategoryLinks({
   const products = useMemo(() => getStorefrontProducts(), [])
 
   return (
-    <ul className={cn('flex flex-col gap-1', className)}>
+    <ul className={cn('flex flex-col gap-0', className)}>
       {categories.map((category) => {
         const children = getVisibleNavChildCategories(category.slug, products)
         const isNavratri = category.slug === NAVRATRI_SLUG
 
         if (isNavratri && children.length > 0) {
           return (
-            <li key={category.slug} className="mt-1 space-y-3 pt-1">
-              <div className="space-y-2.5">
-                <Link
-                  href={`/collections/${category.slug}`}
-                  onClick={onNavigate}
-                  aria-current={
-                    isActiveHref(pathname, `/collections/${category.slug}`)
-                      ? 'page'
-                      : undefined
-                  }
-                  className="group/navratri inline-flex flex-col gap-2"
+            <li key={category.slug} className="mt-1.5 space-y-2 pt-1">
+              <Link
+                href={`/collections/${category.slug}`}
+                onClick={onNavigate}
+                aria-current={
+                  isActiveHref(pathname, `/collections/${category.slug}`)
+                    ? 'page'
+                    : undefined
+                }
+                className="group/navratri inline-flex flex-col gap-1.5"
+              >
+                <span
+                  className={cn(
+                    'font-sans text-[0.65rem] font-medium uppercase tracking-[0.2em] text-wine/80 transition-colors duration-150',
+                    'group-hover/navratri:text-primary',
+                    isActiveHref(pathname, `/collections/${category.slug}`) &&
+                      'text-primary',
+                  )}
                 >
-                  <span
-                    className={cn(
-                      'font-sans text-[0.6875rem] font-medium uppercase tracking-[0.22em] text-wine/75 transition-colors duration-200',
-                      'group-hover/navratri:text-primary',
-                      isActiveHref(pathname, `/collections/${category.slug}`) &&
-                        'text-primary',
-                    )}
-                  >
-                    Navratri Collection
-                  </span>
-                  <span
-                    aria-hidden
-                    className="h-px w-10 bg-gradient-to-r from-gold/70 to-transparent"
-                  />
-                </Link>
-              </div>
-              <ul className="space-y-1.5 border-l border-gold/25 pl-3.5">
+                  Navratri Collection
+                </span>
+                <span
+                  aria-hidden
+                  className="h-px w-9 bg-gradient-to-r from-gold/65 to-transparent"
+                />
+              </Link>
+              <ul className="space-y-0 border-l border-gold/20 pl-3">
                 {children.map((child) => (
                   <li key={child.slug}>
                     <NavCategoryLink
@@ -161,7 +140,7 @@ function CategoryLinks({
               pathname={pathname}
             />
             {children.length > 0 ? (
-              <ul className="mt-1.5 space-y-1 border-l border-border/45 pl-3.5">
+              <ul className="mt-0.5 space-y-0 border-l border-border/40 pl-3">
                 {children.map((child) => (
                   <li key={child.slug}>
                     <NavCategoryLink
@@ -184,29 +163,23 @@ function CategoryLinks({
 function GroupHeading({
   group,
   onNavigate,
-  variant = 'default',
   pathname,
 }: {
   group: CategoryGroup
   onNavigate?: () => void
-  variant?: 'primary' | 'default'
   pathname: string | null
 }) {
   const href = `/collections/${group.slug}`
   const active = isActiveHref(pathname, href)
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <Link
         href={href}
         onClick={onNavigate}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'inline-block font-serif uppercase transition-colors duration-200 hover:text-primary',
-          variant === 'primary' &&
-            'text-[1.35rem] tracking-[0.14em] text-wine md:text-[1.5rem]',
-          variant === 'default' &&
-            'text-[1.05rem] tracking-[0.16em] text-wine/90 md:text-[1.15rem]',
+          'inline-block font-serif text-[0.9375rem] uppercase tracking-[0.14em] text-wine/90 transition-colors duration-150 hover:text-primary md:text-[1rem]',
           active && 'text-primary',
         )}
       >
@@ -214,10 +187,7 @@ function GroupHeading({
       </Link>
       <span
         aria-hidden
-        className={cn(
-          'block h-px bg-gradient-to-r from-gold/55 via-gold/20 to-transparent',
-          variant === 'primary' ? 'w-16' : 'w-12',
-        )}
+        className="block h-px w-11 bg-gradient-to-r from-gold/60 via-gold/25 to-transparent"
       />
     </div>
   )
@@ -294,12 +264,15 @@ export function CategoriesMegaMenu({
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((v) => !v)}
-        className="group relative inline-flex items-center gap-1.5 text-nav text-foreground transition-colors hover:text-primary"
+        className={cn(
+          'group relative inline-flex items-center gap-1.5 text-nav transition-colors duration-150 hover:text-primary',
+          open ? 'text-primary' : 'text-foreground',
+        )}
       >
         Categories
         <ChevronDown
           className={cn(
-            'size-3.5 transition-transform duration-300',
+            'size-3.5 transition-transform duration-200',
             open && 'rotate-180',
           )}
           strokeWidth={1.5}
@@ -307,7 +280,7 @@ export function CategoriesMegaMenu({
         />
         <span
           className={cn(
-            'absolute -bottom-1 left-0 h-px bg-accent transition-all duration-300',
+            'absolute -bottom-1 left-0 h-px bg-accent transition-all duration-200',
             open ? 'w-full' : 'w-0 group-hover:w-full',
           )}
         />
@@ -317,33 +290,42 @@ export function CategoriesMegaMenu({
         {open ? (
           <motion.div
             key="categories-mega-menu"
-            initial={{ opacity: 0, y: -8 }}
+            role="navigation"
+            aria-label="Product categories"
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-1/2 top-full z-40 mt-2 w-max max-w-[min(96vw,72rem)] -translate-x-1/2 rounded-sm border border-border/30 bg-ivory/98 shadow-[0_24px_48px_-24px_rgba(40,28,24,0.18)] backdrop-blur-sm lg:z-[49]"
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className={cn(
+              'absolute left-1/2 top-full z-40 mt-3 -translate-x-1/2',
+              'w-max max-w-[min(94vw,56rem)]',
+              'rounded-md border border-border/40 bg-ivory/98',
+              'shadow-[0_18px_40px_-22px_rgba(40,28,24,0.28)]',
+              'backdrop-blur-sm lg:z-[49]',
+            )}
             onMouseEnter={openMenu}
             onMouseLeave={scheduleClose}
           >
-            <div className="max-h-[85vh] overflow-y-auto overscroll-contain px-6 py-6 md:px-7 md:py-7">
-              <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10 xl:gap-12">
-                <div className="shrink-0 space-y-4 border-border/35 lg:border-r lg:pr-9">
+            <div className="max-h-[min(78vh,34rem)] overflow-y-auto overscroll-contain px-5 py-5 md:px-6 md:py-5">
+              <div className="flex flex-col gap-7 md:flex-row md:items-start md:gap-8 lg:gap-10">
+                <div className="min-w-[10.5rem] shrink-0 space-y-3 border-border/30 md:border-r md:pr-7">
                   <GroupHeading
                     group={primaryGroup}
                     onNavigate={closeMenu}
-                    variant="primary"
                     pathname={pathname}
                   />
                   <CategoryLinks
                     categories={primaryGroup.categories}
                     onNavigate={closeMenu}
                     pathname={pathname}
-                    className="sm:grid sm:grid-cols-2 sm:items-start sm:gap-x-8 sm:gap-y-0.5"
                   />
                 </div>
 
                 {secondaryGroups.map((group) => (
-                  <div key={group.slug} className="w-max max-w-[22rem] shrink-0 space-y-3.5">
+                  <div
+                    key={group.slug}
+                    className="min-w-[12rem] max-w-[20rem] shrink-0 space-y-3"
+                  >
                     <GroupHeading
                       group={group}
                       onNavigate={closeMenu}
