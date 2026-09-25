@@ -109,7 +109,7 @@ export const products: Product[] = [
     price: 7999,
     image: 'https://res.cloudinary.com/tcjtyr02/image/upload/v1787740181/5.png',
     images: ['https://res.cloudinary.com/tcjtyr02/image/upload/v1787740181/5.png'],
-    category: 'Chanderi',
+    category: 'Digital Print',
     collections: ['cotton-handloom', 'festive-collection'],
     fabric: 'Chanderi Silk-Cotton',
     weave: 'Handwoven with buti motifs',

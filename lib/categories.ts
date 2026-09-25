@@ -43,7 +43,6 @@ const groupDefs: {
       'Kota Handloom',
       'Banarasi',
       'Kanjivaram / Kanchipuram',
-      'Chanderi',
       'Maheshwari',
       'Paithani',
       'Patola',
@@ -211,20 +210,43 @@ export const nestedCategories: SareeCategory[] = nestedCategoryDefs.map((def) =>
   toCategory(def.name, def.groupSlug, def.parentSlug, def.slug),
 )
 
+/**
+ * Retired taxonomy — still resolves `/collections/[slug]` so old links do not 404,
+ * but excluded from nav groups and Admin categoryNames.
+ */
+const retiredCategoryDefs: Array<{
+  name: string
+  slug: string
+  groupSlug: string
+}> = [
+  {
+    name: 'Chanderi',
+    slug: 'chanderi',
+    groupSlug: 'handloom-powerloom',
+  },
+]
+
+export const retiredCategories: SareeCategory[] = retiredCategoryDefs.map((def) =>
+  toCategory(def.name, def.groupSlug, undefined, def.slug),
+)
+
 /** Flat list of all browseable categories including nested sub-categories. */
 export const sareeCategories: SareeCategory[] = [
   ...categoryGroups.flatMap((g) => g.categories),
   ...nestedCategories,
+  ...retiredCategories,
 ]
 
 /**
- * Canonical Admin + storefront category labels.
+ * Canonical Admin + storefront category labels (active taxonomy only).
  * Includes group names marked showEmptyCategories so the parent catalog
  * (e.g. Summer Collection) is assignable alongside its leaf categories.
+ * Retired categories (e.g. Chanderi) are intentionally omitted.
  */
 export const categoryNames = Array.from(
   new Set([
-    ...sareeCategories.map((c) => c.name),
+    ...categoryGroups.flatMap((g) => g.categories.map((c) => c.name)),
+    ...nestedCategories.map((c) => c.name),
     ...categoryGroups.filter((g) => g.showEmptyCategories).map((g) => g.name),
   ]),
 )

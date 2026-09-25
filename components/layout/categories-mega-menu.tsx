@@ -317,24 +317,17 @@ export function CategoriesMegaMenu({
         {open ? (
           <motion.div
             key="categories-mega-menu"
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-x-0 top-[4.5rem] z-40 border-b border-border/30 bg-ivory/98 shadow-[0_24px_48px_-24px_rgba(40,28,24,0.18)] backdrop-blur-sm md:top-[5.625rem] lg:z-[49]"
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute left-1/2 top-full z-40 mt-2 w-max max-w-[min(96vw,72rem)] -translate-x-1/2 rounded-sm border border-border/30 bg-ivory/98 shadow-[0_24px_48px_-24px_rgba(40,28,24,0.18)] backdrop-blur-sm lg:z-[49]"
             onMouseEnter={openMenu}
             onMouseLeave={scheduleClose}
           >
-            <div className="mx-auto max-h-[85vh] max-w-7xl overflow-y-auto overscroll-contain px-6 py-7 md:px-8 md:py-8">
-              <div
-                className={cn(
-                  'grid items-start gap-8 lg:gap-x-10 xl:gap-x-12',
-                  secondaryGroups.length > 0
-                    ? 'lg:grid-cols-[minmax(0,1.85fr)_repeat(auto-fit,minmax(11rem,1fr))]'
-                    : 'lg:grid-cols-1',
-                )}
-              >
-                <div className="space-y-5 border-border/35 lg:border-r lg:pr-9">
+            <div className="max-h-[85vh] overflow-y-auto overscroll-contain px-6 py-6 md:px-7 md:py-7">
+              <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10 xl:gap-12">
+                <div className="shrink-0 space-y-4 border-border/35 lg:border-r lg:pr-9">
                   <GroupHeading
                     group={primaryGroup}
                     onNavigate={closeMenu}
@@ -350,7 +343,7 @@ export function CategoriesMegaMenu({
                 </div>
 
                 {secondaryGroups.map((group) => (
-                  <div key={group.slug} className="space-y-4">
+                  <div key={group.slug} className="w-max max-w-[22rem] shrink-0 space-y-3.5">
                     <GroupHeading
                       group={group}
                       onNavigate={closeMenu}
