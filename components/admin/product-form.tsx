@@ -1,8 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useLayoutEffect, useMemo, useState, useTransition } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import type { Product } from '@prisma/client'
 import { ProductAvailability } from '@prisma/client'
 import { slugify } from '@/lib/admin/format'
@@ -111,12 +111,44 @@ const fieldClass =
   'mt-1.5 w-full rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30'
 const labelClass = 'text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground'
 
+function emptyFormState(): FormState {
+  return toFormState(undefined)
+}
+
+/**
+ * Soft-navigation identity boundary for Add Product.
+ * A distinct client host + per-mount key forces a fresh ProductForm so edit-page
+ * state cannot leak into /admin/products/new (RSC keys alone are not reliable).
+ */
+export function ProductCreateFormHost({
+  categories,
+  collections,
+}: {
+  categories: string[]
+  collections: CollectionOption[]
+}) {
+  const [mountKey] = useState(() => `product-create-${crypto.randomUUID()}`)
+  return (
+    <ProductForm
+      key={mountKey}
+      mode="create"
+      categories={categories}
+      collections={collections}
+    />
+  )
+}
+
 export function ProductForm({ mode, product, categories, collections }: ProductFormProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  // Route is the source of truth — never treat /products/new as edit.
+  const isCreateRoute = pathname === '/admin/products/new' || pathname?.endsWith('/products/new')
+  const isCreate = mode === 'create' || isCreateRoute
+
   const [form, setForm] = useState<FormState>(() =>
-    mode === 'create' ? toFormState(undefined) : toFormState(product),
+    isCreate ? emptyFormState() : toFormState(product),
   )
-  const [slugTouched, setSlugTouched] = useState(mode === 'edit')
+  const [slugTouched, setSlugTouched] = useState(!isCreate)
   const [collectionsTouched, setCollectionsTouched] = useState(false)
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [message, setMessage] = useState<string | null>(null)
@@ -124,20 +156,22 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
   const [isPending, startTransition] = useTransition()
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  // Blocks Chrome autofill from writing prior product values before the user focuses a field.
+  const [autofillGate, setAutofillGate] = useState(isCreate)
 
-  // Hard isolation: create never inherits edit/product state; edit remounts per product id via page key.
-  useEffect(() => {
-    if (mode === 'create') {
-      setForm(toFormState(undefined))
+  useLayoutEffect(() => {
+    if (isCreate) {
+      setForm(emptyFormState())
       setSlugTouched(false)
       setCollectionsTouched(false)
       setStatus('idle')
       setMessage(null)
       setFieldErrors({})
       setUploadError(null)
+      setAutofillGate(true)
       return
     }
-    if (mode === 'edit' && product) {
+    if (product) {
       setForm(toFormState(product))
       setSlugTouched(true)
       setCollectionsTouched(false)
@@ -145,8 +179,9 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       setMessage(null)
       setFieldErrors({})
       setUploadError(null)
+      setAutofillGate(false)
     }
-  }, [mode, product?.id])
+  }, [isCreate, pathname, product?.id])
 
   const categoryOptions = useMemo(() => {
     const set = new Set<string>([...categoryNames, ...categories])
@@ -162,6 +197,10 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
     const rest = form.images.filter((u) => u !== primary)
     return primary ? [primary, ...rest] : rest
   }, [form.image, form.images])
+
+  function unlockAutofillGate() {
+    if (autofillGate) setAutofillGate(false)
+  }
 
   function applyUploadedImageUrls(urls: string[]) {
     if (urls.length === 0) return
@@ -309,16 +348,49 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
 
     // Create always sends collections. Edit only sends when the client changed them —
     // otherwise PATCH omits the field and existing Product.collections is preserved.
-    if (mode === 'create' || collectionsTouched) {
+    if (isCreate || collectionsTouched) {
       payload.collections = form.collections
     }
 
     startTransition(async () => {
       try {
-        const url =
-          mode === 'create' ? '/api/admin/products' : `/api/admin/products/${product!.id}`
-        const res = await fetch(url, {
-          method: mode === 'create' ? 'POST' : 'PATCH',
+        if (isCreate) {
+          const res = await fetch('/api/admin/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+          const data = await res.json().catch(() => ({}))
+
+          if (!res.ok) {
+            setStatus('error')
+            if (data.issues?.fieldErrors) {
+              setFieldErrors(data.issues.fieldErrors)
+            }
+            setMessage(data.error ?? 'Unable to save product.')
+            return
+          }
+
+          setStatus('saved')
+          setMessage('Product created')
+          setCollectionsTouched(false)
+          if (data.product?.id) {
+            router.push(`/admin/products/${data.product.id}`)
+            router.refresh()
+            return
+          }
+          router.refresh()
+          return
+        }
+
+        if (!product?.id) {
+          setStatus('error')
+          setMessage('Missing product id for edit.')
+          return
+        }
+
+        const res = await fetch(`/api/admin/products/${product.id}`, {
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         })
@@ -334,13 +406,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
         }
 
         setStatus('saved')
-        setMessage(mode === 'create' ? 'Product created' : 'Saved')
+        setMessage('Saved')
         setCollectionsTouched(false)
-        if (mode === 'create' && data.product?.id) {
-          router.push(`/admin/products/${data.product.id}`)
-          router.refresh()
-          return
-        }
         router.refresh()
       } catch {
         setStatus('error')
@@ -360,13 +427,13 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       onSubmit={onSubmit}
       className="space-y-8"
       autoComplete="off"
-      data-form-type={mode === 'create' ? 'product-create' : 'product-edit'}
+      data-form-type={isCreate ? 'product-create' : 'product-edit'}
       data-lpignore="true"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            {mode === 'create' ? 'Add Product' : 'Edit Product'}
+            {isCreate ? 'Add Product' : 'Edit Product'}
             {' · '}
             {status === 'saving' || isPending
               ? 'Saving…'
@@ -394,7 +461,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
           <Button type="submit" disabled={busy}>
             {isPending || status === 'saving'
               ? 'Saving…'
-              : mode === 'create'
+              : isCreate
                 ? 'Save Product'
                 : 'Save changes'}
           </Button>
@@ -412,6 +479,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
               id="name"
               name="product_name_new"
               autoComplete="off"
+              readOnly={autofillGate}
+              onFocus={unlockAutofillGate}
               className={fieldClass}
               value={form.name}
               onChange={(e) => update('name', e.target.value)}
@@ -427,6 +496,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
               id="sku"
               name="product_sku_new"
               autoComplete="off"
+              readOnly={autofillGate}
+              onFocus={unlockAutofillGate}
               className={fieldClass}
               value={form.sku}
               onChange={(e) => update('sku', e.target.value)}
@@ -442,6 +513,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
               id="slug"
               name="product_slug_new"
               autoComplete="off"
+              readOnly={autofillGate}
+              onFocus={unlockAutofillGate}
               className={fieldClass}
               value={form.slug}
               onChange={(e) => {
@@ -460,6 +533,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
               id="description"
               name="product_description_new"
               autoComplete="off"
+              readOnly={autofillGate}
+              onFocus={unlockAutofillGate}
               className={`${fieldClass} min-h-28`}
               value={form.description}
               onChange={(e) => update('description', e.target.value)}
@@ -537,7 +612,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
             )
           })}
         </div>
-        {mode === 'edit' && !collectionsTouched ? (
+        {!isCreate && !collectionsTouched ? (
           <p className="mt-3 text-xs text-muted-foreground">
             Collections unchanged — saving other fields will keep the current memberships.
           </p>
@@ -716,6 +791,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
                   id="image"
                   name="product_main_image_url"
                   autoComplete="off"
+                  readOnly={autofillGate}
+                  onFocus={unlockAutofillGate}
                   className={fieldClass}
                   value={form.image}
                   onChange={(e) => update('image', e.target.value)}
@@ -731,6 +808,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
                   id="images"
                   name="product_gallery_urls"
                   autoComplete="off"
+                  readOnly={autofillGate}
+                  onFocus={unlockAutofillGate}
                   className={`${fieldClass} min-h-24 font-mono text-xs`}
                   value={form.images.join('\n')}
                   onChange={(e) =>

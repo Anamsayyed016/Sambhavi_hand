@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getProductFilterOptions } from '@/lib/admin/products'
-import { ProductForm } from '@/components/admin/product-form'
+import { ProductCreateFormHost } from '@/components/admin/product-form'
 import { AdminEmptyState } from '@/components/admin/empty-state'
 
 export const dynamic = 'force-dynamic'
@@ -29,9 +29,8 @@ export default async function NewProductPage() {
           Create a new catalog product in the Sambhavi database.
         </p>
       </div>
-      <ProductForm
-        key="admin-product-create"
-        mode="create"
+      {/* Distinct client host — Soft Nav must not reuse Edit ProductForm state. */}
+      <ProductCreateFormHost
         categories={filters.categories}
         collections={filters.collections}
       />
