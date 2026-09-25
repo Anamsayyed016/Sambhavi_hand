@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import type { Product } from '@prisma/client'
-import { Eye, Pencil, Archive } from 'lucide-react'
+import { Eye, Pencil, Archive, Copy } from 'lucide-react'
 import { formatDate, formatINR } from '@/lib/admin/format'
 import { Button } from '@/components/ui/button'
 
@@ -214,6 +214,14 @@ export function ProductTable({ products }: { products: Product[] }) {
                       aria-label="Edit"
                     >
                       <Pencil />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      render={<Link href={`/admin/products/${product.id}/duplicate`} />}
+                      aria-label="Duplicate product"
+                    >
+                      <Copy />
                     </Button>
                     <Button
                       variant="ghost"

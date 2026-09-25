@@ -29,10 +29,20 @@ export default async function EditProductPage({ params }: Params) {
         <Link href="/admin/products" className="text-xs text-muted-foreground hover:text-wine">
           ← Products
         </Link>
-        <h1 className="mt-2 font-serif text-3xl text-charcoal">Edit Product</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {product.name} · {product.sku}
-        </p>
+        <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="font-serif text-3xl text-charcoal">Edit Product</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {product.name} · {product.sku}
+            </p>
+          </div>
+          <Link
+            href={`/admin/products/${product.id}/duplicate`}
+            className="inline-flex items-center rounded-md border border-border bg-white px-3 py-2 text-sm font-medium text-charcoal hover:border-wine/30 hover:text-wine"
+          >
+            Duplicate Product
+          </Link>
+        </div>
       </div>
       <ProductForm
         key={`admin-product-edit-${product.id}`}

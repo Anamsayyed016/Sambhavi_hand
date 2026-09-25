@@ -16,7 +16,7 @@ const MAX_GALLERY = 12
 type CollectionOption = { slug: string; name: string }
 
 type ProductFormProps = {
-  mode: 'create' | 'edit'
+  mode: 'create' | 'edit' | 'duplicate'
   product?: Product
   categories: string[]
   collections: CollectionOption[]
@@ -115,6 +115,35 @@ function emptyFormState(): FormState {
   return toFormState(undefined)
 }
 
+/** Prefill from a source product for Duplicate — never copies id/sku/slug; stock resets to 0. */
+function toDuplicateFormState(product: Product): FormState {
+  const images = dedupeUrls(
+    product.images.length > 0 ? product.images : product.image ? [product.image] : [],
+  )
+  return {
+    name: product.name,
+    slug: '',
+    sku: '',
+    description: product.description,
+    price: String(product.price),
+    originalPrice: product.originalPrice != null ? String(product.originalPrice) : '',
+    image: product.image ?? '',
+    images,
+    category: product.category,
+    collections: [...product.collections],
+    fabric: product.fabric,
+    weave: product.weave,
+    length: product.length,
+    blouse: product.blouse,
+    care: product.care,
+    availability: product.availability,
+    stock: '0',
+    active: true,
+    featured: product.featured,
+    isNew: product.isNew,
+  }
+}
+
 /**
  * Soft-navigation identity boundary for Add Product.
  * A distinct client host + per-mount key forces a fresh ProductForm so edit-page
@@ -138,18 +167,54 @@ export function ProductCreateFormHost({
   )
 }
 
+/**
+ * Soft-navigation identity boundary for Duplicate Product.
+ * Loads only the explicitly requested source product as a POST template.
+ */
+export function ProductDuplicateFormHost({
+  product,
+  categories,
+  collections,
+}: {
+  product: Product
+  categories: string[]
+  collections: CollectionOption[]
+}) {
+  const [mountKey] = useState(
+    () => `product-duplicate-${product.id}-${crypto.randomUUID()}`,
+  )
+  return (
+    <ProductForm
+      key={mountKey}
+      mode="duplicate"
+      product={product}
+      categories={categories}
+      collections={collections}
+    />
+  )
+}
+
 export function ProductForm({ mode, product, categories, collections }: ProductFormProps) {
   const router = useRouter()
-  const pathname = usePathname()
-  // Route is the source of truth — never treat /products/new as edit.
-  const isCreateRoute = pathname === '/admin/products/new' || pathname?.endsWith('/products/new')
-  const isCreate = mode === 'create' || isCreateRoute
+  const pathname = usePathname() ?? ''
 
-  const [form, setForm] = useState<FormState>(() =>
-    isCreate ? emptyFormState() : toFormState(product),
-  )
-  const [slugTouched, setSlugTouched] = useState(!isCreate)
-  const [collectionsTouched, setCollectionsTouched] = useState(false)
+  const isBlankCreate =
+    mode === 'create' ||
+    pathname === '/admin/products/new' ||
+    pathname.endsWith('/products/new')
+  const isDuplicate =
+    mode === 'duplicate' || /\/admin\/products\/[^/]+\/duplicate\/?$/.test(pathname)
+  // Blank create must never load product data — even if a product prop is somehow present.
+  const isEdit = !isBlankCreate && !isDuplicate && mode === 'edit'
+  const usesPost = isBlankCreate || isDuplicate
+
+  const [form, setForm] = useState<FormState>(() => {
+    if (isBlankCreate) return emptyFormState()
+    if (isDuplicate && product) return toDuplicateFormState(product)
+    return toFormState(product)
+  })
+  const [slugTouched, setSlugTouched] = useState(isDuplicate || isEdit)
+  const [collectionsTouched, setCollectionsTouched] = useState(isDuplicate)
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [message, setMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
@@ -157,10 +222,10 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   // Blocks Chrome autofill from writing prior product values before the user focuses a field.
-  const [autofillGate, setAutofillGate] = useState(isCreate)
+  const [autofillGate, setAutofillGate] = useState(isBlankCreate)
 
   useLayoutEffect(() => {
-    if (isCreate) {
+    if (isBlankCreate) {
       setForm(emptyFormState())
       setSlugTouched(false)
       setCollectionsTouched(false)
@@ -171,7 +236,18 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       setAutofillGate(true)
       return
     }
-    if (product) {
+    if (isDuplicate && product) {
+      setForm(toDuplicateFormState(product))
+      setSlugTouched(true)
+      setCollectionsTouched(true)
+      setStatus('idle')
+      setMessage(null)
+      setFieldErrors({})
+      setUploadError(null)
+      setAutofillGate(false)
+      return
+    }
+    if (isEdit && product) {
       setForm(toFormState(product))
       setSlugTouched(true)
       setCollectionsTouched(false)
@@ -181,7 +257,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       setUploadError(null)
       setAutofillGate(false)
     }
-  }, [isCreate, pathname, product?.id])
+  }, [isBlankCreate, isDuplicate, isEdit, pathname, product?.id])
 
   const categoryOptions = useMemo(() => {
     const set = new Set<string>([...categoryNames, ...categories])
@@ -346,15 +422,14 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       isNew: form.isNew,
     }
 
-    // Create always sends collections. Edit only sends when the client changed them —
-    // otherwise PATCH omits the field and existing Product.collections is preserved.
-    if (isCreate || collectionsTouched) {
+    // Create + duplicate always send collections. Edit only when intentionally changed.
+    if (usesPost || collectionsTouched) {
       payload.collections = form.collections
     }
 
     startTransition(async () => {
       try {
-        if (isCreate) {
+        if (usesPost) {
           const res = await fetch('/api/admin/products', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -372,7 +447,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
           }
 
           setStatus('saved')
-          setMessage('Product created')
+          setMessage(isDuplicate ? 'Similar product created' : 'Product created')
           setCollectionsTouched(false)
           if (data.product?.id) {
             router.push(`/admin/products/${data.product.id}`)
@@ -427,13 +502,19 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       onSubmit={onSubmit}
       className="space-y-8"
       autoComplete="off"
-      data-form-type={isCreate ? 'product-create' : 'product-edit'}
+      data-form-type={
+        isBlankCreate ? 'product-create' : isDuplicate ? 'product-duplicate' : 'product-edit'
+      }
       data-lpignore="true"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            {isCreate ? 'Add Product' : 'Edit Product'}
+            {isBlankCreate
+              ? 'Add Product'
+              : isDuplicate
+                ? 'Create Similar Product'
+                : 'Edit Product'}
             {' · '}
             {status === 'saving' || isPending
               ? 'Saving…'
@@ -443,6 +524,12 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
                   ? 'Error'
                   : 'Ready'}
           </p>
+          {isDuplicate ? (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Template from an existing product. Enter a new SKU and slug, then save to create a
+              new product — the original is not changed.
+            </p>
+          ) : null}
           {message ? (
             <p className={`mt-1 text-sm ${status === 'error' ? 'text-destructive' : 'text-muted-foreground'}`}>
               {message}
@@ -454,14 +541,20 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
             type="button"
             variant="outline"
             disabled={busy}
-            onClick={() => router.push('/admin/products')}
+            onClick={() =>
+              router.push(
+                isDuplicate && product?.id
+                  ? `/admin/products/${product.id}`
+                  : '/admin/products',
+              )
+            }
           >
             Cancel
           </Button>
           <Button type="submit" disabled={busy}>
             {isPending || status === 'saving'
               ? 'Saving…'
-              : isCreate
+              : usesPost
                 ? 'Save Product'
                 : 'Save changes'}
           </Button>
@@ -612,7 +705,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
             )
           })}
         </div>
-        {!isCreate && !collectionsTouched ? (
+        {isEdit && !collectionsTouched ? (
           <p className="mt-3 text-xs text-muted-foreground">
             Collections unchanged — saving other fields will keep the current memberships.
           </p>
