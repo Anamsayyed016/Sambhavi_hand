@@ -3,15 +3,9 @@ import { ProductAvailability } from '@prisma/client'
 
 export const productAvailabilitySchema = z.nativeEnum(ProductAvailability)
 
-export const productInputSchema = z.object({
+/** Business fields accepted from admin create/edit. SKU + slug are server-generated on create. */
+export const productBusinessFieldsSchema = z.object({
   name: z.string().trim().min(2, 'Name is required').max(200),
-  slug: z
-    .string()
-    .trim()
-    .min(2, 'Slug is required')
-    .max(200)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase kebab-case'),
-  sku: z.string().trim().min(2, 'SKU is required').max(80),
   description: z.string().trim().min(10, 'Description must be at least 10 characters').max(5000),
   price: z.coerce.number().int().min(1, 'Price must be at least ₹1'),
   originalPrice: z
@@ -34,9 +28,18 @@ export const productInputSchema = z.object({
   isNew: z.boolean().default(false),
 })
 
-export type ProductInput = z.infer<typeof productInputSchema>
+/** POST /api/admin/products — no client sku/slug. */
+export const productCreateSchema = productBusinessFieldsSchema
 
-export const productPatchSchema = productInputSchema.partial()
+export type ProductCreateInput = z.infer<typeof productCreateSchema>
+
+/** @deprecated Prefer productCreateSchema — kept as alias for create payload shape. */
+export const productInputSchema = productCreateSchema
+
+export type ProductInput = ProductCreateInput
+
+/** PATCH — partial business fields only; sku/slug are immutable. */
+export const productPatchSchema = productBusinessFieldsSchema.partial()
 
 export type ProductPatch = z.infer<typeof productPatchSchema>
 
@@ -79,4 +82,10 @@ export function parseCollectionsField(raw: unknown): string[] {
       .filter(Boolean)
   }
   return []
+}
+
+/** Strip client-supplied identifiers so POST/PATCH never trust them. */
+export function omitClientIdentifiers<T extends Record<string, unknown>>(body: T): Omit<T, 'sku' | 'slug'> {
+  const { sku: _sku, slug: _slug, ...rest } = body
+  return rest
 }

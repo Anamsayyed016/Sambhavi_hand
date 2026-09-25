@@ -9,6 +9,7 @@ import {
 } from '@/lib/admin/auth'
 import { archiveProduct, getProductById, updateProduct } from '@/lib/admin/products'
 import {
+  omitClientIdentifiers,
   parseCollectionsField,
   parseImagesField,
   productPatchSchema,
@@ -16,16 +17,8 @@ import {
 
 type Params = { params: Promise<{ id: string }> }
 
-function uniqueConstraintMessage(error: Prisma.PrismaClientKnownRequestError): string {
-  const target = error.meta?.target
-  const fields = Array.isArray(target) ? target.map(String) : typeof target === 'string' ? [target] : []
-  if (fields.some((f) => f.includes('sku'))) {
-    return 'SKU already exists. Please use a different SKU.'
-  }
-  if (fields.some((f) => f.includes('slug'))) {
-    return 'This product URL already exists. Please choose another slug.'
-  }
-  return 'A product with this slug or SKU already exists. Please choose a different value.'
+function uniqueConstraintMessage(_error: Prisma.PrismaClientKnownRequestError): string {
+  return 'Unable to save product. Please try again.'
 }
 
 function validationFailedMessage(flatten: {
@@ -71,7 +64,7 @@ export async function PATCH(request: Request, { params }: Params) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    const body = await request.json()
+    const body = omitClientIdentifiers(await request.json())
     const prepared = {
       ...body,
       ...(body.images !== undefined ? { images: parseImagesField(body.images) } : {}),

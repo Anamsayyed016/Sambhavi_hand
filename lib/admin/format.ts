@@ -19,6 +19,10 @@ export function slugify(value: string): string {
   return value
     .toLowerCase()
     .trim()
+    .normalize('NFKD')
+    // Drop diacritics / combining marks after NFKD (keeps a-z from accented letters).
+    .replace(/[\u0300-\u036f]/g, '')
+    // Keep letters, digits, spaces, hyphens only (strips emoji & punctuation).
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')

@@ -1,7 +1,11 @@
 import { Prisma, ProductAvailability, ProductStatus, type Product } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import type { ProductInput, ProductPatch } from '@/lib/admin/validation'
+import type { ProductCreateInput, ProductPatch } from '@/lib/admin/validation'
 import { dedupeImageUrls } from '@/lib/admin/validation'
+import {
+  generateUniqueProductSku,
+  generateUniqueProductSlug,
+} from '@/lib/admin/product-identifiers'
 import { categoryNames } from '@/lib/categories'
 import {
   activeMirrorForStatus,
@@ -109,45 +113,67 @@ export async function getProductById(id: string): Promise<Product | null> {
   return prisma.product.findUnique({ where: { id } })
 }
 
-export async function createProduct(data: ProductInput): Promise<Product> {
+export async function createProduct(data: ProductCreateInput): Promise<Product> {
   // Preserve current UX: create as ACTIVE unless explicitly deactivated (maps to ARCHIVED).
   const status = statusFromActiveFlag(data.active)
   const images = dedupeImageUrls(
     data.images.length ? data.images : data.image ? [data.image] : [],
   )
-  return prisma.product.create({
-    data: {
-      name: data.name,
-      slug: data.slug,
-      sku: data.sku,
-      description: data.description,
-      price: data.price,
-      originalPrice: data.originalPrice,
-      image: data.image,
-      images: images.length ? images : [data.image],
-      category: data.category,
-      collections: data.collections,
-      fabric: data.fabric,
-      weave: data.weave,
-      length: data.length,
-      blouse: data.blouse,
-      care: data.care,
-      availability: data.availability,
-      stock: data.stock,
-      status,
-      active: activeMirrorForStatus(status),
-      featured: data.featured,
-      isNew: data.isNew,
-    },
-  })
+  const imageList = images.length ? images : [data.image]
+
+  const maxAttempts = 5
+  let lastError: unknown
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const slug = await generateUniqueProductSlug(data.name)
+    const sku = await generateUniqueProductSku(data.name)
+
+    try {
+      return await prisma.product.create({
+        data: {
+          name: data.name,
+          slug,
+          sku,
+          description: data.description,
+          price: data.price,
+          originalPrice: data.originalPrice,
+          image: data.image,
+          images: imageList,
+          category: data.category,
+          collections: data.collections,
+          fabric: data.fabric,
+          weave: data.weave,
+          length: data.length,
+          blouse: data.blouse,
+          care: data.care,
+          availability: data.availability,
+          stock: data.stock,
+          status,
+          active: activeMirrorForStatus(status),
+          featured: data.featured,
+          isNew: data.isNew,
+        },
+      })
+    } catch (error) {
+      lastError = error
+      // Concurrent create race on unique sku/slug — regenerate and retry.
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        continue
+      }
+      throw error
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('Unable to create product with unique SKU and slug.')
 }
 
 export async function updateProduct(id: string, data: ProductPatch): Promise<Product> {
   const patch: Prisma.ProductUpdateInput = {}
 
   if (data.name !== undefined) patch.name = data.name
-  if (data.slug !== undefined) patch.slug = data.slug
-  if (data.sku !== undefined) patch.sku = data.sku
+  // SKU and slug are immutable after create — never apply from PATCH.
   if (data.description !== undefined) patch.description = data.description
   if (data.price !== undefined) patch.price = data.price
   if (data.originalPrice !== undefined) patch.originalPrice = data.originalPrice

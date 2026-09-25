@@ -41,9 +41,8 @@ export default async function DuplicateProductPage({ params }: Params) {
         </p>
         <h1 className="mt-1 font-serif text-3xl text-charcoal">Duplicate Product</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Template from <span className="font-medium text-charcoal">{product.name}</span>. Enter a
-          new SKU and slug, adjust images if needed, then save — a new product is created; the
-          original is unchanged.
+          Template from <span className="font-medium text-charcoal">{product.name}</span>. Adjust
+          details if needed, then save — a new product is created; the original is unchanged.
         </p>
       </div>
       <ProductDuplicateFormHost

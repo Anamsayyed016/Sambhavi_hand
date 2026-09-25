@@ -4,11 +4,10 @@ import { ProductAvailability } from '@prisma/client'
 /**
  * Plain JSON template for Duplicate Product form.
  * Safe across RSC → client boundary (no Prisma Decimal / class instances).
+ * SKU and slug are omitted — generated server-side on save.
  */
 export type ProductDuplicateInitial = {
   name: string
-  slug: string
-  sku: string
   description: string
   price: string
   originalPrice: string
@@ -50,8 +49,6 @@ export function buildDuplicateInitialForm(product: Product): ProductDuplicateIni
   )
   return {
     name: product.name,
-    slug: '',
-    sku: '',
     description: product.description ?? '',
     price: String(product.price),
     originalPrice: product.originalPrice != null ? String(product.originalPrice) : '',

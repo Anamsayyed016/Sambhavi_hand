@@ -5,11 +5,10 @@ import { useLayoutEffect, useMemo, useState, useTransition } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import type { Product } from '@prisma/client'
 import { ProductAvailability } from '@prisma/client'
-import { slugify } from '@/lib/admin/format'
 import {
   parseCollectionsField,
   parseImagesField,
-  productInputSchema,
+  productCreateSchema,
 } from '@/lib/admin/validation'
 import {
   buildDuplicateInitialForm,
@@ -26,8 +25,6 @@ type CollectionOption = { slug: string; name: string }
 
 type FormState = {
   name: string
-  slug: string
-  sku: string
   description: string
   price: string
   originalPrice: string
@@ -72,8 +69,6 @@ function toFormState(product?: Product): FormState {
   if (!product) {
     return {
       name: '',
-      slug: '',
-      sku: '',
       description: '',
       price: '',
       originalPrice: '',
@@ -96,8 +91,6 @@ function toFormState(product?: Product): FormState {
 
   return {
     name: product.name,
-    slug: product.slug,
-    sku: product.sku,
     description: product.description,
     price: String(product.price),
     originalPrice: product.originalPrice != null ? String(product.originalPrice) : '',
@@ -217,7 +210,6 @@ export function ProductForm({
     if (product) return toFormState(product)
     return emptyFormState()
   })
-  const [slugTouched, setSlugTouched] = useState(() => isDuplicate || isEdit)
   const [collectionsTouched, setCollectionsTouched] = useState(() => isDuplicate)
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [message, setMessage] = useState<string | null>(null)
@@ -243,7 +235,6 @@ export function ProductForm({
       } else {
         return
       }
-      setSlugTouched(true)
       setCollectionsTouched(true)
       setStatus('idle')
       setMessage(null)
@@ -254,7 +245,6 @@ export function ProductForm({
     }
     if (isBlankCreate) {
       setForm(emptyFormState())
-      setSlugTouched(false)
       setCollectionsTouched(false)
       setStatus('idle')
       setMessage(null)
@@ -265,7 +255,6 @@ export function ProductForm({
     }
     if (isEdit && product) {
       setForm(toFormState(product))
-      setSlugTouched(true)
       setCollectionsTouched(false)
       setStatus('idle')
       setMessage(null)
@@ -383,13 +372,7 @@ export function ProductForm({
   }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((prev) => {
-      const next = { ...prev, [key]: value }
-      if (key === 'name' && !slugTouched) {
-        next.slug = slugify(String(value))
-      }
-      return next
-    })
+    setForm((prev) => ({ ...prev, [key]: value }))
     setStatus('idle')
     setMessage(null)
   }
@@ -418,8 +401,6 @@ export function ProductForm({
 
     const payload: Record<string, unknown> = {
       name: form.name,
-      slug: form.slug,
-      sku: form.sku,
       description: form.description,
       price: form.price === '' ? undefined : Number(form.price),
       originalPrice: form.originalPrice === '' ? null : Number(form.originalPrice),
@@ -443,9 +424,9 @@ export function ProductForm({
       payload.collections = form.collections
     }
 
-    // Same schema as POST /api/admin/products — surface field errors before the network call.
+    // Same business schema as POST /api/admin/products (SKU/slug generated server-side).
     if (usesPost) {
-      const clientParsed = productInputSchema.safeParse({
+      const clientParsed = productCreateSchema.safeParse({
         ...payload,
         images: parseImagesField(payload.images),
         collections: parseCollectionsField(payload.collections ?? []),
@@ -571,8 +552,8 @@ export function ProductForm({
           </p>
           {isDuplicate ? (
             <p className="mt-1 text-xs text-muted-foreground">
-              Template from an existing product. Enter a new SKU and slug, then save to create a
-              new product — the original is not changed.
+              Template from an existing product. Adjust details if needed, then save — a new
+              product is created; the original is not changed.
             </p>
           ) : null}
           {message ? (
@@ -625,43 +606,6 @@ export function ProductForm({
               required
             />
             {err('name') ? <p className="mt-1 text-xs text-destructive">{err('name')}</p> : null}
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="sku">
-              SKU
-            </label>
-            <input
-              id="sku"
-              name="product_sku_new"
-              autoComplete="off"
-              readOnly={autofillGate}
-              onFocus={unlockAutofillGate}
-              className={fieldClass}
-              value={form.sku}
-              onChange={(e) => update('sku', e.target.value)}
-              required
-            />
-            {err('sku') ? <p className="mt-1 text-xs text-destructive">{err('sku')}</p> : null}
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="slug">
-              Slug (product URL)
-            </label>
-            <input
-              id="slug"
-              name="product_slug_new"
-              autoComplete="off"
-              readOnly={autofillGate}
-              onFocus={unlockAutofillGate}
-              className={fieldClass}
-              value={form.slug}
-              onChange={(e) => {
-                setSlugTouched(true)
-                update('slug', e.target.value)
-              }}
-              required
-            />
-            {err('slug') ? <p className="mt-1 text-xs text-destructive">{err('slug')}</p> : null}
           </div>
           <div className="md:col-span-2">
             <label className={labelClass} htmlFor="description">
