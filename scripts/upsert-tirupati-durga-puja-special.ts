@@ -9,6 +9,25 @@ const prisma = new PrismaClient()
 const IMAGE =
   'https://res.cloudinary.com/tcjtyr02/image/upload/v1790243072/file_00000000436c821197f216240f4cd1d4.png'
 
+const EXTRA_IMAGES = [
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790243073/IMG-20260924-WA0137.jpg',
+  'https://res.cloudinary.com/tcjtyr02/image/upload/v1790243074/IMG-20260924-WA0131.jpg',
+] as const
+
+/** Primary first, then extras — no duplicates. */
+function buildGallery(existing: string[] | undefined): string[] {
+  const out: string[] = []
+  const seen = new Set<string>()
+  for (const url of [IMAGE, ...(existing ?? []), ...EXTRA_IMAGES]) {
+    if (!url || seen.has(url)) continue
+    seen.add(url)
+    out.push(url)
+  }
+  // Ensure primary stays first even if existing had a different order.
+  const withoutPrimary = out.filter((url) => url !== IMAGE)
+  return [IMAGE, ...withoutPrimary]
+}
+
 const DESCRIPTION = [
   'Saree Fabric - Plain Linen',
   '',
@@ -58,10 +77,26 @@ async function main() {
   })
 
   const existing = await prisma.product.findUnique({ where: { slug: SLUG } })
+  const images = buildGallery(existing?.images)
 
-  const product = await prisma.product.upsert({
-    where: { slug: SLUG },
-    create: {
+  // Gallery-only update path when product already exists — preserve other fields.
+  if (existing) {
+    const product = await prisma.product.update({
+      where: { slug: SLUG },
+      data: {
+        image: existing.image || IMAGE,
+        images,
+      },
+    })
+    console.log(`Tirupati Durga Puja Special gallery updated: ${product.id}`)
+    console.log(`  primary: ${product.image}`)
+    console.log(`  gallery (${product.images.length}):`)
+    for (const url of product.images) console.log(`    - ${url}`)
+    return
+  }
+
+  const product = await prisma.product.create({
+    data: {
       slug: SLUG,
       sku: 'SH-TIRUPATI-DURGA-01',
       name: PRODUCT_NAME,
@@ -69,7 +104,7 @@ async function main() {
       price: 1560,
       originalPrice: null,
       image: IMAGE,
-      images: [IMAGE],
+      images,
       category: CATEGORY_NAME,
       collections: [SLUG, 'navratri-collection'],
       fabric: 'Plain Linen',
@@ -83,34 +118,15 @@ async function main() {
       active: true,
       featured: false,
     },
-    update: {
-      name: PRODUCT_NAME,
-      description: DESCRIPTION,
-      price: 1560,
-      originalPrice: null,
-      image: IMAGE,
-      images: [IMAGE],
-      category: CATEGORY_NAME,
-      collections: [SLUG, 'navratri-collection'],
-      fabric: 'Plain Linen',
-      weave: 'Digital Print',
-      length: '6.30 Meter (With Digital Blouse)',
-      blouse: 'Plain Linen with Digital Print',
-      care: '',
-      availability: ProductAvailability.IN_STOCK,
-      isNew: true,
-      active: true,
-    },
   })
 
-  console.log(
-    `Tirupati Durga Puja Special ${existing ? 'updated' : 'created'}: ${product.id}`,
-  )
+  console.log(`Tirupati Durga Puja Special created: ${product.id}`)
   console.log(`  slug: ${product.slug}`)
   console.log(`  category: ${product.category}`)
-  console.log(`  collections: ${product.collections.join(', ')}`)
   console.log(`  price: ₹${product.price.toLocaleString('en-IN')}`)
   console.log(`  primary: ${product.image}`)
+  console.log(`  gallery (${product.images.length}):`)
+  for (const url of product.images) console.log(`    - ${url}`)
 }
 
 main()
