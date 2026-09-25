@@ -27,16 +27,24 @@ function CollectionCover({
 }) {
   if (isValidCoverImageUrl(image)) {
     return (
-      <Image src={image} alt="" fill className="object-cover" sizes="80px" />
+      <Image
+        src={image}
+        alt={name}
+        fill
+        className="object-cover"
+        sizes="72px"
+      />
     )
   }
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-0.5 bg-beige px-1 text-center">
-      <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+    <div
+      className="flex h-full w-full items-center justify-center bg-beige px-2 text-center"
+      aria-hidden="true"
+    >
+      <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
         No image
-      </p>
-      <p className="line-clamp-2 text-[9px] text-muted-foreground/80">{name}</p>
+      </span>
     </div>
   )
 }
@@ -90,19 +98,26 @@ export default async function CollectionsPage({
     withCounts.sort((a, b) => a.productCount - b.productCount || a.name.localeCompare(b.name))
   }
 
+  const filtered = Boolean(q || active !== 'all')
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-serif text-3xl text-charcoal">Collections</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-5">
+        <div className="max-w-xl">
+          <h1 className="font-serif text-3xl tracking-tight text-charcoal md:text-[2.15rem]">
+            Collections
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Manage catalog collections used across the store.
+          </p>
+          <p className="mt-1.5 text-xs tracking-wide text-muted-foreground/80">
             {withCounts.length} collection{withCounts.length === 1 ? '' : 's'}
-            {q || active !== 'all' ? ' matching filters' : ' in catalog'}
+            {filtered ? ' matching filters' : ''}
           </p>
         </div>
         <Link
           href="/admin/collections/new"
-          className="rounded-md bg-wine px-3 py-2 text-sm text-primary-foreground"
+          className="inline-flex items-center rounded-md bg-wine px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-wine/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           Add Collection
         </Link>
@@ -112,17 +127,17 @@ export default async function CollectionsPage({
 
       {withCounts.length === 0 ? (
         <AdminEmptyState
-          title={q || active !== 'all' ? 'No collections match' : 'No collections yet'}
+          title={filtered ? 'No collections match' : 'No collections yet'}
           description={
-            q || active !== 'all'
+            filtered
               ? 'Try a different search or filter.'
-              : 'Create your first collection.'
+              : 'Create your first collection to organize products.'
           }
           action={
-            !(q || active !== 'all') ? (
+            !filtered ? (
               <Link
                 href="/admin/collections/new"
-                className="rounded-md bg-wine px-3 py-2 text-sm text-primary-foreground"
+                className="inline-flex items-center rounded-md bg-wine px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-wine/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 Add Collection
               </Link>
@@ -130,41 +145,102 @@ export default async function CollectionsPage({
           }
         />
       ) : (
-        <div className="overflow-x-auto rounded-md border border-border bg-[#faf8f4]">
-          <table className="min-w-[720px] w-full text-sm">
-            <thead className="border-b border-border bg-beige/50 text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 text-left">Collection</th>
-                <th className="px-4 py-3 text-left">Slug</th>
-                <th className="px-4 py-3 text-left">Products</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Updated</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {withCounts.map((c) => (
-                <tr key={c.id} className="hover:bg-beige/30">
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/collections/${c.id}`}
-                      className="flex items-center gap-3 hover:text-wine"
-                    >
-                      <span className="relative size-12 shrink-0 overflow-hidden rounded bg-beige">
-                        <CollectionCover image={c.image} name={c.name} />
-                      </span>
-                      <span className="font-medium">{c.name}</span>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{c.slug}</td>
-                  <td className="px-4 py-3">
-                    {c.productCount} product{c.productCount === 1 ? '' : 's'}
-                  </td>
-                  <td className="px-4 py-3">{c.active ? 'Active' : 'Inactive'}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{formatDate(c.updatedAt)}</td>
+        <div className="overflow-hidden rounded-md border border-border/80 bg-[#faf8f4] shadow-[0_1px_0_rgba(40,30,20,0.04)]">
+          <div className="overflow-x-auto">
+            <table className="min-w-[680px] w-full text-sm">
+              <thead>
+                <tr className="border-b border-border/80 bg-beige/40">
+                  <th className="px-5 py-3.5 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    Collection
+                  </th>
+                  <th className="hidden px-4 py-3.5 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground lg:table-cell">
+                    Slug
+                  </th>
+                  <th className="px-4 py-3.5 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    Products
+                  </th>
+                  <th className="px-4 py-3.5 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    Status
+                  </th>
+                  <th className="hidden px-4 py-3.5 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:table-cell">
+                    Updated
+                  </th>
+                  <th className="px-5 py-3.5 text-right text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    <span className="sr-only">Actions</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-border/70">
+                {withCounts.map((c) => (
+                  <tr
+                    key={c.id}
+                    className="group transition-colors hover:bg-beige/25"
+                  >
+                    <td className="px-5 py-4">
+                      <Link
+                        href={`/admin/collections/${c.id}`}
+                        className="flex items-center gap-4 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <span className="relative size-[72px] shrink-0 overflow-hidden rounded-md border border-border/70 bg-beige shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)]">
+                          <CollectionCover image={c.image} name={c.name} />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block font-serif text-[1.05rem] leading-snug tracking-tight text-charcoal transition-colors group-hover:text-wine">
+                            {c.name}
+                          </span>
+                          <span className="mt-1 block truncate font-sans text-xs tracking-wide text-muted-foreground lg:hidden">
+                            {c.slug}
+                          </span>
+                        </span>
+                      </Link>
+                    </td>
+                    <td className="hidden px-4 py-4 align-middle lg:table-cell">
+                      <span className="font-mono text-xs tracking-wide text-muted-foreground">
+                        {c.slug}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 align-middle">
+                      <span className="inline-flex items-center rounded-full border border-border/80 bg-white/70 px-2.5 py-1 text-xs font-medium tabular-nums text-charcoal/80">
+                        {c.productCount} product{c.productCount === 1 ? '' : 's'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 align-middle">
+                      {c.active ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-wine/10 px-2.5 py-1 text-xs font-medium text-wine">
+                          <span
+                            className="size-1.5 rounded-full bg-wine"
+                            aria-hidden="true"
+                          />
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                          <span
+                            className="size-1.5 rounded-full bg-muted-foreground/50"
+                            aria-hidden="true"
+                          />
+                          Inactive
+                        </span>
+                      )}
+                    </td>
+                    <td className="hidden px-4 py-4 align-middle sm:table-cell">
+                      <span className="text-xs tabular-nums text-muted-foreground">
+                        {formatDate(c.updatedAt)}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 align-middle text-right">
+                      <Link
+                        href={`/admin/collections/${c.id}`}
+                        className="inline-flex items-center rounded-md border border-transparent px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-border hover:bg-white hover:text-wine focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        Edit
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
