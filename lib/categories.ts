@@ -200,7 +200,7 @@ const nestedCategoryDefs: Array<{
     groupSlug: 'handloom-powerloom',
   },
   {
-    name: 'KCS Mangalagiri pure Handloom orginal pattu by cotton (orginal Handloom pattu sarees)',
+    name: 'KCS Mangalagiri pure Handloom orginal pattu by cotton',
     /** Canonical route: /collections/kcs-mangalagiri-pure-handloom-orginal-pattu-by-cotton */
     slug: 'kcs-mangalagiri-pure-handloom-orginal-pattu-by-cotton',
     parentSlug: 'kcs-collection',

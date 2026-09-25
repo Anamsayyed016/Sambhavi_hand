@@ -128,8 +128,7 @@ export async function generateMetadata({
 
   if (category?.slug === 'kcs-mangalagiri-pure-handloom-orginal-pattu-by-cotton') {
     return {
-      title:
-        'KCS Mangalagiri pure Handloom orginal pattu by cotton (orginal Handloom pattu sarees) | Sambhavi Handloom',
+      title: 'KCS Mangalagiri pure Handloom orginal pattu by cotton | Sambhavi Handloom',
       description:
         'Explore KCS Mangalagiri pure Handloom orginal pattu by cotton sarees from the KCS Collection by Sambhavi Handloom.',
     }
