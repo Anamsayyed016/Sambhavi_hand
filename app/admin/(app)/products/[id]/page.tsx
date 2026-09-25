@@ -29,7 +29,7 @@ export default async function EditProductPage({ params }: Params) {
         <Link href="/admin/products" className="text-xs text-muted-foreground hover:text-wine">
           ← Products
         </Link>
-        <h1 className="mt-2 font-serif text-3xl text-charcoal">Edit product</h1>
+        <h1 className="mt-2 font-serif text-3xl text-charcoal">Edit Product</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {product.name} · {product.sku}
         </p>

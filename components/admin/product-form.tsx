@@ -6,17 +6,12 @@ import { useRouter } from 'next/navigation'
 import type { Product } from '@prisma/client'
 import { ProductAvailability } from '@prisma/client'
 import { slugify } from '@/lib/admin/format'
+import { categoryNames } from '@/lib/categories'
 import { Button } from '@/components/ui/button'
 
 const PRODUCT_UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif'
 const PRODUCT_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-
-function parseGalleryLines(raw: string): string[] {
-  return raw
-    .split(/[\n,]/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-}
+const MAX_GALLERY = 12
 
 type CollectionOption = { slug: string; name: string }
 
@@ -35,7 +30,7 @@ type FormState = {
   price: string
   originalPrice: string
   image: string
-  images: string
+  images: string[]
   category: string
   collections: string[]
   fabric: string
@@ -50,6 +45,18 @@ type FormState = {
   isNew: boolean
 }
 
+function dedupeUrls(urls: string[]): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const raw of urls) {
+    const url = raw.trim()
+    if (!url || seen.has(url)) continue
+    seen.add(url)
+    out.push(url)
+  }
+  return out
+}
+
 function toFormState(product?: Product): FormState {
   if (!product) {
     return {
@@ -60,7 +67,7 @@ function toFormState(product?: Product): FormState {
       price: '',
       originalPrice: '',
       image: '',
-      images: '',
+      images: [],
       category: '',
       collections: [],
       fabric: '',
@@ -84,7 +91,7 @@ function toFormState(product?: Product): FormState {
     price: String(product.price),
     originalPrice: product.originalPrice != null ? String(product.originalPrice) : '',
     image: product.image,
-    images: product.images.join('\n'),
+    images: dedupeUrls(product.images),
     category: product.category,
     collections: product.collections,
     fabric: product.fabric,
@@ -108,6 +115,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
   const router = useRouter()
   const [form, setForm] = useState<FormState>(() => toFormState(product))
   const [slugTouched, setSlugTouched] = useState(mode === 'edit')
+  const [collectionsTouched, setCollectionsTouched] = useState(false)
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [message, setMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
@@ -115,52 +123,77 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
-  function applyUploadedImageUrl(url: string) {
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>([...categoryNames, ...categories])
+    if (form.category.trim()) set.add(form.category.trim())
+    return Array.from(set).sort((a, b) => a.localeCompare(b))
+  }, [categories, form.category])
+
+  const isNonCanonicalCategory =
+    Boolean(form.category.trim()) && !categoryNames.includes(form.category.trim())
+
+  const galleryUrls = useMemo(() => {
+    const primary = form.image.trim()
+    const rest = form.images.filter((u) => u !== primary)
+    return primary ? [primary, ...rest] : rest
+  }, [form.image, form.images])
+
+  function applyUploadedImageUrls(urls: string[]) {
+    if (urls.length === 0) return
     setForm((prev) => {
-      const gallery = parseGalleryLines(prev.images)
-      const primary = prev.image.trim()
+      let primary = prev.image.trim()
+      let gallery = dedupeUrls(prev.images)
 
-      if (!primary) {
-        const nextGallery = gallery.includes(url) ? gallery : [...gallery, url]
-        return { ...prev, image: url, images: nextGallery.join('\n') }
+      for (const url of urls) {
+        if (!primary) {
+          primary = url
+          if (!gallery.includes(url)) gallery = [...gallery, url]
+          continue
+        }
+        if (primary === url || gallery.includes(url)) continue
+        if (gallery.length >= MAX_GALLERY) continue
+        gallery = [...gallery, url]
       }
 
-      if (primary === url || gallery.includes(url)) {
-        return prev
-      }
-
-      return { ...prev, images: [...gallery, url].join('\n') }
+      return { ...prev, image: primary, images: gallery }
     })
   }
 
-  async function uploadProductImage(file: File) {
-    if (!PRODUCT_UPLOAD_TYPES.has(file.type)) {
-      setUploadError('Invalid file type. Use JPG, PNG, WebP, or GIF.')
-      return
-    }
+  async function uploadProductImages(files: FileList | File[]) {
+    const list = Array.from(files)
+    if (list.length === 0) return
 
     setUploading(true)
     setUploadError(null)
+    const uploaded: string[] = []
     try {
-      const body = new FormData()
-      body.append('file', file)
-      body.append('folder', 'sambhavi/products')
-      body.append('purpose', 'product')
-      const res = await fetch('/api/admin/media/upload', {
-        method: 'POST',
-        body,
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        setUploadError(typeof data.error === 'string' ? data.error : 'Image upload failed.')
-        return
+      for (const file of list) {
+        if (!PRODUCT_UPLOAD_TYPES.has(file.type)) {
+          setUploadError('Invalid file type. Use JPG, PNG, WebP, or GIF.')
+          continue
+        }
+
+        const body = new FormData()
+        body.append('file', file)
+        body.append('folder', 'sambhavi/products')
+        body.append('purpose', 'product')
+        const res = await fetch('/api/admin/media/upload', {
+          method: 'POST',
+          body,
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          setUploadError(typeof data.error === 'string' ? data.error : 'Image upload failed.')
+          break
+        }
+        const url = typeof data.url === 'string' ? data.url.trim() : ''
+        if (!url) {
+          setUploadError('Upload succeeded but no image URL was returned.')
+          break
+        }
+        uploaded.push(url)
       }
-      const url = typeof data.url === 'string' ? data.url.trim() : ''
-      if (!url) {
-        setUploadError('Upload succeeded but no image URL was returned.')
-        return
-      }
-      applyUploadedImageUrl(url)
+      applyUploadedImageUrls(uploaded)
     } catch {
       setUploadError('Image upload failed. Existing images were not changed.')
     } finally {
@@ -168,11 +201,30 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
     }
   }
 
-  const categoryOptions = useMemo(() => {
-    const set = new Set(categories)
-    if (form.category) set.add(form.category)
-    return Array.from(set).sort()
-  }, [categories, form.category])
+  function setAsMain(url: string) {
+    setForm((prev) => {
+      const gallery = dedupeUrls([url, ...prev.images.filter((u) => u !== url), prev.image])
+      return { ...prev, image: url, images: gallery }
+    })
+  }
+
+  function removeImage(url: string) {
+    setForm((prev) => {
+      const primary = prev.image.trim()
+      const gallery = prev.images.filter((u) => u !== url)
+
+      if (primary === url) {
+        const nextPrimary = gallery[0] ?? ''
+        return {
+          ...prev,
+          image: nextPrimary,
+          images: gallery.filter((u) => u !== nextPrimary),
+        }
+      }
+
+      return { ...prev, images: gallery }
+    })
+  }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => {
@@ -187,6 +239,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
   }
 
   function toggleCollection(slug: string) {
+    setCollectionsTouched(true)
     setForm((prev) => ({
       ...prev,
       collections: prev.collections.includes(slug)
@@ -201,7 +254,13 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
     setMessage(null)
     setFieldErrors({})
 
-    const payload = {
+    const images = dedupeUrls(
+      form.image.trim()
+        ? [form.image.trim(), ...form.images.filter((u) => u !== form.image.trim())]
+        : form.images,
+    )
+
+    const payload: Record<string, unknown> = {
       name: form.name,
       slug: form.slug,
       sku: form.sku,
@@ -209,9 +268,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       price: Number(form.price),
       originalPrice: form.originalPrice === '' ? null : Number(form.originalPrice),
       image: form.image,
-      images: form.images,
+      images,
       category: form.category,
-      collections: form.collections,
       fabric: form.fabric,
       weave: form.weave,
       length: form.length,
@@ -222,6 +280,12 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       active: form.active,
       featured: form.featured,
       isNew: form.isNew,
+    }
+
+    // Create always sends collections. Edit only sends when the client changed them —
+    // otherwise PATCH omits the field and existing Product.collections is preserved.
+    if (mode === 'create' || collectionsTouched) {
+      payload.collections = form.collections
     }
 
     startTransition(async () => {
@@ -246,6 +310,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
 
         setStatus('saved')
         setMessage(mode === 'create' ? 'Product created' : 'Saved')
+        setCollectionsTouched(false)
         if (mode === 'create' && data.product?.id) {
           router.push(`/admin/products/${data.product.id}`)
           router.refresh()
@@ -263,11 +328,15 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
     return fieldErrors[key]?.[0]
   }
 
+  const busy = isPending || status === 'saving' || uploading
+
   return (
     <form onSubmit={onSubmit} className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
+            {mode === 'create' ? 'Add Product' : 'Edit Product'}
+            {' · '}
             {status === 'saving' || isPending
               ? 'Saving…'
               : status === 'saved'
@@ -286,18 +355,23 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
           <Button
             type="button"
             variant="outline"
+            disabled={busy}
             onClick={() => router.push('/admin/products')}
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isPending || status === 'saving'}>
-            {isPending || status === 'saving' ? 'Saving…' : mode === 'create' ? 'Create product' : 'Save changes'}
+          <Button type="submit" disabled={busy}>
+            {isPending || status === 'saving'
+              ? 'Saving…'
+              : mode === 'create'
+                ? 'Save Product'
+                : 'Save changes'}
           </Button>
         </div>
       </div>
 
       <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-        <h2 className="font-medium">Basic information</h2>
+        <h2 className="font-medium">Product details</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className={labelClass} htmlFor="name">
@@ -313,8 +387,21 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
             {err('name') ? <p className="mt-1 text-xs text-destructive">{err('name')}</p> : null}
           </div>
           <div>
+            <label className={labelClass} htmlFor="sku">
+              SKU
+            </label>
+            <input
+              id="sku"
+              className={fieldClass}
+              value={form.sku}
+              onChange={(e) => update('sku', e.target.value)}
+              required
+            />
+            {err('sku') ? <p className="mt-1 text-xs text-destructive">{err('sku')}</p> : null}
+          </div>
+          <div>
             <label className={labelClass} htmlFor="slug">
-              Slug
+              Slug (product URL)
             </label>
             <input
               id="slug"
@@ -327,19 +414,6 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
               required
             />
             {err('slug') ? <p className="mt-1 text-xs text-destructive">{err('slug')}</p> : null}
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="sku">
-              SKU
-            </label>
-            <input
-              id="sku"
-              className={fieldClass}
-              value={form.sku}
-              onChange={(e) => update('sku', e.target.value)}
-              required
-            />
-            {err('sku') ? <p className="mt-1 text-xs text-destructive">{err('sku')}</p> : null}
           </div>
           <div className="md:col-span-2">
             <label className={labelClass} htmlFor="description">
@@ -360,11 +434,83 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       </section>
 
       <section className="rounded-md border border-border bg-[#faf8f4] p-5">
+        <h2 className="font-medium">Category</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Storefront category — where this product appears in the catalog taxonomy.
+        </p>
+        <div className="mt-4">
+          <label className={labelClass} htmlFor="category">
+            Category
+          </label>
+          <select
+            id="category"
+            className={fieldClass}
+            value={form.category}
+            onChange={(e) => update('category', e.target.value)}
+            required
+          >
+            <option value="" disabled>
+              Select category…
+            </option>
+            {categoryOptions.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          {isNonCanonicalCategory ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Current category: <span className="font-medium text-charcoal">{form.category}</span>
+              {' — '}not in the standard storefront list; preserved until you change it.
+            </p>
+          ) : null}
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            For Navratri sub-collections, choose <strong>CHHABILI</strong>, <strong>JOBANIYU</strong>,
+            or <strong>Lehenga Collection</strong>, then also toggle the matching collection below.
+          </p>
+          {err('category') ? <p className="mt-1 text-xs text-destructive">{err('category')}</p> : null}
+        </div>
+      </section>
+
+      <section className="rounded-md border border-border bg-[#faf8f4] p-5">
+        <h2 className="font-medium">Collections</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Optional explicit collections — separate from storefront category. Changing category does
+          not change these.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {collections.map((c) => {
+            const selected = form.collections.includes(c.slug)
+            return (
+              <button
+                key={c.slug}
+                type="button"
+                onClick={() => toggleCollection(c.slug)}
+                className={`rounded-md border px-3 py-1.5 text-sm ${
+                  selected
+                    ? 'border-wine/30 bg-wine/10 text-wine'
+                    : 'border-border bg-white text-charcoal hover:bg-beige/60'
+                }`}
+              >
+                {selected ? '✓ ' : ''}
+                {c.name}
+              </button>
+            )
+          })}
+        </div>
+        {mode === 'edit' && !collectionsTouched ? (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Collections unchanged — saving other fields will keep the current memberships.
+          </p>
+        ) : null}
+      </section>
+
+      <section className="rounded-md border border-border bg-[#faf8f4] p-5">
         <h2 className="font-medium">Pricing</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div>
             <label className={labelClass} htmlFor="price">
-              Price (INR)
+              Price (₹)
             </label>
             <input
               id="price"
@@ -401,7 +547,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div>
             <label className={labelClass} htmlFor="stock">
-              Stock
+              Stock quantity
             </label>
             <input
               id="stock"
@@ -430,86 +576,136 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
               ))}
             </select>
           </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.active}
-              onChange={(e) => update('active', e.target.checked)}
-            />
-            Active
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.featured}
-              onChange={(e) => update('featured', e.target.checked)}
-            />
-            Featured
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.isNew}
-              onChange={(e) => update('isNew', e.target.checked)}
-            />
-            New arrival
-          </label>
         </div>
       </section>
 
       <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-        <h2 className="font-medium">Categorization</h2>
-        <div className="mt-4 grid gap-4">
-          <div>
-            <label className={labelClass} htmlFor="category">
-              Category
+        <h2 className="font-medium">Product images</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Upload to Cloudflare R2 (up to {MAX_GALLERY} images). New uploads are added — existing
+          images stay until you remove them.
+        </p>
+        <div className="mt-4 space-y-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="inline-flex cursor-pointer items-center rounded-md border border-border bg-white px-3 py-2 text-sm hover:bg-beige/50">
+              <input
+                type="file"
+                accept={PRODUCT_UPLOAD_ACCEPT}
+                multiple
+                className="sr-only"
+                disabled={busy || galleryUrls.length >= MAX_GALLERY}
+                onChange={(e) => {
+                  const files = e.target.files
+                  if (files?.length) void uploadProductImages(files)
+                  e.target.value = ''
+                }}
+              />
+              {uploading ? 'Uploading…' : 'Upload Images'}
             </label>
-            <input
-              id="category"
-              list="category-options"
-              className={fieldClass}
-              value={form.category}
-              onChange={(e) => update('category', e.target.value)}
-              required
-            />
-            <datalist id="category-options">
-              {categoryOptions.map((c) => (
-                <option key={c} value={c} />
-              ))}
-            </datalist>
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              For Navratri sub-collection products, set Category to <strong>CHHABILI</strong>,{' '}
-              <strong>JOBANIYU</strong>, or <strong>Lehenga Collection</strong> and toggle the
-              matching collection chip below.
+            <p className="text-xs text-muted-foreground">
+              {galleryUrls.length}/{MAX_GALLERY} images
             </p>
           </div>
-          <div>
-            <p className={labelClass}>Collections</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {collections.map((c) => {
-                const selected = form.collections.includes(c.slug)
+          {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
+          {err('image') ? <p className="text-xs text-destructive">{err('image')}</p> : null}
+
+          {galleryUrls.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No images yet. Upload at least one.</p>
+          ) : (
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {galleryUrls.map((url) => {
+                const isMain = form.image.trim() === url
                 return (
-                  <button
-                    key={c.slug}
-                    type="button"
-                    onClick={() => toggleCollection(c.slug)}
-                    className={`rounded-md border px-3 py-1.5 text-sm ${
-                      selected
-                        ? 'border-wine/30 bg-wine/10 text-wine'
-                        : 'border-border bg-white text-charcoal hover:bg-beige/60'
-                    }`}
+                  <li
+                    key={url}
+                    className="overflow-hidden rounded-md border border-border bg-white"
                   >
-                    {c.name}
-                  </button>
+                    <div className="relative aspect-[3/4] bg-beige">
+                      <Image
+                        src={url}
+                        alt=""
+                        fill
+                        className="object-cover"
+                        sizes="160px"
+                      />
+                      {isMain ? (
+                        <span className="absolute left-2 top-2 rounded bg-wine px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary-foreground">
+                          Main
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="flex flex-wrap gap-1 p-2">
+                      {!isMain ? (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => setAsMain(url)}
+                          className="rounded border border-border px-2 py-1 text-[11px] hover:bg-beige/60"
+                        >
+                          Set as main
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => removeImage(url)}
+                        className="rounded border border-border px-2 py-1 text-[11px] text-destructive hover:bg-beige/60"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </li>
                 )
               })}
+            </ul>
+          )}
+
+          <details className="rounded-md border border-border/70 bg-white/60 p-3">
+            <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
+              Advanced: edit image URLs
+            </summary>
+            <div className="mt-3 space-y-3">
+              <div>
+                <label className={labelClass} htmlFor="image">
+                  Main image URL
+                </label>
+                <input
+                  id="image"
+                  className={fieldClass}
+                  value={form.image}
+                  onChange={(e) => update('image', e.target.value)}
+                  placeholder="https://…"
+                  required
+                />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="images">
+                  Gallery URLs (one per line)
+                </label>
+                <textarea
+                  id="images"
+                  className={`${fieldClass} min-h-24 font-mono text-xs`}
+                  value={form.images.join('\n')}
+                  onChange={(e) =>
+                    update(
+                      'images',
+                      dedupeUrls(
+                        e.target.value
+                          .split(/[\n,]/)
+                          .map((s) => s.trim())
+                          .filter(Boolean),
+                      ),
+                    )
+                  }
+                />
+              </div>
             </div>
-          </div>
+          </details>
         </div>
       </section>
 
       <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-        <h2 className="font-medium">Product details</h2>
+        <h2 className="font-medium">Fabric & care</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {(
             [
@@ -548,69 +744,35 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       </section>
 
       <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-        <h2 className="font-medium">Images</h2>
+        <h2 className="font-medium">Status</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Upload to Cloudflare R2, or paste an existing public path / URL. Existing Cloudinary and
-          local paths keep working.
+          Active products appear on the storefront. Uncheck to archive (hide from store).
         </p>
-        <div className="mt-4 grid gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="inline-flex cursor-pointer items-center rounded-md border border-border bg-white px-3 py-2 text-sm hover:bg-beige/50">
-              <input
-                type="file"
-                accept={PRODUCT_UPLOAD_ACCEPT}
-                className="sr-only"
-                disabled={uploading || isPending || status === 'saving'}
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) void uploadProductImage(file)
-                  e.target.value = ''
-                }}
-              />
-              {uploading ? 'Uploading…' : 'Upload Image'}
-            </label>
-            <p className="text-xs text-muted-foreground">
-              First upload sets the main image when empty; later uploads add to the gallery.
-            </p>
-          </div>
-          {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
-          <div>
-            <label className={labelClass} htmlFor="image">
-              Main image path / URL
-            </label>
+        <div className="mt-4 flex flex-wrap gap-6">
+          <label className="flex items-center gap-2 text-sm">
             <input
-              id="image"
-              className={fieldClass}
-              value={form.image}
-              onChange={(e) => update('image', e.target.value)}
-              placeholder="/images/product-silk.png or https://…"
-              required
+              type="checkbox"
+              checked={form.active}
+              onChange={(e) => update('active', e.target.checked)}
             />
-            {err('image') ? <p className="mt-1 text-xs text-destructive">{err('image')}</p> : null}
-            {form.image.trim() ? (
-              <div className="relative mt-3 aspect-[3/4] w-full max-w-xs overflow-hidden rounded-md border border-border bg-beige">
-                <Image
-                  src={form.image.trim()}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="320px"
-                />
-              </div>
-            ) : null}
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="images">
-              Additional images (one path / URL per line)
-            </label>
-            <textarea
-              id="images"
-              className={`${fieldClass} min-h-24 font-mono text-xs`}
-              value={form.images}
-              onChange={(e) => update('images', e.target.value)}
-              placeholder="/images/editorial-drape.png"
+            Active (storefront visible)
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.featured}
+              onChange={(e) => update('featured', e.target.checked)}
             />
-          </div>
+            Featured
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.isNew}
+              onChange={(e) => update('isNew', e.target.checked)}
+            />
+            New arrival
+          </label>
         </div>
       </section>
     </form>

@@ -42,15 +42,30 @@ export type ProductPatch = z.infer<typeof productPatchSchema>
 
 export function parseImagesField(raw: unknown): string[] {
   if (Array.isArray(raw)) {
-    return raw.map(String).map((s) => s.trim()).filter(Boolean)
+    return dedupeImageUrls(raw.map(String))
   }
   if (typeof raw === 'string') {
-    return raw
-      .split(/[\n,]/)
-      .map((s) => s.trim())
-      .filter(Boolean)
+    return dedupeImageUrls(
+      raw
+        .split(/[\n,]/)
+        .map((s) => s.trim())
+        .filter(Boolean),
+    )
   }
   return []
+}
+
+/** Preserve order; drop blank / duplicate URLs. */
+export function dedupeImageUrls(urls: string[]): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const raw of urls) {
+    const url = String(raw).trim()
+    if (!url || seen.has(url)) continue
+    seen.add(url)
+    out.push(url)
+  }
+  return out
 }
 
 export function parseCollectionsField(raw: unknown): string[] {

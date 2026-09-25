@@ -1,6 +1,7 @@
 import { Prisma, ProductAvailability, ProductStatus, type Product } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import type { ProductInput, ProductPatch } from '@/lib/admin/validation'
+import { dedupeImageUrls } from '@/lib/admin/validation'
 import { categoryNames } from '@/lib/categories'
 import {
   activeMirrorForStatus,
@@ -111,6 +112,9 @@ export async function getProductById(id: string): Promise<Product | null> {
 export async function createProduct(data: ProductInput): Promise<Product> {
   // Preserve current UX: create as ACTIVE unless explicitly deactivated (maps to ARCHIVED).
   const status = statusFromActiveFlag(data.active)
+  const images = dedupeImageUrls(
+    data.images.length ? data.images : data.image ? [data.image] : [],
+  )
   return prisma.product.create({
     data: {
       name: data.name,
@@ -120,7 +124,7 @@ export async function createProduct(data: ProductInput): Promise<Product> {
       price: data.price,
       originalPrice: data.originalPrice,
       image: data.image,
-      images: data.images.length ? data.images : [data.image],
+      images: images.length ? images : [data.image],
       category: data.category,
       collections: data.collections,
       fabric: data.fabric,
@@ -149,13 +153,15 @@ export async function updateProduct(id: string, data: ProductPatch): Promise<Pro
   if (data.originalPrice !== undefined) patch.originalPrice = data.originalPrice
   if (data.image !== undefined) patch.image = data.image
   if (data.images !== undefined) {
-    patch.images = data.images.length
-      ? data.images
+    const images = dedupeImageUrls(data.images)
+    patch.images = images.length
+      ? images
       : data.image
         ? [data.image]
         : undefined
   }
   if (data.category !== undefined) patch.category = data.category
+  // Omit collections from the patch when undefined so unrelated edits cannot wipe membership.
   if (data.collections !== undefined) patch.collections = data.collections
   if (data.fabric !== undefined) patch.fabric = data.fabric
   if (data.weave !== undefined) patch.weave = data.weave

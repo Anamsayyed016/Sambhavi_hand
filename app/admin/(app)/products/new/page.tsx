@@ -24,9 +24,9 @@ export default async function NewProductPage() {
         <Link href="/admin/products" className="text-xs text-muted-foreground hover:text-wine">
           ← Products
         </Link>
-        <h1 className="mt-2 font-serif text-3xl text-charcoal">Add product</h1>
+        <h1 className="mt-2 font-serif text-3xl text-charcoal">Add Product</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Create a catalog entry in the Sambhavi database.
+          Create a new catalog product in the Sambhavi database.
         </p>
       </div>
       <ProductForm

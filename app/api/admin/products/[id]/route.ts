@@ -16,6 +16,18 @@ import {
 
 type Params = { params: Promise<{ id: string }> }
 
+function uniqueConstraintMessage(error: Prisma.PrismaClientKnownRequestError): string {
+  const target = error.meta?.target
+  const fields = Array.isArray(target) ? target.map(String) : typeof target === 'string' ? [target] : []
+  if (fields.some((f) => f.includes('sku'))) {
+    return 'SKU already exists. Please use a different SKU.'
+  }
+  if (fields.some((f) => f.includes('slug'))) {
+    return 'This product URL already exists. Please choose another slug.'
+  }
+  return 'A product with this slug or SKU already exists. Please choose a different value.'
+}
+
 export async function GET(_request: Request, { params }: Params) {
   try {
     await requireAdminAccess()
@@ -71,10 +83,7 @@ export async function PATCH(request: Request, { params }: Params) {
     return NextResponse.json({ product })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return NextResponse.json(
-        { error: 'A product with this slug or SKU already exists' },
-        { status: 409 },
-      )
+      return NextResponse.json({ error: uniqueConstraintMessage(error) }, { status: 409 })
     }
     return adminAuthErrorResponse(error)
   }
