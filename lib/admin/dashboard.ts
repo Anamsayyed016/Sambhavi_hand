@@ -1,6 +1,6 @@
-import { OrderStatus, PaymentStatus, ProductAvailability } from '@prisma/client'
+import { OrderStatus, PaymentStatus, ProductAvailability, ProductStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { LOW_STOCK_THRESHOLD } from '@/lib/admin/products'
+import { LOW_STOCK_THRESHOLD } from '@/lib/admin/product-status'
 import { getCustomerCount } from '@/lib/admin/customers'
 import {
   getDailySeriesBetween,
@@ -79,14 +79,21 @@ async function sumPaidOrdersSince(since: Date) {
   return { revenue: agg._sum.total ?? 0, orders: count }
 }
 
-const lowStockWhere = {
-  active: true,
+const lowStockWhere: {
+  status: typeof ProductStatus.ACTIVE
+  availability: { not: typeof ProductAvailability.MADE_TO_ORDER }
+  OR: Array<
+    | { availability: typeof ProductAvailability.LOW_STOCK }
+    | { stock: { lte: number } }
+  >
+} = {
+  status: ProductStatus.ACTIVE,
   availability: { not: ProductAvailability.MADE_TO_ORDER },
   OR: [
     { availability: ProductAvailability.LOW_STOCK },
     { stock: { lte: LOW_STOCK_THRESHOLD } },
   ],
-} as const
+}
 
 export async function getDashboardStats(): Promise<DashboardStats> {
   const today = startOfToday()
@@ -120,7 +127,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     prisma.order.count({ where: realOrderWhere }),
     prisma.order.count({ where: paidOrderWhere }),
     prisma.product.count(),
-    prisma.product.count({ where: { active: true } }),
+    prisma.product.count({ where: { status: ProductStatus.ACTIVE } }),
     prisma.product.count({ where: lowStockWhere }),
     getCustomerCount(),
     prisma.order.count({ where: { status: OrderStatus.PENDING } }),

@@ -1,4 +1,4 @@
-import { ProductAvailability, type Product as DbProduct, type Prisma } from '@prisma/client'
+import { ProductAvailability, ProductStatus, type Product as DbProduct, type Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { isStorefrontProductVisible } from '@/lib/payment-test-mode'
 import type { Product } from '@/lib/products'
@@ -96,7 +96,7 @@ function buildSearchWhere(query: string, collectionSlugs: string[]): Prisma.Prod
   }
 
   return {
-    active: true,
+    status: ProductStatus.ACTIVE,
     OR: or,
   }
 }

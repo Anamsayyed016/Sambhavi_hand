@@ -1,6 +1,6 @@
 import { OrderStatus, PaymentStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { LOW_STOCK_THRESHOLD } from '@/lib/admin/products'
+import { LOW_STOCK_THRESHOLD } from '@/lib/admin/product-status'
 
 export type DateRangeKey =
   | 'today'
@@ -280,4 +280,4 @@ export async function getOrderStatusBreakdown() {
   return counts
 }
 
-export { LOW_STOCK_THRESHOLD }
+export { LOW_STOCK_THRESHOLD } from '@/lib/admin/product-status'

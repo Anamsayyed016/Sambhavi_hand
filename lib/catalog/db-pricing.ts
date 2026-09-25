@@ -1,11 +1,15 @@
 import { prisma } from '@/lib/prisma'
-import type { Product as DbProduct } from '@prisma/client'
+import { ProductStatus, type Product as DbProduct } from '@prisma/client'
 import { resolveCheckoutCoupon } from '@/lib/checkout/coupon'
 import { calculateOrderTotal, getShippingRules } from '@/lib/checkout/shipping'
 import { isStorefrontProductVisible, productOffersFreeShipping } from '@/lib/payment-test-mode'
 import type { Product } from '@/lib/products'
 import { getProduct, getStorefrontProducts, withCatalogCreatedAt } from '@/lib/products'
 import { mapDbProductToStorefront } from '@/lib/catalog/storefront-search'
+import {
+  isStorefrontSellableStatus,
+  storefrontActiveProductWhere,
+} from '@/lib/admin/product-status'
 
 export type DbProductPrice = {
   slug: string
@@ -14,6 +18,7 @@ export type DbProductPrice = {
   image: string
   category: string
   description: string
+  /** Compatibility: true only when status is ACTIVE. */
   active: boolean
 }
 
@@ -31,11 +36,24 @@ export async function getDbPricesBySlugs(slugs: string[]): Promise<Map<string, D
       image: true,
       category: true,
       description: true,
-      active: true,
+      status: true,
     },
   })
 
-  return new Map(rows.map((row) => [row.slug, row]))
+  return new Map(
+    rows.map((row) => [
+      row.slug,
+      {
+        slug: row.slug,
+        name: row.name,
+        price: row.price,
+        image: row.image,
+        category: row.category,
+        description: row.description,
+        active: isStorefrontSellableStatus(row.status),
+      },
+    ]),
+  )
 }
 
 /**
@@ -105,7 +123,7 @@ export async function applyDbPricesToProducts(products: Product[]): Promise<Prod
     return products.flatMap((product) => {
       const row = bySlug.get(product.slug)
       if (!row) return [] // hide static-only when we have DB context for these slugs
-      if (!row.active) return []
+      if (!isStorefrontSellableStatus(row.status)) return []
       return [mergeDbProductWithStaticFallback(row, product)]
     })
   } catch (error) {
@@ -115,18 +133,20 @@ export async function applyDbPricesToProducts(products: Product[]): Promise<Prod
 }
 
 /**
- * Full storefront catalog: active database products as source of truth.
+ * Full storefront catalog: ACTIVE database products as source of truth.
  * Static catalog fills only empty DB fields (e.g. legacy empty gallery).
  */
 export async function getPricedStorefrontProducts(): Promise<Product[]> {
   try {
-    const [activeRows, inactiveCount] = await Promise.all([
-      prisma.product.findMany({ where: { active: true } }),
-      prisma.product.count({ where: { active: false } }),
+    const [activeRows, otherCount] = await Promise.all([
+      prisma.product.findMany({ where: storefrontActiveProductWhere }),
+      prisma.product.count({
+        where: { status: { in: [ProductStatus.DRAFT, ProductStatus.ARCHIVED] } },
+      }),
     ])
 
     // Empty DB → static catalog only (local/dev without seed).
-    if (activeRows.length === 0 && inactiveCount === 0) {
+    if (activeRows.length === 0 && otherCount === 0) {
       return withCatalogCreatedAt(getStorefrontProducts())
     }
 
@@ -145,12 +165,12 @@ export async function getPricedStorefrontProducts(): Promise<Product[]> {
 
 /**
  * Single product for PDP: database row is primary.
- * Inactive / missing DB products are hidden when the DB is reachable.
+ * Non-ACTIVE / missing DB products are hidden when the DB is reachable.
  */
 export async function getPricedStorefrontProduct(slug: string): Promise<Product | undefined> {
   try {
     const row = await prisma.product.findUnique({ where: { slug } })
-    if (!row || !row.active) return undefined
+    if (!row || !isStorefrontSellableStatus(row.status)) return undefined
     if (!isStorefrontProductVisible(row.slug)) return undefined
     return mergeDbProductWithStaticFallback(row, getProduct(slug))
   } catch (error) {

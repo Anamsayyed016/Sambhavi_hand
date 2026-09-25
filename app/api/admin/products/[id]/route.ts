@@ -80,7 +80,7 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 }
 
-/** Soft-archive (active=false). Hard delete is intentionally not exposed. */
+/** Soft-archive (status=ARCHIVED, active=false). Hard delete is intentionally not exposed. */
 export async function DELETE(request: Request, { params }: Params) {
   try {
     assertSameOriginMutation(request)

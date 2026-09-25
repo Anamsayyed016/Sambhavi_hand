@@ -1,4 +1,4 @@
-import { NotificationType } from '@prisma/client'
+import { NotificationType, ProductStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { formatINR } from '@/lib/admin/format'
 
@@ -111,7 +111,7 @@ export async function notifyNewOrder(orderNumber: string, customerName: string, 
 export async function ensureLowStockNotifications() {
   const low = await prisma.product.findMany({
     where: {
-      active: true,
+      status: ProductStatus.ACTIVE,
       availability: { not: 'MADE_TO_ORDER' },
       stock: { lte: 3 },
     },

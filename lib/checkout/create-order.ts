@@ -2,6 +2,7 @@ import {
   OrderStatus,
   PaymentStatus,
   ProductAvailability,
+  ProductStatus,
   type Prisma,
 } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
@@ -42,11 +43,11 @@ function assertStock(
     stock: number
     availability: ProductAvailability
     name: string
-    active: boolean
+    status: ProductStatus
   },
   quantity: number,
 ): void {
-  if (!product.active) {
+  if (product.status !== ProductStatus.ACTIVE) {
     throw new CheckoutError(`"${product.name}" is no longer available.`)
   }
 

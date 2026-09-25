@@ -173,6 +173,7 @@ async function main() {
       availability,
       isNew: product.isNew ?? false,
       stock: stockFor(availability),
+      status: 'ACTIVE' as const,
       active: true,
       featured: false,
     }

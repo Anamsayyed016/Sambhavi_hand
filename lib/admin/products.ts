@@ -1,9 +1,15 @@
-import { Prisma, ProductAvailability, type Product } from '@prisma/client'
+import { Prisma, ProductAvailability, ProductStatus, type Product } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import type { ProductInput, ProductPatch } from '@/lib/admin/validation'
 import { categoryNames } from '@/lib/categories'
+import {
+  activeMirrorForStatus,
+  LOW_STOCK_THRESHOLD,
+  statusFromActiveFlag,
+} from '@/lib/admin/product-status'
+import { setProductStatus } from '@/lib/admin/product-lifecycle'
 
-export const LOW_STOCK_THRESHOLD = 3
+export { LOW_STOCK_THRESHOLD }
 
 export type ProductListParams = {
   q?: string
@@ -45,8 +51,11 @@ function buildWhere(params: ProductListParams): Prisma.ProductWhereInput {
     where.collections = { has: params.collection }
   }
 
-  if (params.active === 'true') where.active = true
-  if (params.active === 'false') where.active = false
+  // Admin filter "active" maps to status (authoritative).
+  if (params.active === 'true') where.status = ProductStatus.ACTIVE
+  if (params.active === 'false') {
+    where.status = { in: [ProductStatus.DRAFT, ProductStatus.ARCHIVED] }
+  }
 
   if (params.availability && params.availability !== 'all') {
     where.availability = params.availability
@@ -100,6 +109,8 @@ export async function getProductById(id: string): Promise<Product | null> {
 }
 
 export async function createProduct(data: ProductInput): Promise<Product> {
+  // Preserve current UX: create as ACTIVE unless explicitly deactivated (maps to ARCHIVED).
+  const status = statusFromActiveFlag(data.active)
   return prisma.product.create({
     data: {
       name: data.name,
@@ -119,7 +130,8 @@ export async function createProduct(data: ProductInput): Promise<Product> {
       care: data.care,
       availability: data.availability,
       stock: data.stock,
-      active: data.active,
+      status,
+      active: activeMirrorForStatus(status),
       featured: data.featured,
       isNew: data.isNew,
     },
@@ -152,19 +164,24 @@ export async function updateProduct(id: string, data: ProductPatch): Promise<Pro
   if (data.care !== undefined) patch.care = data.care
   if (data.availability !== undefined) patch.availability = data.availability
   if (data.stock !== undefined) patch.stock = data.stock
-  if (data.active !== undefined) patch.active = data.active
   if (data.featured !== undefined) patch.featured = data.featured
   if (data.isNew !== undefined) patch.isNew = data.isNew
+
+  // Lifecycle changes go through the helper so status + active cannot drift.
+  if (data.active !== undefined) {
+    const status = statusFromActiveFlag(data.active)
+    if (Object.keys(patch).length > 0) {
+      await prisma.product.update({ where: { id }, data: patch })
+    }
+    return setProductStatus(id, status)
+  }
 
   return prisma.product.update({ where: { id }, data: patch })
 }
 
-/** Soft-archive: prefer active=false over hard delete. */
+/** Soft-archive via authoritative status. */
 export async function archiveProduct(id: string): Promise<Product> {
-  return prisma.product.update({
-    where: { id },
-    data: { active: false },
-  })
+  return setProductStatus(id, ProductStatus.ARCHIVED)
 }
 
 export async function getProductFilterOptions() {

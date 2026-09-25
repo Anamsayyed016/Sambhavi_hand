@@ -190,12 +190,18 @@ export function ProductTable({ products }: { products: Product[] }) {
                 <td className="px-4 py-3">
                   <span
                     className={
-                      product.active
+                      product.status === 'ACTIVE'
                         ? 'rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-800'
-                        : 'rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground'
+                        : product.status === 'DRAFT'
+                          ? 'rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-800'
+                          : 'rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground'
                     }
                   >
-                    {product.active ? 'Active' : 'Archived'}
+                    {product.status === 'ACTIVE'
+                      ? 'Active'
+                      : product.status === 'DRAFT'
+                        ? 'Draft'
+                        : 'Archived'}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{formatDate(product.updatedAt)}</td>
@@ -217,7 +223,7 @@ export function ProductTable({ products }: { products: Product[] }) {
                     >
                       <Eye />
                     </Button>
-                    {product.active ? (
+                    {product.status === 'ACTIVE' ? (
                       <Button
                         variant="ghost"
                         size="icon-sm"

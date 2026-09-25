@@ -5,7 +5,10 @@ import {
   assertAdminCanWrite,
   assertSameOriginMutation,
 } from '@/lib/admin/auth'
-import { prisma } from '@/lib/prisma'
+import {
+  setProductsStatus,
+  statusFromActiveFlag,
+} from '@/lib/admin/product-lifecycle'
 
 const bulkSchema = z.object({
   ids: z.array(z.string()).min(1).max(100),
@@ -21,11 +24,9 @@ export async function PATCH(request: Request) {
     if (!parsed.success) {
       return NextResponse.json({ error: 'Validation failed' }, { status: 400 })
     }
-    const result = await prisma.product.updateMany({
-      where: { id: { in: parsed.data.ids } },
-      data: { active: parsed.data.active },
-    })
-    return NextResponse.json({ updated: result.count })
+    const status = statusFromActiveFlag(parsed.data.active)
+    const updated = await setProductsStatus(parsed.data.ids, status)
+    return NextResponse.json({ updated })
   } catch (error) {
     return adminAuthErrorResponse(error)
   }

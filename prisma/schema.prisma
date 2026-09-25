@@ -16,6 +16,12 @@ enum ProductAvailability {
   MADE_TO_ORDER
 }
 
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
 enum OrderStatus {
   PENDING
   CONFIRMED
@@ -68,6 +74,9 @@ model Product {
   isNew        Boolean             @default(false)
   /// Provisional until real inventory is set in admin (see seed docs)
   stock        Int                 @default(0)
+  /// Authoritative product lifecycle. `active` is a temporary compatibility mirror only.
+  status       ProductStatus       @default(ACTIVE)
+  /// Compatibility mirror of status (ACTIVE => true; DRAFT/ARCHIVED => false). Do not write independently.
   active       Boolean             @default(true)
   featured     Boolean             @default(false)
   createdAt    DateTime            @default(now())
@@ -76,6 +85,7 @@ model Product {
 
   @@index([category])
   @@index([active])
+  @@index([status])
   @@index([featured])
 }
 
