@@ -2860,6 +2860,8 @@ export const products: Product[] = [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1790243072/file_00000000d8c481f69a717618a6f609aa.png',
     images: [
       'https://res.cloudinary.com/tcjtyr02/image/upload/v1790243072/file_00000000d8c481f69a717618a6f609aa.png',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790243073/IMG-20260924-WA0141.jpg',
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790243072/IMG-20260924-WA0133.jpg',
     ],
     category: '🍁Tirupati Durga Puja Special 🍁',
     collections: ['tirupati-durga-puja-special', 'navratri-collection'],
