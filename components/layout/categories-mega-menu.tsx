@@ -304,7 +304,7 @@ export function CategoriesMegaMenu({
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               'absolute left-1/2 top-full z-40 mt-3 -translate-x-1/2',
-              'w-max max-w-[min(94vw,56rem)]',
+              'w-max max-w-[min(94vw,60rem)]',
               'rounded-md border border-border/40 bg-ivory/98',
               'shadow-[0_18px_40px_-22px_rgba(40,28,24,0.28)]',
               'backdrop-blur-sm lg:z-[49]',
@@ -312,9 +312,9 @@ export function CategoriesMegaMenu({
             onMouseEnter={openMenu}
             onMouseLeave={scheduleClose}
           >
-            <div className="max-h-[min(78vh,34rem)] overflow-y-auto overscroll-contain px-5 py-5 md:px-6 md:py-5">
-              <div className="flex flex-col gap-7 md:flex-row md:items-start md:gap-8 lg:gap-10">
-                <div className="min-w-[10.5rem] shrink-0 space-y-3 border-border/30 md:border-r md:pr-7">
+            <div className="max-h-[min(78vh,36rem)] overflow-y-auto overscroll-contain px-5 py-5 md:px-6 md:py-5">
+              <div className="flex flex-col gap-7 md:flex-row md:items-start md:gap-9 lg:gap-11">
+                <div className="min-w-[11rem] shrink-0 space-y-3 border-border/30 md:border-r md:pr-8">
                   <GroupHeading
                     group={primaryGroup}
                     onNavigate={closeMenu}
@@ -327,23 +327,31 @@ export function CategoriesMegaMenu({
                   />
                 </div>
 
-                {secondaryGroups.map((group) => (
-                  <div
-                    key={group.slug}
-                    className="min-w-[12rem] max-w-[20rem] shrink-0 space-y-3"
-                  >
-                    <GroupHeading
-                      group={group}
-                      onNavigate={closeMenu}
-                      pathname={pathname}
-                    />
-                    <CategoryLinks
-                      categories={group.categories}
-                      onNavigate={closeMenu}
-                      pathname={pathname}
-                    />
-                  </div>
-                ))}
+                {secondaryGroups.map((group) => {
+                  const isFestive = group.slug === 'festive-edition'
+                  return (
+                    <div
+                      key={group.slug}
+                      className={cn(
+                        'shrink-0 space-y-3',
+                        isFestive
+                          ? 'min-w-[14rem] max-w-[24rem]'
+                          : 'min-w-[12rem] max-w-[18rem]',
+                      )}
+                    >
+                      <GroupHeading
+                        group={group}
+                        onNavigate={closeMenu}
+                        pathname={pathname}
+                      />
+                      <CategoryLinks
+                        categories={group.categories}
+                        onNavigate={closeMenu}
+                        pathname={pathname}
+                      />
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </motion.div>

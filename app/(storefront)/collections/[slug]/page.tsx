@@ -102,11 +102,19 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'kcs-handloom-khadi-cotton-saree') {
+    return {
+      title: 'KCS Handloom Khadi Cotton Saree | Sambhavi Handloom',
+      description:
+        'Explore KCS Handloom Khadi Cotton Saree from the Navratri Collection festive edit by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad') {
     return {
-      title: 'vinayaka Pure Dola Silk Softy Fully Jari Jaqurad | Sambhavi Handloom',
+      title: 'Vinayaka Pure Dola Silk Softy Fully Jari Jaqurad | Sambhavi Handloom',
       description:
-        'Explore vinayaka Pure Dola Silk Softy Fully Jari Jaqurad from the Navratri Collection festive edit by Sambhavi Handloom.',
+        'Explore Vinayaka Pure Dola Silk Softy Fully Jari Jaqurad from the Navratri Collection festive edit by Sambhavi Handloom.',
     }
   }
 

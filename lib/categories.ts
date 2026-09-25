@@ -172,7 +172,14 @@ const nestedCategoryDefs: Array<{
     groupSlug: 'festive-edition',
   },
   {
-    name: 'vinayaka Pure Dola Silk Softy Fully Jari Jaqurad',
+    name: 'KCS Handloom Khadi Cotton Saree',
+    /** Canonical route: /collections/kcs-handloom-khadi-cotton-saree */
+    slug: 'kcs-handloom-khadi-cotton-saree',
+    parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
+  {
+    name: 'Vinayaka Pure Dola Silk Softy Fully Jari Jaqurad',
     /** Canonical route: /collections/vinayaka-pure-dola-silk-softy-fully-jari-jaqurad */
     slug: 'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad',
     parentSlug: 'navratri-collection',
@@ -200,7 +207,8 @@ const NAV_ICON_BY_SLUG: Record<string, FashionNavIcon> = {
   'dharvi-durga-pooja-edition': '🥻',
   'dharvi-karva-chauth-saree': '🥻',
   'tirupati-durga-puja-special': '🥻',
-  'kcs-kanchi-cotton-sarees': '🥻',
+  'kcs-kanchi-cotton-sarees': '🧵',
+  'kcs-handloom-khadi-cotton-saree': '🧵',
   'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad': '🥻',
   'ritu-fashion-kaftan-collection': '👗',
   'mini-lehenga-saree-sets': '👗',
