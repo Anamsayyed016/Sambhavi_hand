@@ -2,6 +2,8 @@ import { Prisma, type Collection } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getCatalogTitle, getProductsForCatalogSlug } from '@/lib/catalog-filters'
 import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
+import { isValidCoverImageUrl } from '@/lib/new-arrivals-catalogs'
+import type { Product } from '@/lib/products'
 
 export type CollectionInput = {
   slug: string
@@ -119,21 +121,62 @@ export async function getCollectionProductCounts() {
 export async function getCollectionStorefrontProductCounts(
   slugs: string[],
 ): Promise<Map<string, number | null>> {
-  const uniqueSlugs = Array.from(new Set(slugs))
+  const meta = await getCollectionAdminListMeta(slugs)
   const counts = new Map<string, number | null>()
+  for (const [slug, row] of meta) {
+    counts.set(slug, row.storefrontCount)
+  }
+  return counts
+}
+
+export type CollectionAdminListMeta = {
+  /** null = no storefront catalog route for this slug */
+  storefrontCount: number | null
+  /**
+   * First valid product image from getProductsForCatalogSlug results.
+   * UI-only — never written to Collection.image.
+   */
+  productThumbUrl: string | null
+}
+
+function firstValidResolvedProductImage(products: Product[]): string | null {
+  for (const product of products) {
+    const candidates = [product.image, product.images?.[0]]
+    for (const candidate of candidates) {
+      if (isValidCoverImageUrl(candidate)) return candidate
+    }
+  }
+  return null
+}
+
+/**
+ * One catalog load → storefront counts + derived product thumbnails for admin list.
+ * Read-only. Does not touch Collection.image or Product.collections.
+ */
+export async function getCollectionAdminListMeta(
+  slugs: string[],
+): Promise<Map<string, CollectionAdminListMeta>> {
+  const uniqueSlugs = Array.from(new Set(slugs))
+  const meta = new Map<string, CollectionAdminListMeta>()
 
   const catalogSlugs = uniqueSlugs.filter((slug) => Boolean(getCatalogTitle(slug)))
   for (const slug of uniqueSlugs) {
-    if (!getCatalogTitle(slug)) counts.set(slug, null)
+    if (!getCatalogTitle(slug)) {
+      meta.set(slug, { storefrontCount: null, productThumbUrl: null })
+    }
   }
 
-  if (catalogSlugs.length === 0) return counts
+  if (catalogSlugs.length === 0) return meta
 
   const products = await getPricedStorefrontProducts()
   for (const slug of catalogSlugs) {
-    counts.set(slug, getProductsForCatalogSlug(slug, products).length)
+    const resolved = getProductsForCatalogSlug(slug, products)
+    meta.set(slug, {
+      storefrontCount: resolved.length,
+      productThumbUrl: firstValidResolvedProductImage(resolved),
+    })
   }
-  return counts
+  return meta
 }
 
 /**

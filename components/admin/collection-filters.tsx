@@ -10,10 +10,12 @@ export function CollectionFilters({
   q,
   active,
   sort,
+  showEmpty,
 }: {
   q: string
   active: string
   sort: string
+  showEmpty: boolean
 }) {
   const router = useRouter()
   const [query, setQuery] = useState(q)
@@ -23,10 +25,13 @@ export function CollectionFilters({
     const nextQ = next.q !== undefined ? next.q : query
     const nextActive = next.active ?? active
     const nextSort = next.sort ?? sort
+    const nextShowEmpty =
+      next.showEmpty !== undefined ? next.showEmpty === '1' : showEmpty
 
     if (nextQ.trim()) params.set('q', nextQ.trim())
     if (nextActive && nextActive !== 'all') params.set('active', nextActive)
     if (nextSort && nextSort !== 'name_asc') params.set('sort', nextSort)
+    if (nextShowEmpty) params.set('showEmpty', '1')
 
     const qs = params.toString()
     router.push(qs ? `/admin/collections?${qs}` : '/admin/collections')
@@ -99,6 +104,16 @@ export function CollectionFilters({
             </select>
           </div>
         </div>
+
+        <label className="flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-md border border-border/80 bg-white px-3 text-xs text-charcoal">
+          <input
+            type="checkbox"
+            className="size-3.5 accent-[var(--wine)]"
+            checked={showEmpty}
+            onChange={(e) => apply({ showEmpty: e.target.checked ? '1' : '0' })}
+          />
+          Show empty
+        </label>
 
         <button
           type="submit"

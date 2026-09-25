@@ -3,7 +3,7 @@ import Image from 'next/image'
 import {
   listCollections,
   getCollectionProductCounts,
-  getCollectionStorefrontProductCounts,
+  getCollectionAdminListMeta,
   type CollectionSort,
 } from '@/lib/admin/collections'
 import { formatDate } from '@/lib/admin/format'
@@ -19,17 +19,20 @@ function one(v: string | string[] | undefined) {
   return Array.isArray(v) ? v[0] : v
 }
 
+/** Admin thumbnail only — never persists to Collection.image. */
 function CollectionCover({
-  image,
+  collectionImage,
+  productThumbUrl,
   name,
 }: {
-  image: string
+  collectionImage: string
+  productThumbUrl: string | null
   name: string
 }) {
-  if (isValidCoverImageUrl(image)) {
+  if (isValidCoverImageUrl(collectionImage)) {
     return (
       <Image
-        src={image}
+        src={collectionImage}
         alt={name}
         fill
         className="object-cover"
@@ -38,13 +41,27 @@ function CollectionCover({
     )
   }
 
+  if (isValidCoverImageUrl(productThumbUrl)) {
+    return (
+      <Image
+        src={productThumbUrl}
+        alt={name}
+        fill
+        className="object-cover"
+        sizes="72px"
+      />
+    )
+  }
+
+  // Explicit-only / edge rows without a cover — muted initial, not "No image".
+  const initial = name.trim().charAt(0).toUpperCase() || '·'
   return (
     <div
-      className="flex h-full w-full items-center justify-center bg-beige px-2 text-center"
+      className="flex h-full w-full items-center justify-center bg-beige"
       aria-hidden="true"
     >
-      <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        No image
+      <span className="font-serif text-xl tracking-wide text-muted-foreground/70">
+        {initial}
       </span>
     </div>
   )
@@ -53,7 +70,10 @@ function CollectionCover({
 function StorefrontCount({ value }: { value: number | null }) {
   if (value === null) {
     return (
-      <span className="text-xs tabular-nums text-muted-foreground" title="No storefront catalog route for this slug">
+      <span
+        className="text-xs tabular-nums text-muted-foreground"
+        title="No storefront catalog route for this slug"
+      >
         Storefront: —
       </span>
     )
@@ -71,12 +91,21 @@ function StorefrontCount({ value }: { value: number | null }) {
 function ExplicitCount({ value }: { value: number }) {
   return (
     <span className="text-xs tabular-nums text-muted-foreground">
-      Explicit:{' '}
-      <span className="text-charcoal/80">
-        {value} assigned
-      </span>
+      Explicit: <span className="text-charcoal/80">{value} assigned</span>
     </span>
   )
+}
+
+/** Default list: hide empty seeded placeholders (no cover, no storefront, no explicit). */
+function isEmptyPlaceholder(row: {
+  image: string
+  storefrontCount: number | null
+  explicitCount: number
+}) {
+  const hasCover = isValidCoverImageUrl(row.image)
+  const hasStorefront = (row.storefrontCount ?? 0) > 0
+  const hasExplicit = row.explicitCount > 0
+  return !hasCover && !hasStorefront && !hasExplicit
 }
 
 const SORT_VALUES = new Set<CollectionSort>([
@@ -100,16 +129,17 @@ export default async function CollectionsPage({
   const sort: CollectionSort = SORT_VALUES.has(sortRaw as CollectionSort)
     ? (sortRaw as CollectionSort)
     : 'name_asc'
+  const showEmpty = one(sp.showEmpty) === '1' || one(sp.showEmpty) === 'true'
 
   let collections
   let explicitCounts
-  let storefrontCounts
+  let listMeta
   try {
     ;[collections, explicitCounts] = await Promise.all([
       listCollections({ q, active, sort }),
       getCollectionProductCounts(),
     ])
-    storefrontCounts = await getCollectionStorefrontProductCounts(collections.map((c) => c.slug))
+    listMeta = await getCollectionAdminListMeta(collections.map((c) => c.slug))
   } catch {
     return (
       <AdminEmptyState
@@ -119,16 +149,22 @@ export default async function CollectionsPage({
     )
   }
 
-  const withCounts = collections.map((c) => ({
-    ...c,
-    explicitCount: explicitCounts.get(c.slug) ?? 0,
-    storefrontCount: storefrontCounts.get(c.slug) ?? null,
-  }))
+  const withMeta = collections.map((c) => {
+    const meta = listMeta.get(c.slug)
+    return {
+      ...c,
+      explicitCount: explicitCounts.get(c.slug) ?? 0,
+      storefrontCount: meta?.storefrontCount ?? null,
+      productThumbUrl: meta?.productThumbUrl ?? null,
+    }
+  })
 
-  // Product sorts: primary key = storefront M when available; else explicit N.
+  const hiddenEmptyCount = withMeta.filter(isEmptyPlaceholder).length
+  const visible = showEmpty ? withMeta : withMeta.filter((c) => !isEmptyPlaceholder(c))
+
   if (sort === 'products_desc' || sort === 'products_asc') {
     const dir = sort === 'products_desc' ? -1 : 1
-    withCounts.sort((a, b) => {
+    visible.sort((a, b) => {
       const aKey = a.storefrontCount ?? a.explicitCount
       const bKey = b.storefrontCount ?? b.explicitCount
       return (aKey - bKey) * dir || a.name.localeCompare(b.name)
@@ -148,10 +184,11 @@ export default async function CollectionsPage({
             Manage catalog collections used across the store.
           </p>
           <p className="mt-1.5 text-xs tracking-wide text-muted-foreground/80">
-            {withCounts.length} collection{withCounts.length === 1 ? '' : 's'}
+            {visible.length} collection{visible.length === 1 ? '' : 's'}
             {filtered ? ' matching filters' : ''}
-            {' · '}
-            Storefront vs explicit membership
+            {!showEmpty && hiddenEmptyCount > 0
+              ? ` · ${hiddenEmptyCount} empty placeholder${hiddenEmptyCount === 1 ? '' : 's'} hidden`
+              : ''}
           </p>
         </div>
         <Link
@@ -162,18 +199,24 @@ export default async function CollectionsPage({
         </Link>
       </div>
 
-      <CollectionFilters q={q} active={active} sort={sort} />
+      <CollectionFilters q={q} active={active} sort={sort} showEmpty={showEmpty} />
 
-      {withCounts.length === 0 ? (
+      {visible.length === 0 ? (
         <AdminEmptyState
-          title={filtered ? 'No collections match' : 'No collections yet'}
+          title={
+            filtered || !showEmpty
+              ? 'No collections match'
+              : 'No collections yet'
+          }
           description={
-            filtered
-              ? 'Try a different search or filter.'
-              : 'Create your first collection to organize products.'
+            !showEmpty && hiddenEmptyCount > 0
+              ? 'Empty taxonomy placeholders are hidden. Enable “Show empty collections” to view them.'
+              : filtered
+                ? 'Try a different search or filter.'
+                : 'Create your first collection to organize products.'
           }
           action={
-            !filtered ? (
+            !filtered && !showEmpty && hiddenEmptyCount === 0 ? (
               <Link
                 href="/admin/collections/new"
                 className="inline-flex items-center rounded-md bg-wine px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-wine/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -210,7 +253,7 @@ export default async function CollectionsPage({
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/70">
-                {withCounts.map((c) => (
+                {visible.map((c) => (
                   <tr
                     key={c.id}
                     className="group transition-colors hover:bg-beige/25"
@@ -221,7 +264,11 @@ export default async function CollectionsPage({
                         className="flex items-center gap-4 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
                         <span className="relative size-[72px] shrink-0 overflow-hidden rounded-md border border-border/70 bg-beige shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)]">
-                          <CollectionCover image={c.image} name={c.name} />
+                          <CollectionCover
+                            collectionImage={c.image}
+                            productThumbUrl={c.productThumbUrl}
+                            name={c.name}
+                          />
                         </span>
                         <span className="min-w-0">
                           <span className="block font-serif text-[1.05rem] leading-snug tracking-tight text-charcoal transition-colors group-hover:text-wine">
