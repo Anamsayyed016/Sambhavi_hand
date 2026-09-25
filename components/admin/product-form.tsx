@@ -287,17 +287,19 @@ export function ProductForm({
     if (urls.length === 0) return
     setForm((prev) => {
       let primary = prev.image.trim()
-      let gallery = dedupeUrls(prev.images)
+      // Always keep a complete ordered gallery that includes the main image.
+      // Previously, when a primary already existed, new uploads were appended to
+      // `images` without guaranteeing `primary` was in that array — Soft Nav /
+      // partial state could then save a gallery that dropped frames.
+      let gallery = dedupeUrls([...(primary ? [primary] : []), ...prev.images])
 
       for (const url of urls) {
-        if (!primary) {
-          primary = url
-          if (!gallery.includes(url)) gallery = [...gallery, url]
-          continue
-        }
-        if (primary === url || gallery.includes(url)) continue
+        const next = url.trim()
+        if (!next) continue
+        if (!primary) primary = next
+        if (gallery.includes(next)) continue
         if (gallery.length >= MAX_GALLERY) continue
-        gallery = [...gallery, url]
+        gallery = [...gallery, next]
       }
 
       return { ...prev, image: primary, images: gallery }
@@ -348,26 +350,34 @@ export function ProductForm({
 
   function setAsMain(url: string) {
     setForm((prev) => {
-      const gallery = dedupeUrls([url, ...prev.images.filter((u) => u !== url), prev.image])
-      return { ...prev, image: url, images: gallery }
+      const next = url.trim()
+      if (!next) return prev
+      const gallery = dedupeUrls([next, ...prev.images, prev.image])
+      return { ...prev, image: next, images: gallery }
     })
   }
 
   function removeImage(url: string) {
     setForm((prev) => {
+      const target = url.trim()
       const primary = prev.image.trim()
-      const gallery = prev.images.filter((u) => u !== url)
+      const gallery = dedupeUrls([...prev.images, prev.image]).filter((u) => u !== target)
 
-      if (primary === url) {
+      if (primary === target) {
         const nextPrimary = gallery[0] ?? ''
         return {
           ...prev,
           image: nextPrimary,
-          images: gallery.filter((u) => u !== nextPrimary),
+          // Keep the new main inside images[] (do not strip it).
+          images: gallery,
         }
       }
 
-      return { ...prev, images: gallery }
+      return {
+        ...prev,
+        image: primary && gallery.includes(primary) ? primary : gallery[0] ?? '',
+        images: gallery,
+      }
     })
   }
 
