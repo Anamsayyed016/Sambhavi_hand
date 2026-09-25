@@ -1,3 +1,6 @@
+/** Presentation-only fashion icon for Categories nav links (never stored on Product.category). */
+export type FashionNavIcon = '👗' | '🥻' | '🧵' | '👚'
+
 export type SareeCategory = {
   slug: string
   name: string
@@ -6,6 +9,11 @@ export type SareeCategory = {
   prominent?: boolean
   /** When set, this category nests under another leaf category (e.g. CHHABILI under Navratri). */
   parentSlug?: string
+  /**
+   * Optional clothing/fashion emoji for mega-menu / mobile category links only.
+   * Does not alter `name`, slugs, or Product.category values.
+   */
+  navIcon?: FashionNavIcon
 }
 
 export type CategoryGroup = {
@@ -181,6 +189,51 @@ export function nameToSlug(name: string): string {
     .replace(/-+/g, '-')
 }
 
+/** Explicit nav icons for known catalogs; fallback uses clothing-type heuristics. */
+const NAV_ICON_BY_SLUG: Record<string, FashionNavIcon> = {
+  'digital-print': '🥻',
+  'kota-handloom': '🥻',
+  chhabili: '👗',
+  jobaniyu: '👗',
+  lehanga: '👗',
+  'lehenga-choli': '👗',
+  'dharvi-durga-pooja-edition': '🥻',
+  'dharvi-karva-chauth-saree': '🥻',
+  'tirupati-durga-puja-special': '🥻',
+  'kcs-kanchi-cotton-sarees': '🥻',
+  'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad': '🥻',
+  'ritu-fashion-kaftan-collection': '👗',
+  'mini-lehenga-saree-sets': '👗',
+  'ready-to-wear-pre-draped-sarees': '🥻',
+  'half-sarees-langa-voni': '👗',
+  'mother-daughter-sets': '👗',
+  'festive-frocks-with-dupatta': '👗',
+  'navratri-collection': '👗',
+  'wedding-bridal': '🥻',
+  'diwali-collection': '🥻',
+  'durga-puja-bengal-special': '🥻',
+  'raksha-bandhan-family-sets': '👚',
+}
+
+export function resolveCategoryNavIcon(slug: string, name: string): FashionNavIcon {
+  const mapped = NAV_ICON_BY_SLUG[slug]
+  if (mapped) return mapped
+
+  const haystack = `${slug} ${name}`.toLowerCase()
+  if (
+    /lehenga|choli|kaftan|frock|langa|jobaniyu|chhabili|garba/.test(haystack)
+  ) {
+    return '👗'
+  }
+  if (/blouse|top|set|family/.test(haystack) && !/saree|sari/.test(haystack)) {
+    return '👚'
+  }
+  if (/embroider|thread|weave|handloom|cotton print|crepe|net/.test(haystack)) {
+    return '🧵'
+  }
+  return '🥻'
+}
+
 function toCategory(
   name: string,
   groupSlug: string,
@@ -194,6 +247,7 @@ function toCategory(
     groupSlug,
     parentSlug,
     prominent: prominentCategorySlugs.has(slug),
+    navIcon: resolveCategoryNavIcon(slug, name),
   }
 }
 

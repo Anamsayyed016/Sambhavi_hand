@@ -33,6 +33,7 @@ function NavCategoryLink({
 }) {
   const href = `/collections/${category.slug}`
   const active = isActiveHref(pathname, href)
+  const icon = category.navIcon
 
   return (
     <Link
@@ -40,25 +41,30 @@ function NavCategoryLink({
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'group/link relative flex min-w-0 items-baseline gap-2 py-[0.28rem] transition-colors duration-150',
+        'group/link relative flex min-w-0 items-start gap-2 py-[0.3rem] transition-colors duration-150',
         nested ? 'pl-0.5' : '',
       )}
     >
       <span
         aria-hidden
         className={cn(
-          'mt-[0.55em] h-px w-0 shrink-0 bg-gold/75 transition-all duration-150',
+          'mt-[0.7em] h-px w-0 shrink-0 bg-gold/75 transition-all duration-150',
           'group-hover/link:w-2.5',
           active && 'w-2.5 bg-primary',
         )}
       />
+      {icon ? (
+        <span
+          aria-hidden
+          className="mt-[0.05em] w-[1.15em] shrink-0 text-center text-[0.875rem] leading-snug"
+        >
+          {icon}
+        </span>
+      ) : null}
       <span
         className={cn(
-          'font-sans leading-snug tracking-[0.02em] transition-colors duration-150',
-          nested ? 'text-[0.8125rem]' : 'text-[0.875rem]',
-          category.prominent
-            ? 'font-medium text-charcoal/88'
-            : 'font-normal text-charcoal/68',
+          'min-w-0 font-sans text-[0.875rem] font-normal leading-snug tracking-[0.02em] text-charcoal/70 transition-colors duration-150',
+          category.prominent && 'font-medium text-charcoal/88',
           'group-hover/link:text-primary',
           active && 'text-primary',
         )}
