@@ -1,5 +1,7 @@
 import { Prisma, type Collection } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { getCatalogTitle, getProductsForCatalogSlug } from '@/lib/catalog-filters'
+import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 
 export type CollectionInput = {
   slug: string
@@ -105,6 +107,31 @@ export async function getCollectionProductCounts() {
     for (const slug of p.collections) {
       counts.set(slug, (counts.get(slug) ?? 0) + 1)
     }
+  }
+  return counts
+}
+
+/**
+ * Read-only storefront product counts for admin dual-metric display.
+ * Uses the same catalog source + getProductsForCatalogSlug as /collections/[slug].
+ * null = no valid storefront catalog route for that slug (show N/A — not 0).
+ */
+export async function getCollectionStorefrontProductCounts(
+  slugs: string[],
+): Promise<Map<string, number | null>> {
+  const uniqueSlugs = Array.from(new Set(slugs))
+  const counts = new Map<string, number | null>()
+
+  const catalogSlugs = uniqueSlugs.filter((slug) => Boolean(getCatalogTitle(slug)))
+  for (const slug of uniqueSlugs) {
+    if (!getCatalogTitle(slug)) counts.set(slug, null)
+  }
+
+  if (catalogSlugs.length === 0) return counts
+
+  const products = await getPricedStorefrontProducts()
+  for (const slug of catalogSlugs) {
+    counts.set(slug, getProductsForCatalogSlug(slug, products).length)
   }
   return counts
 }

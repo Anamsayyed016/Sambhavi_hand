@@ -143,11 +143,13 @@ export function CollectionProductsEditor({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-sm font-medium">
-            Products in this collection ({members.length})
+            Explicitly assigned products ({members.length})
           </h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Membership uses <code className="text-[11px]">Product.collections</code> and only
-            adds or removes slug <span className="font-medium">{collectionSlug}</span>.
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            These products are explicitly assigned to this collection. Storefront pages may also
+            include products through category and other catalog rules. Saving only adds or removes
+            slug <span className="font-medium text-charcoal/80">{collectionSlug}</span> in{' '}
+            <code className="text-[11px]">Product.collections</code>.
           </p>
         </div>
         <Button type="button" disabled={saving} onClick={() => void saveMembership()}>
@@ -160,7 +162,7 @@ export function CollectionProductsEditor({
 
       {members.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No products linked yet. Search below to add products.
+          No explicitly assigned products yet. Search below to add products.
         </p>
       ) : (
         <ul className="divide-y divide-border text-sm">

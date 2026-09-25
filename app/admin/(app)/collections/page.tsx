@@ -3,6 +3,7 @@ import Image from 'next/image'
 import {
   listCollections,
   getCollectionProductCounts,
+  getCollectionStorefrontProductCounts,
   type CollectionSort,
 } from '@/lib/admin/collections'
 import { formatDate } from '@/lib/admin/format'
@@ -49,6 +50,35 @@ function CollectionCover({
   )
 }
 
+function StorefrontCount({ value }: { value: number | null }) {
+  if (value === null) {
+    return (
+      <span className="text-xs tabular-nums text-muted-foreground" title="No storefront catalog route for this slug">
+        Storefront: —
+      </span>
+    )
+  }
+  return (
+    <span className="text-xs font-medium tabular-nums text-charcoal/85">
+      Storefront:{' '}
+      <span className="text-charcoal">
+        {value} product{value === 1 ? '' : 's'}
+      </span>
+    </span>
+  )
+}
+
+function ExplicitCount({ value }: { value: number }) {
+  return (
+    <span className="text-xs tabular-nums text-muted-foreground">
+      Explicit:{' '}
+      <span className="text-charcoal/80">
+        {value} assigned
+      </span>
+    </span>
+  )
+}
+
 const SORT_VALUES = new Set<CollectionSort>([
   'name_asc',
   'name_desc',
@@ -72,12 +102,14 @@ export default async function CollectionsPage({
     : 'name_asc'
 
   let collections
-  let counts
+  let explicitCounts
+  let storefrontCounts
   try {
-    ;[collections, counts] = await Promise.all([
+    ;[collections, explicitCounts] = await Promise.all([
       listCollections({ q, active, sort }),
       getCollectionProductCounts(),
     ])
+    storefrontCounts = await getCollectionStorefrontProductCounts(collections.map((c) => c.slug))
   } catch {
     return (
       <AdminEmptyState
@@ -89,13 +121,18 @@ export default async function CollectionsPage({
 
   const withCounts = collections.map((c) => ({
     ...c,
-    productCount: counts.get(c.slug) ?? 0,
+    explicitCount: explicitCounts.get(c.slug) ?? 0,
+    storefrontCount: storefrontCounts.get(c.slug) ?? null,
   }))
 
-  if (sort === 'products_desc') {
-    withCounts.sort((a, b) => b.productCount - a.productCount || a.name.localeCompare(b.name))
-  } else if (sort === 'products_asc') {
-    withCounts.sort((a, b) => a.productCount - b.productCount || a.name.localeCompare(b.name))
+  // Product sorts: primary key = storefront M when available; else explicit N.
+  if (sort === 'products_desc' || sort === 'products_asc') {
+    const dir = sort === 'products_desc' ? -1 : 1
+    withCounts.sort((a, b) => {
+      const aKey = a.storefrontCount ?? a.explicitCount
+      const bKey = b.storefrontCount ?? b.explicitCount
+      return (aKey - bKey) * dir || a.name.localeCompare(b.name)
+    })
   }
 
   const filtered = Boolean(q || active !== 'all')
@@ -113,6 +150,8 @@ export default async function CollectionsPage({
           <p className="mt-1.5 text-xs tracking-wide text-muted-foreground/80">
             {withCounts.length} collection{withCounts.length === 1 ? '' : 's'}
             {filtered ? ' matching filters' : ''}
+            {' · '}
+            Storefront vs explicit membership
           </p>
         </div>
         <Link
@@ -147,7 +186,7 @@ export default async function CollectionsPage({
       ) : (
         <div className="overflow-hidden rounded-md border border-border/80 bg-[#faf8f4] shadow-[0_1px_0_rgba(40,30,20,0.04)]">
           <div className="overflow-x-auto">
-            <table className="min-w-[680px] w-full text-sm">
+            <table className="min-w-[780px] w-full text-sm">
               <thead>
                 <tr className="border-b border-border/80 bg-beige/40">
                   <th className="px-5 py-3.5 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
@@ -200,9 +239,10 @@ export default async function CollectionsPage({
                       </span>
                     </td>
                     <td className="px-4 py-4 align-middle">
-                      <span className="inline-flex items-center rounded-full border border-border/80 bg-white/70 px-2.5 py-1 text-xs font-medium tabular-nums text-charcoal/80">
-                        {c.productCount} product{c.productCount === 1 ? '' : 's'}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <StorefrontCount value={c.storefrontCount} />
+                        <ExplicitCount value={c.explicitCount} />
+                      </div>
                     </td>
                     <td className="px-4 py-4 align-middle">
                       {c.active ? (
