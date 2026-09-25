@@ -1,5 +1,4 @@
 import type React from 'react'
-import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Bodoni_Moda, Manrope } from 'next/font/google'
 import { MetaPixel } from '@/components/analytics/meta-pixel'
@@ -77,7 +76,6 @@ export default function RootLayout({
       <body className="antialiased">
         {children}
         <MetaPixel />
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

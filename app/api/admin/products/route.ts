@@ -26,6 +26,25 @@ function uniqueConstraintMessage(error: Prisma.PrismaClientKnownRequestError): s
   return 'A product with this slug or SKU already exists. Please choose a different value.'
 }
 
+function validationFailedMessage(flatten: {
+  formErrors: string[]
+  fieldErrors: Record<string, string[] | undefined>
+}): string {
+  const fieldNames = Object.keys(flatten.fieldErrors).filter(
+    (key) => (flatten.fieldErrors[key]?.length ?? 0) > 0,
+  )
+  if (fieldNames.length === 0) {
+    return flatten.formErrors[0] ?? 'Validation failed'
+  }
+  const details = fieldNames
+    .map((key) => {
+      const msg = flatten.fieldErrors[key]?.[0]
+      return msg ? `${key}: ${msg}` : key
+    })
+    .join('; ')
+  return `Validation failed (${fieldNames.join(', ')}). ${details}`
+}
+
 export async function GET(request: Request) {
   try {
     await requireAdminAccess()
@@ -63,8 +82,9 @@ export async function POST(request: Request) {
     })
 
     if (!parsed.success) {
+      const issues = parsed.error.flatten()
       return NextResponse.json(
-        { error: 'Validation failed', issues: parsed.error.flatten() },
+        { error: validationFailedMessage(issues), issues },
         { status: 400 },
       )
     }

@@ -7,6 +7,11 @@ import type { Product } from '@prisma/client'
 import { ProductAvailability } from '@prisma/client'
 import { slugify } from '@/lib/admin/format'
 import {
+  parseCollectionsField,
+  parseImagesField,
+  productInputSchema,
+} from '@/lib/admin/validation'
+import {
   buildDuplicateInitialForm,
   type ProductDuplicateInitial,
 } from '@/lib/admin/product-duplicate'
@@ -416,7 +421,7 @@ export function ProductForm({
       slug: form.slug,
       sku: form.sku,
       description: form.description,
-      price: Number(form.price),
+      price: form.price === '' ? undefined : Number(form.price),
       originalPrice: form.originalPrice === '' ? null : Number(form.originalPrice),
       image: form.image,
       images,
@@ -427,7 +432,7 @@ export function ProductForm({
       blouse: form.blouse,
       care: form.care,
       availability: form.availability,
-      stock: Number(form.stock),
+      stock: form.stock === '' ? undefined : Number(form.stock),
       active: form.active,
       featured: form.featured,
       isNew: form.isNew,
@@ -436,6 +441,35 @@ export function ProductForm({
     // Create + duplicate always send collections. Edit only when intentionally changed.
     if (usesPost || collectionsTouched) {
       payload.collections = form.collections
+    }
+
+    // Same schema as POST /api/admin/products — surface field errors before the network call.
+    if (usesPost) {
+      const clientParsed = productInputSchema.safeParse({
+        ...payload,
+        images: parseImagesField(payload.images),
+        collections: parseCollectionsField(payload.collections ?? []),
+        active: payload.active ?? true,
+        featured: payload.featured ?? false,
+        isNew: payload.isNew ?? false,
+      })
+      if (!clientParsed.success) {
+        const issues = clientParsed.error.flatten()
+        setStatus('error')
+        setFieldErrors(issues.fieldErrors)
+        const fieldNames = Object.keys(issues.fieldErrors).filter(
+          (key) => (issues.fieldErrors[key]?.length ?? 0) > 0,
+        )
+        const details = fieldNames
+          .map((key) => `${key}: ${issues.fieldErrors[key]?.[0]}`)
+          .join('; ')
+        setMessage(
+          fieldNames.length
+            ? `Validation failed (${fieldNames.join(', ')}). ${details}`
+            : 'Validation failed',
+        )
+        return
+      }
     }
 
     startTransition(async () => {
@@ -643,6 +677,8 @@ export function ProductForm({
               value={form.description}
               onChange={(e) => update('description', e.target.value)}
               required
+              minLength={10}
+              maxLength={5000}
             />
             {err('description') ? (
               <p className="mt-1 text-xs text-destructive">{err('description')}</p>
@@ -734,6 +770,7 @@ export function ProductForm({
               id="price"
               type="number"
               min={1}
+              step={1}
               className={fieldClass}
               value={form.price}
               onChange={(e) => update('price', e.target.value)}
@@ -771,11 +808,13 @@ export function ProductForm({
               id="stock"
               type="number"
               min={0}
+              step={1}
               className={fieldClass}
               value={form.stock}
               onChange={(e) => update('stock', e.target.value)}
               required
             />
+            {err('stock') ? <p className="mt-1 text-xs text-destructive">{err('stock')}</p> : null}
           </div>
           <div>
             <label className={labelClass} htmlFor="availability">
@@ -826,9 +865,12 @@ export function ProductForm({
           </div>
           {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
           {err('image') ? <p className="text-xs text-destructive">{err('image')}</p> : null}
+          {err('images') ? <p className="text-xs text-destructive">{err('images')}</p> : null}
 
           {galleryUrls.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No images yet. Upload at least one.</p>
+            <p className="text-sm text-muted-foreground">
+              No images yet. Upload at least one — a main image is required to save.
+            </p>
           ) : (
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
               {galleryUrls.map((url) => {
@@ -955,7 +997,9 @@ export function ProductForm({
                 value={form[key]}
                 onChange={(e) => update(key, e.target.value)}
                 required
+                maxLength={200}
               />
+              {err(key) ? <p className="mt-1 text-xs text-destructive">{err(key)}</p> : null}
             </div>
           ))}
           <div className="md:col-span-2">
@@ -968,7 +1012,9 @@ export function ProductForm({
               value={form.care}
               onChange={(e) => update('care', e.target.value)}
               required
+              maxLength={500}
             />
+            {err('care') ? <p className="mt-1 text-xs text-destructive">{err('care')}</p> : null}
           </div>
         </div>
       </section>
