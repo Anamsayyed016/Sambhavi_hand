@@ -13,8 +13,6 @@ import {
 } from '@/lib/catalog-nav'
 import { getStorefrontProducts, type Product } from '@/lib/products'
 
-const NAVRATRI_SLUG = 'navratri-collection'
-
 function isActiveHref(pathname: string | null, href: string) {
   if (!pathname) return false
   return pathname === href || pathname.startsWith(`${href}/`)
@@ -75,6 +73,42 @@ function NavCategoryLink({
   )
 }
 
+function SubgroupHeading({
+  category,
+  onNavigate,
+  pathname,
+}: {
+  category: SareeCategory
+  onNavigate?: () => void
+  pathname: string | null
+}) {
+  const href = `/collections/${category.slug}`
+  const active = isActiveHref(pathname, href)
+
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      aria-current={active ? 'page' : undefined}
+      className="group/subgroup inline-flex flex-col gap-1.5"
+    >
+      <span
+        className={cn(
+          'font-sans text-[0.65rem] font-medium uppercase tracking-[0.2em] text-wine/80 transition-colors duration-150',
+          'group-hover/subgroup:text-primary',
+          active && 'text-primary',
+        )}
+      >
+        {category.name}
+      </span>
+      <span
+        aria-hidden
+        className="h-px w-9 bg-gradient-to-r from-gold/65 to-transparent"
+      />
+    </Link>
+  )
+}
+
 function CategoryLinks({
   categories,
   onNavigate,
@@ -92,36 +126,16 @@ function CategoryLinks({
     <ul className={cn('flex flex-col gap-0', className)}>
       {categories.map((category) => {
         const children = getVisibleNavChildCategories(category.slug, products)
-        const isNavratri = category.slug === NAVRATRI_SLUG
 
-        if (isNavratri && children.length > 0) {
+        // Nested parents (Navratri, KCS COLLECTION, …) render as compact subgroup headings.
+        if (children.length > 0) {
           return (
-            <li key={category.slug} className="mt-1.5 space-y-2 pt-1">
-              <Link
-                href={`/collections/${category.slug}`}
-                onClick={onNavigate}
-                aria-current={
-                  isActiveHref(pathname, `/collections/${category.slug}`)
-                    ? 'page'
-                    : undefined
-                }
-                className="group/navratri inline-flex flex-col gap-1.5"
-              >
-                <span
-                  className={cn(
-                    'font-sans text-[0.65rem] font-medium uppercase tracking-[0.2em] text-wine/80 transition-colors duration-150',
-                    'group-hover/navratri:text-primary',
-                    isActiveHref(pathname, `/collections/${category.slug}`) &&
-                      'text-primary',
-                  )}
-                >
-                  Navratri Collection
-                </span>
-                <span
-                  aria-hidden
-                  className="h-px w-9 bg-gradient-to-r from-gold/65 to-transparent"
-                />
-              </Link>
+            <li key={category.slug} className="mt-2 space-y-1.5 first:mt-0">
+              <SubgroupHeading
+                category={category}
+                onNavigate={onNavigate}
+                pathname={pathname}
+              />
               <ul className="space-y-0 border-l border-gold/20 pl-3">
                 {children.map((child) => (
                   <li key={child.slug}>
@@ -145,20 +159,6 @@ function CategoryLinks({
               onNavigate={onNavigate}
               pathname={pathname}
             />
-            {children.length > 0 ? (
-              <ul className="mt-0.5 space-y-0 border-l border-border/40 pl-3">
-                {children.map((child) => (
-                  <li key={child.slug}>
-                    <NavCategoryLink
-                      category={child}
-                      onNavigate={onNavigate}
-                      pathname={pathname}
-                      nested
-                    />
-                  </li>
-                ))}
-              </ul>
-            ) : null}
           </li>
         )
       })}
@@ -462,25 +462,16 @@ export function CategoriesMobileAccordion({
                               category.slug,
                               products,
                             )
-                            const isNavratri = category.slug === NAVRATRI_SLUG
 
-                            if (isNavratri && children.length > 0) {
+                            if (children.length > 0) {
                               return (
-                                <li key={category.slug} className="space-y-2.5 pt-1">
-                                  <Link
-                                    href={`/collections/${category.slug}`}
-                                    onClick={handleNavigate}
-                                    className="inline-flex flex-col gap-1.5"
-                                  >
-                                    <span className="font-sans text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-wine/80">
-                                      Navratri Collection
-                                    </span>
-                                    <span
-                                      aria-hidden
-                                      className="h-px w-8 bg-gradient-to-r from-gold/70 to-transparent"
-                                    />
-                                  </Link>
-                                  <ul className="space-y-2 border-l border-gold/25 pl-3">
+                                <li key={category.slug} className="space-y-2 pt-1">
+                                  <SubgroupHeading
+                                    category={category}
+                                    onNavigate={handleNavigate}
+                                    pathname={pathname}
+                                  />
+                                  <ul className="space-y-1.5 border-l border-gold/25 pl-3">
                                     {children.map((child) => (
                                       <li key={child.slug} className="min-w-0">
                                         <NavCategoryLink
@@ -503,20 +494,6 @@ export function CategoriesMobileAccordion({
                                   onNavigate={handleNavigate}
                                   pathname={pathname}
                                 />
-                                {children.length > 0 ? (
-                                  <ul className="mt-1.5 space-y-1.5 border-l border-border/40 pl-3">
-                                    {children.map((child) => (
-                                      <li key={child.slug} className="min-w-0">
-                                        <NavCategoryLink
-                                          category={child}
-                                          onNavigate={handleNavigate}
-                                          pathname={pathname}
-                                          nested
-                                        />
-                                      </li>
-                                    ))}
-                                  </ul>
-                                ) : null}
                               </li>
                             )
                           })}

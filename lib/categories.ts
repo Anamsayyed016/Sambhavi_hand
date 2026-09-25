@@ -80,7 +80,7 @@ const groupDefs: {
       'Diwali Collection',
       'Durga Puja / Bengal Special',
       'Navratri Collection',
-      'LEHENGA CHOLI',
+      'KCS COLLECTION',
       'Raksha Bandhan / Family Sets',
     ],
   },
@@ -165,16 +165,9 @@ const nestedCategoryDefs: Array<{
     groupSlug: 'festive-edition',
   },
   {
-    name: '🧵 KCS KANCHI COTTON SAREES 🧵',
-    /** Canonical route: /collections/kcs-kanchi-cotton-sarees */
-    slug: 'kcs-kanchi-cotton-sarees',
-    parentSlug: 'navratri-collection',
-    groupSlug: 'festive-edition',
-  },
-  {
-    name: 'KCS Handloom Khadi Cotton Saree',
-    /** Canonical route: /collections/kcs-handloom-khadi-cotton-saree */
-    slug: 'kcs-handloom-khadi-cotton-saree',
+    name: 'LEHENGA CHOLI',
+    /** Moved under Navratri; preserve /collections/lehenga-choli */
+    slug: 'lehenga-choli',
     parentSlug: 'navratri-collection',
     groupSlug: 'festive-edition',
   },
@@ -183,6 +176,20 @@ const nestedCategoryDefs: Array<{
     /** Canonical route: /collections/vinayaka-pure-dola-silk-softy-fully-jari-jaqurad */
     slug: 'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad',
     parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
+  {
+    name: 'KCS Handloom Khadi Cotton Saree',
+    /** Canonical route: /collections/kcs-handloom-khadi-cotton-saree */
+    slug: 'kcs-handloom-khadi-cotton-saree',
+    parentSlug: 'kcs-collection',
+    groupSlug: 'festive-edition',
+  },
+  {
+    name: '🧵 KCS KANCHI COTTON SAREES 🧵',
+    /** Canonical route: /collections/kcs-kanchi-cotton-sarees */
+    slug: 'kcs-kanchi-cotton-sarees',
+    parentSlug: 'kcs-collection',
     groupSlug: 'festive-edition',
   },
 ]
