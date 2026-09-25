@@ -118,6 +118,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'kcs-handloom-southcottonmix-sarees') {
+    return {
+      title: "KCS Handloom Southcottonmix Saree's | Sambhavi Handloom",
+      description:
+        "Explore KCS Handloom Southcottonmix Saree's from the KCS Collection by Sambhavi Handloom.",
+    }
+  }
+
   if (category?.slug === 'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad') {
     return {
       title: 'Vinayaka Pure Dola Silk Softy Fully Jari Jaqurad | Sambhavi Handloom',

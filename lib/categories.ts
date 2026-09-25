@@ -192,6 +192,13 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'kcs-collection',
     groupSlug: 'handloom-powerloom',
   },
+  {
+    name: "KCS Handloom Southcottonmix Saree's",
+    /** Canonical route: /collections/kcs-handloom-southcottonmix-sarees */
+    slug: 'kcs-handloom-southcottonmix-sarees',
+    parentSlug: 'kcs-collection',
+    groupSlug: 'handloom-powerloom',
+  },
 ]
 
 export function nameToSlug(name: string): string {
@@ -216,6 +223,7 @@ const NAV_ICON_BY_SLUG: Record<string, FashionNavIcon> = {
   'tirupati-durga-puja-special': '🥻',
   'kcs-kanchi-cotton-sarees': '🧵',
   'kcs-handloom-khadi-cotton-saree': '🧵',
+  'kcs-handloom-southcottonmix-sarees': '🧵',
   'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad': '🥻',
   'ritu-fashion-kaftan-collection': '👗',
   'mini-lehenga-saree-sets': '👗',
