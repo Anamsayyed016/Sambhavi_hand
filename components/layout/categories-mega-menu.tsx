@@ -61,7 +61,7 @@ function NavCategoryLink({
       ) : null}
       <span
         className={cn(
-          'min-w-0 font-sans text-[0.875rem] font-normal leading-snug tracking-[0.02em] text-charcoal/70 transition-colors duration-150',
+          'min-w-0 break-words font-sans text-[0.875rem] font-normal leading-snug tracking-[0.02em] text-charcoal/70 transition-colors duration-150',
           category.prominent && 'font-medium text-charcoal/88',
           'group-hover/link:text-primary',
           active && 'text-primary',
@@ -185,7 +185,7 @@ function GroupHeading({
         onClick={onNavigate}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'inline-block font-serif text-[0.9375rem] uppercase tracking-[0.14em] text-wine/90 transition-colors duration-150 hover:text-primary md:text-[1rem]',
+          'inline-block max-w-full break-words font-serif text-[0.9375rem] uppercase tracking-[0.14em] text-wine/90 transition-colors duration-150 hover:text-primary md:text-[1rem]',
           active && 'text-primary',
         )}
       >
@@ -304,7 +304,8 @@ export function CategoriesMegaMenu({
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               'absolute left-1/2 top-full z-40 mt-3 -translate-x-1/2',
-              'w-max max-w-[min(94vw,60rem)]',
+              /* Cap to viewport so content cannot force a wider panel (horizontal scrollbar). */
+              'w-[min(94vw,58rem)] max-w-[94vw]',
               'rounded-md border border-border/40 bg-ivory/98',
               'shadow-[0_18px_40px_-22px_rgba(40,28,24,0.28)]',
               'backdrop-blur-sm lg:z-[49]',
@@ -312,9 +313,9 @@ export function CategoriesMegaMenu({
             onMouseEnter={openMenu}
             onMouseLeave={scheduleClose}
           >
-            <div className="max-h-[min(78vh,36rem)] overflow-y-auto overscroll-contain px-5 py-5 md:px-6 md:py-5">
-              <div className="flex flex-col gap-7 md:flex-row md:items-start md:gap-9 lg:gap-11">
-                <div className="min-w-[11rem] shrink-0 space-y-3 border-border/30 md:border-r md:pr-8">
+            <div className="max-h-[min(78vh,38rem)] overflow-y-auto overscroll-contain px-4 py-5 md:px-5 md:py-5">
+              <div className="grid grid-cols-1 items-start gap-7 md:grid-cols-3 md:gap-6 lg:gap-8">
+                <div className="min-w-0 space-y-3 border-border/30 md:border-r md:pr-6">
                   <GroupHeading
                     group={primaryGroup}
                     onNavigate={closeMenu}
@@ -327,31 +328,20 @@ export function CategoriesMegaMenu({
                   />
                 </div>
 
-                {secondaryGroups.map((group) => {
-                  const isFestive = group.slug === 'festive-edition'
-                  return (
-                    <div
-                      key={group.slug}
-                      className={cn(
-                        'shrink-0 space-y-3',
-                        isFestive
-                          ? 'min-w-[14rem] max-w-[24rem]'
-                          : 'min-w-[12rem] max-w-[18rem]',
-                      )}
-                    >
-                      <GroupHeading
-                        group={group}
-                        onNavigate={closeMenu}
-                        pathname={pathname}
-                      />
-                      <CategoryLinks
-                        categories={group.categories}
-                        onNavigate={closeMenu}
-                        pathname={pathname}
-                      />
-                    </div>
-                  )
-                })}
+                {secondaryGroups.map((group) => (
+                  <div key={group.slug} className="min-w-0 space-y-3">
+                    <GroupHeading
+                      group={group}
+                      onNavigate={closeMenu}
+                      pathname={pathname}
+                    />
+                    <CategoryLinks
+                      categories={group.categories}
+                      onNavigate={closeMenu}
+                      pathname={pathname}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>

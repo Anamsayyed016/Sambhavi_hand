@@ -93,6 +93,7 @@ const groupDefs: {
         name: '🌷Ritu fashion Kaftan collection🌷',
         slug: 'ritu-fashion-kaftan-collection',
       },
+      'EXCLUSIVE KOTA DORIA',
     ],
   },
   {
@@ -206,6 +207,13 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'kcs-collection',
     groupSlug: 'handloom-powerloom',
   },
+  {
+    name: 'KOTA DORIA SOFT COTTON SUITS',
+    /** Canonical route: /collections/kota-doria-soft-cotton-suits */
+    slug: 'kota-doria-soft-cotton-suits',
+    parentSlug: 'exclusive-kota-doria',
+    groupSlug: 'summer-collection',
+  },
 ]
 
 export function nameToSlug(name: string): string {
@@ -232,6 +240,7 @@ const NAV_ICON_BY_SLUG: Record<string, FashionNavIcon> = {
   'kcs-handloom-khadi-cotton-saree': '🧵',
   'kcs-handloom-southcottonmix-sarees': '🧵',
   'kcs-mangalagiri-pure-handloom-orginal-pattu-by-cotton': '🧵',
+  'kota-doria-soft-cotton-suits': '🧵',
   'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad': '🥻',
   'ritu-fashion-kaftan-collection': '👗',
   'mini-lehenga-saree-sets': '👗',

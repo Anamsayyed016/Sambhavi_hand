@@ -150,6 +150,22 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'exclusive-kota-doria') {
+    return {
+      title: 'EXCLUSIVE KOTA DORIA | Sambhavi Handloom',
+      description:
+        'Explore Exclusive Kota Doria from the Summer Collection by Sambhavi Handloom.',
+    }
+  }
+
+  if (category?.slug === 'kota-doria-soft-cotton-suits') {
+    return {
+      title: 'KOTA DORIA SOFT COTTON SUITS | Sambhavi Handloom',
+      description:
+        'Explore Kota Doria Soft Cotton Suits from Exclusive Kota Doria by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'lehenga-choli') {
     return {
       title: 'LEHENGA CHOLI | Sambhavi Handloom',
