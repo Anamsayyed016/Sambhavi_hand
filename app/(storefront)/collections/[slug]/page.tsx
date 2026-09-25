@@ -98,7 +98,7 @@ export async function generateMetadata({
     return {
       title: '🧵 KCS KANCHI COTTON SAREES 🧵 | Sambhavi Handloom',
       description:
-        'Explore KCS Kanchi Cotton Sarees from the KCS Collection festive edit by Sambhavi Handloom.',
+        'Explore KCS Kanchi Cotton Sarees from the KCS Collection by Sambhavi Handloom.',
     }
   }
 
@@ -106,7 +106,7 @@ export async function generateMetadata({
     return {
       title: 'KCS COLLECTION | Sambhavi Handloom',
       description:
-        'Explore KCS Collection sarees from the Festive Edition by Sambhavi Handloom.',
+        'Explore KCS Collection sarees from Handloom & Powerloom by Sambhavi Handloom.',
     }
   }
 
@@ -114,7 +114,7 @@ export async function generateMetadata({
     return {
       title: 'KCS Handloom Khadi Cotton Saree | Sambhavi Handloom',
       description:
-        'Explore KCS Handloom Khadi Cotton Saree from the KCS Collection festive edit by Sambhavi Handloom.',
+        'Explore KCS Handloom Khadi Cotton Saree from the KCS Collection by Sambhavi Handloom.',
     }
   }
 

@@ -49,6 +49,7 @@ const groupDefs: {
     names: [
       'Digital Print',
       'Kota Handloom',
+      'KCS COLLECTION',
       'Banarasi',
       'Kanjivaram / Kanchipuram',
       'Maheshwari',
@@ -80,7 +81,6 @@ const groupDefs: {
       'Diwali Collection',
       'Durga Puja / Bengal Special',
       'Navratri Collection',
-      'KCS COLLECTION',
       'Raksha Bandhan / Family Sets',
     ],
   },
@@ -183,14 +183,14 @@ const nestedCategoryDefs: Array<{
     /** Canonical route: /collections/kcs-handloom-khadi-cotton-saree */
     slug: 'kcs-handloom-khadi-cotton-saree',
     parentSlug: 'kcs-collection',
-    groupSlug: 'festive-edition',
+    groupSlug: 'handloom-powerloom',
   },
   {
     name: '🧵 KCS KANCHI COTTON SAREES 🧵',
     /** Canonical route: /collections/kcs-kanchi-cotton-sarees */
     slug: 'kcs-kanchi-cotton-sarees',
     parentSlug: 'kcs-collection',
-    groupSlug: 'festive-edition',
+    groupSlug: 'handloom-powerloom',
   },
 ]
 
