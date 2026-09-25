@@ -30,6 +30,7 @@ export default async function NewProductPage() {
         </p>
       </div>
       <ProductForm
+        key="admin-product-create"
         mode="create"
         categories={filters.categories}
         collections={filters.collections}

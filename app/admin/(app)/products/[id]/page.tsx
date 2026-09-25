@@ -35,6 +35,7 @@ export default async function EditProductPage({ params }: Params) {
         </p>
       </div>
       <ProductForm
+        key={`admin-product-edit-${product.id}`}
         mode="edit"
         product={product}
         categories={filters.categories}

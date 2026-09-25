@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Product } from '@prisma/client'
 import { ProductAvailability } from '@prisma/client'
@@ -113,7 +113,9 @@ const labelClass = 'text-xs font-medium uppercase tracking-[0.1em] text-muted-fo
 
 export function ProductForm({ mode, product, categories, collections }: ProductFormProps) {
   const router = useRouter()
-  const [form, setForm] = useState<FormState>(() => toFormState(product))
+  const [form, setForm] = useState<FormState>(() =>
+    mode === 'create' ? toFormState(undefined) : toFormState(product),
+  )
   const [slugTouched, setSlugTouched] = useState(mode === 'edit')
   const [collectionsTouched, setCollectionsTouched] = useState(false)
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
@@ -122,6 +124,29 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
   const [isPending, startTransition] = useTransition()
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+
+  // Hard isolation: create never inherits edit/product state; edit remounts per product id via page key.
+  useEffect(() => {
+    if (mode === 'create') {
+      setForm(toFormState(undefined))
+      setSlugTouched(false)
+      setCollectionsTouched(false)
+      setStatus('idle')
+      setMessage(null)
+      setFieldErrors({})
+      setUploadError(null)
+      return
+    }
+    if (mode === 'edit' && product) {
+      setForm(toFormState(product))
+      setSlugTouched(true)
+      setCollectionsTouched(false)
+      setStatus('idle')
+      setMessage(null)
+      setFieldErrors({})
+      setUploadError(null)
+    }
+  }, [mode, product?.id])
 
   const categoryOptions = useMemo(() => {
     const set = new Set<string>([...categoryNames, ...categories])
@@ -331,7 +356,13 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
   const busy = isPending || status === 'saving' || uploading
 
   return (
-    <form onSubmit={onSubmit} className="space-y-8">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-8"
+      autoComplete="off"
+      data-form-type={mode === 'create' ? 'product-create' : 'product-edit'}
+      data-lpignore="true"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
@@ -379,6 +410,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
             </label>
             <input
               id="name"
+              name="product_name_new"
+              autoComplete="off"
               className={fieldClass}
               value={form.name}
               onChange={(e) => update('name', e.target.value)}
@@ -392,6 +425,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
             </label>
             <input
               id="sku"
+              name="product_sku_new"
+              autoComplete="off"
               className={fieldClass}
               value={form.sku}
               onChange={(e) => update('sku', e.target.value)}
@@ -405,6 +440,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
             </label>
             <input
               id="slug"
+              name="product_slug_new"
+              autoComplete="off"
               className={fieldClass}
               value={form.slug}
               onChange={(e) => {
@@ -421,6 +458,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
             </label>
             <textarea
               id="description"
+              name="product_description_new"
+              autoComplete="off"
               className={`${fieldClass} min-h-28`}
               value={form.description}
               onChange={(e) => update('description', e.target.value)}
@@ -662,8 +701,12 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
 
           <details className="rounded-md border border-border/70 bg-white/60 p-3">
             <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
-              Advanced: edit image URLs
+              Advanced: paste existing image URLs
             </summary>
+            <p className="mt-2 text-xs text-muted-foreground">
+              For trusted public URLs already hosted (e.g. existing Cloudinary or R2 links). This
+              does not upload a file to R2 — use Upload Images above for new files.
+            </p>
             <div className="mt-3 space-y-3">
               <div>
                 <label className={labelClass} htmlFor="image">
@@ -671,6 +714,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
                 </label>
                 <input
                   id="image"
+                  name="product_main_image_url"
+                  autoComplete="off"
                   className={fieldClass}
                   value={form.image}
                   onChange={(e) => update('image', e.target.value)}
@@ -684,6 +729,8 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
                 </label>
                 <textarea
                   id="images"
+                  name="product_gallery_urls"
+                  autoComplete="off"
                   className={`${fieldClass} min-h-24 font-mono text-xs`}
                   value={form.images.join('\n')}
                   onChange={(e) =>
