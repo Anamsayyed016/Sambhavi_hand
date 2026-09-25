@@ -56,7 +56,8 @@ export function isTirupatiDurgaProduct(product: Product): boolean {
   return (
     product.category.trim() === '🍁Tirupati Durga Puja Special 🍁' ||
     product.collections.includes('tirupati-durga-puja-special') ||
-    product.slug === 'tirupati-durga-puja-special'
+    product.slug === 'tirupati-durga-puja-special' ||
+    product.slug.startsWith('tirupati-durga-puja-special-')
   )
 }
 

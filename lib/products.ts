@@ -2852,6 +2852,36 @@ export const products: Product[] = [
       'Rate - ₹1,560',
     ].join('\n'),
   },
+  {
+    slug: 'tirupati-durga-puja-special-02',
+    name: 'Tirupati Durga Puja Special 🍁',
+    price: 1560,
+    image:
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790243072/file_00000000d8c481f69a717618a6f609aa.png',
+    images: [
+      'https://res.cloudinary.com/tcjtyr02/image/upload/v1790243072/file_00000000d8c481f69a717618a6f609aa.png',
+    ],
+    category: '🍁Tirupati Durga Puja Special 🍁',
+    collections: ['tirupati-durga-puja-special', 'navratri-collection'],
+    fabric: 'Plain Linen',
+    weave: 'Digital Print',
+    length: '6.30 Meter (With Digital Blouse)',
+    blouse: 'Plain Linen with Digital Print',
+    care: '',
+    availability: 'In Stock',
+    isNew: true,
+    description: [
+      'Saree Fabric - Plain Linen',
+      '',
+      'Work - Digital Print',
+      '',
+      'Saree Length - 6.30 Meter (With Digital Blouse)',
+      '',
+      'Blouse Fabric - Plain Linen with Digital Print',
+      '',
+      'Rate - ₹1,560',
+    ].join('\n'),
+  },
 ]
 
 export function getProduct(slug: string): Product | undefined {
