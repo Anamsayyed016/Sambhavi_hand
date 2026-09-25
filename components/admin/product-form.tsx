@@ -6,6 +6,10 @@ import { usePathname, useRouter } from 'next/navigation'
 import type { Product } from '@prisma/client'
 import { ProductAvailability } from '@prisma/client'
 import { slugify } from '@/lib/admin/format'
+import {
+  buildDuplicateInitialForm,
+  type ProductDuplicateInitial,
+} from '@/lib/admin/product-duplicate'
 import { categoryNames } from '@/lib/categories'
 import { Button } from '@/components/ui/button'
 
@@ -14,13 +18,6 @@ const PRODUCT_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', '
 const MAX_GALLERY = 12
 
 type CollectionOption = { slug: string; name: string }
-
-type ProductFormProps = {
-  mode: 'create' | 'edit' | 'duplicate'
-  product?: Product
-  categories: string[]
-  collections: CollectionOption[]
-}
 
 type FormState = {
   name: string
@@ -43,6 +40,15 @@ type FormState = {
   active: boolean
   featured: boolean
   isNew: boolean
+}
+
+type ProductFormProps = {
+  mode: 'create' | 'edit' | 'duplicate'
+  product?: Product
+  /** Required for mode=duplicate — precomputed on the server so Soft Nav cannot start blank. */
+  initialForm?: ProductDuplicateInitial
+  categories: string[]
+  collections: CollectionOption[]
 }
 
 function dedupeUrls(urls: string[]): string[] {
@@ -115,35 +121,6 @@ function emptyFormState(): FormState {
   return toFormState(undefined)
 }
 
-/** Prefill from a source product for Duplicate — never copies id/sku/slug; stock resets to 0. */
-function toDuplicateFormState(product: Product): FormState {
-  const images = dedupeUrls(
-    product.images.length > 0 ? product.images : product.image ? [product.image] : [],
-  )
-  return {
-    name: product.name,
-    slug: '',
-    sku: '',
-    description: product.description,
-    price: String(product.price),
-    originalPrice: product.originalPrice != null ? String(product.originalPrice) : '',
-    image: product.image ?? '',
-    images,
-    category: product.category,
-    collections: [...product.collections],
-    fabric: product.fabric,
-    weave: product.weave,
-    length: product.length,
-    blouse: product.blouse,
-    care: product.care,
-    availability: product.availability,
-    stock: '0',
-    active: true,
-    featured: product.featured,
-    isNew: product.isNew,
-  }
-}
-
 /**
  * Soft-navigation identity boundary for Add Product.
  * A distinct client host + per-mount key forces a fresh ProductForm so edit-page
@@ -169,14 +146,16 @@ export function ProductCreateFormHost({
 
 /**
  * Soft-navigation identity boundary for Duplicate Product.
- * Loads only the explicitly requested source product as a POST template.
+ * `initialForm` is computed on the server from the source Product ID.
  */
 export function ProductDuplicateFormHost({
   product,
+  initialForm,
   categories,
   collections,
 }: {
   product: Product
+  initialForm: ProductDuplicateInitial
   categories: string[]
   collections: CollectionOption[]
 }) {
@@ -188,33 +167,53 @@ export function ProductDuplicateFormHost({
       key={mountKey}
       mode="duplicate"
       product={product}
+      initialForm={initialForm}
       categories={categories}
       collections={collections}
     />
   )
 }
 
-export function ProductForm({ mode, product, categories, collections }: ProductFormProps) {
+export function ProductForm({
+  mode,
+  product,
+  initialForm,
+  categories,
+  collections,
+}: ProductFormProps) {
   const router = useRouter()
   const pathname = usePathname() ?? ''
 
-  const isBlankCreate =
-    mode === 'create' ||
-    pathname === '/admin/products/new' ||
-    pathname.endsWith('/products/new')
-  const isDuplicate =
-    mode === 'duplicate' || /\/admin\/products\/[^/]+\/duplicate\/?$/.test(pathname)
-  // Blank create must never load product data — even if a product prop is somehow present.
+  const onNewRoute =
+    pathname === '/admin/products/new' || pathname.endsWith('/products/new')
+  const onDuplicateRoute = /\/admin\/products\/[^/]+\/duplicate\/?$/.test(pathname)
+
+  // Duplicate ALWAYS wins over blank-create. Soft Nav can leave mode="create" while
+  // pathname is already /[id]/duplicate — the old blank-first check wiped the template
+  // (leaving only non-gated fields like category looking "sticky" from a prior edit).
+  const isDuplicate = mode === 'duplicate' || onDuplicateRoute
+  const isBlankCreate = !isDuplicate && (mode === 'create' || onNewRoute)
   const isEdit = !isBlankCreate && !isDuplicate && mode === 'edit'
   const usesPost = isBlankCreate || isDuplicate
 
   const [form, setForm] = useState<FormState>(() => {
+    if (isDuplicate) {
+      if (initialForm) {
+        return {
+          ...initialForm,
+          images: [...initialForm.images],
+          collections: [...initialForm.collections],
+        }
+      }
+      if (product) return buildDuplicateInitialForm(product)
+      return emptyFormState()
+    }
     if (isBlankCreate) return emptyFormState()
-    if (isDuplicate && product) return toDuplicateFormState(product)
-    return toFormState(product)
+    if (product) return toFormState(product)
+    return emptyFormState()
   })
-  const [slugTouched, setSlugTouched] = useState(isDuplicate || isEdit)
-  const [collectionsTouched, setCollectionsTouched] = useState(isDuplicate)
+  const [slugTouched, setSlugTouched] = useState(() => isDuplicate || isEdit)
+  const [collectionsTouched, setCollectionsTouched] = useState(() => isDuplicate)
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [message, setMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
@@ -222,9 +221,32 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   // Blocks Chrome autofill from writing prior product values before the user focuses a field.
-  const [autofillGate, setAutofillGate] = useState(isBlankCreate)
+  // Never gate duplicate — template values must remain visible and editable immediately.
+  const [autofillGate, setAutofillGate] = useState(() => isBlankCreate)
 
   useLayoutEffect(() => {
+    // Duplicate first — never allow a blank-create wipe to run on the duplicate route.
+    if (isDuplicate) {
+      if (initialForm) {
+        setForm({
+          ...initialForm,
+          images: [...initialForm.images],
+          collections: [...initialForm.collections],
+        })
+      } else if (product) {
+        setForm(buildDuplicateInitialForm(product))
+      } else {
+        return
+      }
+      setSlugTouched(true)
+      setCollectionsTouched(true)
+      setStatus('idle')
+      setMessage(null)
+      setFieldErrors({})
+      setUploadError(null)
+      setAutofillGate(false)
+      return
+    }
     if (isBlankCreate) {
       setForm(emptyFormState())
       setSlugTouched(false)
@@ -234,17 +256,6 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       setFieldErrors({})
       setUploadError(null)
       setAutofillGate(true)
-      return
-    }
-    if (isDuplicate && product) {
-      setForm(toDuplicateFormState(product))
-      setSlugTouched(true)
-      setCollectionsTouched(true)
-      setStatus('idle')
-      setMessage(null)
-      setFieldErrors({})
-      setUploadError(null)
-      setAutofillGate(false)
       return
     }
     if (isEdit && product) {
@@ -257,7 +268,7 @@ export function ProductForm({ mode, product, categories, collections }: ProductF
       setUploadError(null)
       setAutofillGate(false)
     }
-  }, [isBlankCreate, isDuplicate, isEdit, pathname, product?.id])
+  }, [isBlankCreate, isDuplicate, isEdit, pathname, product, initialForm])
 
   const categoryOptions = useMemo(() => {
     const set = new Set<string>([...categoryNames, ...categories])

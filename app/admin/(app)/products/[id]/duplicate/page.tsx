@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProductById, getProductFilterOptions } from '@/lib/admin/products'
 import { ProductDuplicateFormHost } from '@/components/admin/product-form'
+import { buildDuplicateInitialForm } from '@/lib/admin/product-duplicate'
 import { AdminEmptyState } from '@/components/admin/empty-state'
 
 export const dynamic = 'force-dynamic'
@@ -22,6 +23,9 @@ export default async function DuplicateProductPage({ params }: Params) {
   }
 
   if (!product) notFound()
+
+  // Precompute plain JSON on the server so the client form never boots blank then "fills later".
+  const initialForm = buildDuplicateInitialForm(product)
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -44,6 +48,7 @@ export default async function DuplicateProductPage({ params }: Params) {
       </div>
       <ProductDuplicateFormHost
         product={product}
+        initialForm={initialForm}
         categories={filters.categories}
         collections={filters.collections}
       />
