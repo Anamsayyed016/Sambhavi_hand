@@ -199,6 +199,13 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'kcs-collection',
     groupSlug: 'handloom-powerloom',
   },
+  {
+    name: 'KCS Mangalagiri pure Handloom orginal pattu by cotton (orginal Handloom pattu sarees)',
+    /** Canonical route: /collections/kcs-mangalagiri-pure-handloom-orginal-pattu-by-cotton */
+    slug: 'kcs-mangalagiri-pure-handloom-orginal-pattu-by-cotton',
+    parentSlug: 'kcs-collection',
+    groupSlug: 'handloom-powerloom',
+  },
 ]
 
 export function nameToSlug(name: string): string {
@@ -224,6 +231,7 @@ const NAV_ICON_BY_SLUG: Record<string, FashionNavIcon> = {
   'kcs-kanchi-cotton-sarees': '🧵',
   'kcs-handloom-khadi-cotton-saree': '🧵',
   'kcs-handloom-southcottonmix-sarees': '🧵',
+  'kcs-mangalagiri-pure-handloom-orginal-pattu-by-cotton': '🧵',
   'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad': '🥻',
   'ritu-fashion-kaftan-collection': '👗',
   'mini-lehenga-saree-sets': '👗',

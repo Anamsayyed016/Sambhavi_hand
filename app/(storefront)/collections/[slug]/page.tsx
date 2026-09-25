@@ -126,6 +126,15 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'kcs-mangalagiri-pure-handloom-orginal-pattu-by-cotton') {
+    return {
+      title:
+        'KCS Mangalagiri pure Handloom orginal pattu by cotton (orginal Handloom pattu sarees) | Sambhavi Handloom',
+      description:
+        'Explore KCS Mangalagiri pure Handloom orginal pattu by cotton sarees from the KCS Collection by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad') {
     return {
       title: 'Vinayaka Pure Dola Silk Softy Fully Jari Jaqurad | Sambhavi Handloom',
