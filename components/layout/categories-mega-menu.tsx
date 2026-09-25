@@ -325,16 +325,16 @@ export function CategoriesMegaMenu({
             onMouseEnter={openMenu}
             onMouseLeave={scheduleClose}
           >
-            <div className="mx-auto max-h-[min(78vh,720px)] max-w-7xl overflow-y-auto px-6 py-10 md:px-8 md:py-12">
+            <div className="mx-auto max-h-[85vh] max-w-7xl overflow-y-auto overscroll-contain px-6 py-7 md:px-8 md:py-8">
               <div
                 className={cn(
-                  'grid gap-10 lg:gap-x-12 xl:gap-x-14',
+                  'grid items-start gap-8 lg:gap-x-10 xl:gap-x-12',
                   secondaryGroups.length > 0
-                    ? 'lg:grid-cols-[minmax(0,2.15fr)_repeat(auto-fit,minmax(0,1fr))]'
+                    ? 'lg:grid-cols-[minmax(0,1.85fr)_repeat(auto-fit,minmax(11rem,1fr))]'
                     : 'lg:grid-cols-1',
                 )}
               >
-                <div className="space-y-6 border-border/35 lg:border-r lg:pr-11">
+                <div className="space-y-5 border-border/35 lg:border-r lg:pr-9">
                   <GroupHeading
                     group={primaryGroup}
                     onNavigate={closeMenu}
@@ -345,12 +345,12 @@ export function CategoriesMegaMenu({
                     categories={primaryGroup.categories}
                     onNavigate={closeMenu}
                     pathname={pathname}
-                    className="sm:grid sm:grid-cols-2 sm:gap-x-10 sm:gap-y-1"
+                    className="sm:grid sm:grid-cols-2 sm:items-start sm:gap-x-8 sm:gap-y-0.5"
                   />
                 </div>
 
                 {secondaryGroups.map((group) => (
-                  <div key={group.slug} className="space-y-5">
+                  <div key={group.slug} className="space-y-4">
                     <GroupHeading
                       group={group}
                       onNavigate={closeMenu}

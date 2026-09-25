@@ -33,7 +33,8 @@ export function getVisibleNavChildCategories(
 /**
  * Category groups for the public Categories mega-menu / mobile accordion.
  * A leaf category is visible when it has ≥1 product with a valid primary image,
- * or when it has a visible nested child with content.
+ * when it has nested children (structural — e.g. Navratri), or when its group
+ * opts into showEmptyCategories (e.g. Summer Collection before products land).
  * Groups with zero visible categories are omitted from the dropdown.
  */
 export function getVisibleNavCategoryGroups(products: Product[]): CategoryGroup[] {
@@ -42,6 +43,7 @@ export function getVisibleNavCategoryGroups(products: Product[]): CategoryGroup[
       ...group,
       categories: group.categories.filter(
         (category) =>
+          group.showEmptyCategories ||
           categoryHasStorefrontContent(category.slug, products) ||
           getVisibleNavChildCategories(category.slug, products).length > 0,
       ),

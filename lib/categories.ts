@@ -14,15 +14,25 @@ export type CategoryGroup = {
   categories: SareeCategory[]
   /** Main catalog section with extensive subcategories. */
   primary?: boolean
+  /** Keep leaf links visible in nav before products are assigned. */
+  showEmptyCategories?: boolean
 }
 
 const prominentCategorySlugs = new Set(['digital-print', 'kota-handloom'])
 
+/** Leaf category entry inside a group — string name, or name + explicit slug. */
+type GroupCategoryDef = string | { name: string; slug: string }
+
 const groupDefs: {
   slug: string
   name: string
-  names: string[]
+  names: GroupCategoryDef[]
   primary?: boolean
+  /**
+   * Keep leaf categories in the Categories mega-menu even before products land
+   * (same structural idea as nested Navratri children).
+   */
+  showEmptyCategories?: boolean
 }[] = [
   {
     slug: 'handloom-powerloom',
@@ -65,6 +75,17 @@ const groupDefs: {
       'Navratri Collection',
       'LEHENGA CHOLI',
       'Raksha Bandhan / Family Sets',
+    ],
+  },
+  {
+    slug: 'summer-collection',
+    name: 'Summer Collection',
+    showEmptyCategories: true,
+    names: [
+      {
+        name: '🌷Ritu fashion Kaftan collection🌷',
+        slug: 'ritu-fashion-kaftan-collection',
+      },
     ],
   },
   {
@@ -170,11 +191,20 @@ function toCategory(
   }
 }
 
+function resolveGroupCategoryDef(
+  def: GroupCategoryDef,
+  groupSlug: string,
+): SareeCategory {
+  if (typeof def === 'string') return toCategory(def, groupSlug)
+  return toCategory(def.name, groupSlug, undefined, def.slug)
+}
+
 export const categoryGroups: CategoryGroup[] = groupDefs.map((group) => ({
   slug: group.slug,
   name: group.name,
   primary: group.primary,
-  categories: group.names.map((name) => toCategory(name, group.slug)),
+  showEmptyCategories: group.showEmptyCategories,
+  categories: group.names.map((def) => resolveGroupCategoryDef(def, group.slug)),
 }))
 
 export const nestedCategories: SareeCategory[] = nestedCategoryDefs.map((def) =>
@@ -187,7 +217,17 @@ export const sareeCategories: SareeCategory[] = [
   ...nestedCategories,
 ]
 
-export const categoryNames = sareeCategories.map((c) => c.name)
+/**
+ * Canonical Admin + storefront category labels.
+ * Includes group names marked showEmptyCategories so the parent catalog
+ * (e.g. Summer Collection) is assignable alongside its leaf categories.
+ */
+export const categoryNames = Array.from(
+  new Set([
+    ...sareeCategories.map((c) => c.name),
+    ...categoryGroups.filter((g) => g.showEmptyCategories).map((g) => g.name),
+  ]),
+)
 
 export const primaryCategoryGroup = categoryGroups.find((g) => g.primary)
 export const secondaryCategoryGroups = categoryGroups.filter((g) => !g.primary)

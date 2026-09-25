@@ -102,6 +102,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'ritu-fashion-kaftan-collection') {
+    return {
+      title: '🌷Ritu fashion Kaftan collection🌷 | Sambhavi Handloom',
+      description:
+        'Explore Ritu fashion Kaftan collection from the Summer Collection by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'lehenga-choli') {
     return {
       title: 'LEHENGA CHOLI | Sambhavi Handloom',

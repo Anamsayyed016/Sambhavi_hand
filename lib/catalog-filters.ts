@@ -62,6 +62,7 @@ export function getProductsForCatalogSlug(slug: string, products: Product[]): Pr
   const group = getCategoryGroup(slug)
   if (group) {
     const names = new Set(group.categories.map((c) => c.name))
+    names.add(group.name)
     for (const parent of group.categories) {
       for (const child of getChildCategories(parent.slug)) {
         names.add(child.name)
