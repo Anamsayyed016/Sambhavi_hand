@@ -136,6 +136,13 @@ const nestedCategoryDefs: Array<{
     parentSlug: 'navratri-collection',
     groupSlug: 'festive-edition',
   },
+  {
+    name: '🧵 KCS KANCHI COTTON SAREES 🧵',
+    /** Canonical route: /collections/kcs-kanchi-cotton-sarees */
+    slug: 'kcs-kanchi-cotton-sarees',
+    parentSlug: 'navratri-collection',
+    groupSlug: 'festive-edition',
+  },
 ]
 
 export function nameToSlug(name: string): string {

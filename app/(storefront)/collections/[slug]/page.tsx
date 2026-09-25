@@ -94,6 +94,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'kcs-kanchi-cotton-sarees') {
+    return {
+      title: '🧵 KCS KANCHI COTTON SAREES 🧵 | Sambhavi Handloom',
+      description:
+        'Explore KCS Kanchi Cotton Sarees from the Navratri Collection festive edit by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'lehenga-choli') {
     return {
       title: 'LEHENGA CHOLI | Sambhavi Handloom',
