@@ -14,6 +14,7 @@ import {
   CategoriesMegaMenu,
   CategoriesMobileAccordion,
 } from '@/components/layout/categories-mega-menu'
+import type { Product } from '@/lib/products'
 
 const navLinkClass =
   'group relative text-nav text-foreground transition-colors duration-300 hover:text-primary'
@@ -22,7 +23,11 @@ const iconClass = 'size-[1.375rem]'
 const iconButtonClass =
   'rounded-full p-2.5 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40'
 
-export function Navbar() {
+export function Navbar({
+  navProducts = [],
+}: {
+  navProducts?: Pick<Product, 'slug' | 'image' | 'images' | 'category' | 'collections'>[]
+}) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const { count, openCart, wishlist } = useCart()
@@ -55,7 +60,7 @@ export function Navbar() {
               </li>
             )
             if (link.href === '/shop') {
-              return [item, <li key="categories"><CategoriesMegaMenu /></li>]
+              return [item, <li key="categories"><CategoriesMegaMenu products={navProducts} /></li>]
             }
             return [item]
           })}
@@ -149,7 +154,10 @@ export function Navbar() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.05 * (i + 1) + 0.05 }}
                     >
-                      <CategoriesMobileAccordion onNavigate={() => setMobileOpen(false)} />
+                      <CategoriesMobileAccordion
+                        onNavigate={() => setMobileOpen(false)}
+                        products={navProducts}
+                      />
                     </motion.li>,
                   ]
                 }

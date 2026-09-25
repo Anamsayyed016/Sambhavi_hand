@@ -2,7 +2,11 @@ import { OrderStatus, PaymentStatus, ProductAvailability } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { LOW_STOCK_THRESHOLD } from '@/lib/admin/products'
 import { getCustomerCount } from '@/lib/admin/customers'
-import { getDailySeries } from '@/lib/admin/analytics'
+import {
+  getDailySeriesBetween,
+  resolveDateRange,
+  type DateRangeKey,
+} from '@/lib/admin/analytics'
 
 /** Orders that count toward commerce (excludes cancelled). */
 const realOrderWhere = {
@@ -158,8 +162,36 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   }
 }
 
-export async function getDashboardCharts() {
-  return getDailySeries(30)
+export async function getDashboardCharts(
+  range: DateRangeKey = '30d',
+  fromIso?: string | null,
+  toIso?: string | null,
+) {
+  const { start, end } = resolveDateRange(range, fromIso, toIso)
+  return getDailySeriesBetween(start, end)
+}
+
+export async function getRangePaidStats(
+  range: DateRangeKey,
+  fromIso?: string | null,
+  toIso?: string | null,
+) {
+  const { start, end, label } = resolveDateRange(range, fromIso, toIso)
+  const where = {
+    ...paidOrderWhere,
+    createdAt: { gte: start, lte: end },
+  }
+  const [agg, count] = await Promise.all([
+    prisma.order.aggregate({ where, _sum: { total: true } }),
+    prisma.order.count({ where }),
+  ])
+  return {
+    label,
+    start,
+    end,
+    revenue: agg._sum.total ?? 0,
+    orders: count,
+  }
 }
 
 export async function getRecentOrders(limit = 5) {

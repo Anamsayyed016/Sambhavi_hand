@@ -4,17 +4,22 @@ import { ProductDetail } from '@/components/product/product-detail'
 import { ProductGrid } from '@/components/product/product-grid'
 import { SectionHeader } from '@/components/layout/section-header'
 import {
-  applyDbPricesToProducts,
   getPricedStorefrontProduct,
+  getPricedStorefrontProducts,
+  getRelatedPricedProducts,
 } from '@/lib/catalog/db-pricing'
-import { getRelatedProducts, getStorefrontProducts } from '@/lib/products'
 import { isChhabiliProduct, isDharviDulhanProduct, isJobaniyuProduct, isTirupatiDurgaProduct } from '@/lib/product-badges'
 
 /** Always read current selling prices from the database. */
 export const dynamic = 'force-dynamic'
 
-export function generateStaticParams() {
-  return getStorefrontProducts().map((p) => ({ slug: p.slug }))
+export async function generateStaticParams() {
+  try {
+    const products = await getPricedStorefrontProducts()
+    return products.map((p) => ({ slug: p.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({
@@ -45,7 +50,7 @@ export default async function ProductPage({
   const product = await getPricedStorefrontProduct(slug)
   if (!product) notFound()
 
-  const related = await applyDbPricesToProducts(getRelatedProducts(slug, 3))
+  const related = await getRelatedPricedProducts(slug, product.collections, 3)
 
   const jsonLd = {
     '@context': 'https://schema.org',

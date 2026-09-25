@@ -6,38 +6,52 @@ import {
   getLowStockProducts,
   getRecentOrders,
   getTopProducts,
+  getRangePaidStats,
 } from '@/lib/admin/dashboard'
+import { parseDateRangeKey } from '@/lib/admin/analytics'
 import { formatDate, formatINR } from '@/lib/admin/format'
 import { AdminEmptyState } from '@/components/admin/empty-state'
 import { AdminStatCard } from '@/components/admin/stat-card'
 import { SimpleBarChart } from '@/components/admin/simple-bar-chart'
+import { DashboardDateFilters } from '@/components/admin/dashboard-date-filters'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string; from?: string; to?: string }>
+}) {
+  const sp = await searchParams
+  const range = parseDateRangeKey(sp.range)
+  const from = sp.from ?? undefined
+  const to = sp.to ?? undefined
+
   let stats
   let recentOrders
   let topProducts
   let lowStock
   let chartData
+  let rangeStats
   let loadError: string | null = null
 
   try {
-    ;[stats, recentOrders, topProducts, lowStock, chartData] = await Promise.all([
+    ;[stats, recentOrders, topProducts, lowStock, chartData, rangeStats] = await Promise.all([
       getDashboardStats(),
       getRecentOrders(5),
       getTopProducts(5),
       getLowStockProducts(8),
-      getDashboardCharts(),
+      getDashboardCharts(range, from, to),
+      getRangePaidStats(range, from, to),
     ])
   } catch {
-    loadError = 'Unable to load dashboard. Please try again.'
+    loadError = 'Unable to load data'
   }
 
-  if (loadError || !stats) {
+  if (loadError || !stats || !rangeStats) {
     return (
       <AdminEmptyState
-        title="Unable to load dashboard"
+        title="Unable to load data"
         description={loadError ?? 'Please try again.'}
       />
     )
@@ -57,6 +71,8 @@ export default async function AdminDashboardPage() {
     { label: 'Shipped', count: stats.shippedOrders },
     { label: 'Delivered', count: stats.deliveredOrders },
   ]
+
+  const rangeHasSales = rangeStats.orders > 0
 
   return (
     <div className="space-y-8">
@@ -84,28 +100,51 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
+      <section className="rounded-md border border-border bg-[#faf8f4] p-5">
+        <h2 className="text-sm font-medium uppercase tracking-[0.12em] text-muted-foreground">
+          Date range
+        </h2>
+        <div className="mt-3">
+          <DashboardDateFilters range={range} from={from} to={to} />
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded border border-border/60 bg-white/60 px-3 py-3">
+            <p className="text-xs text-muted-foreground">Revenue · {rangeStats.label}</p>
+            <p className="mt-1 font-serif text-2xl">
+              {rangeHasSales ? formatINR(rangeStats.revenue) : 'No data yet'}
+            </p>
+          </div>
+          <div className="rounded border border-border/60 bg-white/60 px-3 py-3">
+            <p className="text-xs text-muted-foreground">Paid orders · {rangeStats.label}</p>
+            <p className="mt-1 font-serif text-2xl">
+              {rangeHasSales ? rangeStats.orders : 'No data yet'}
+            </p>
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <AdminStatCard
-          label="Revenue"
-          value={stats.hasPaidSales ? formatINR(stats.paidRevenue) : '₹0'}
+          label="All-time revenue"
+          value={stats.hasPaidSales ? formatINR(stats.paidRevenue) : 'No data yet'}
           hint={stats.hasPaidSales ? 'Paid orders' : 'No sales yet'}
           icon={IndianRupee}
         />
         <AdminStatCard
           label="Orders"
-          value={String(stats.orderCount)}
+          value={stats.hasOrders ? String(stats.orderCount) : 'No data yet'}
           hint={stats.hasOrders ? `${stats.paidOrderCount} paid` : 'No orders yet'}
           icon={ShoppingBag}
         />
         <AdminStatCard
           label="Products"
-          value={String(stats.productCount)}
+          value={stats.productCount > 0 ? String(stats.productCount) : 'No data yet'}
           hint={`${stats.activeProductCount} active`}
           icon={Package}
         />
         <AdminStatCard
           label="Customers"
-          value={stats.customerCount > 0 ? String(stats.customerCount) : '0'}
+          value={stats.customerCount > 0 ? String(stats.customerCount) : 'No data yet'}
           hint={stats.customerCount > 0 ? 'Unique paid buyers' : 'No customers yet'}
           icon={Users}
         />
@@ -134,16 +173,32 @@ export default async function AdminDashboardPage() {
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-muted-foreground">No sales yet</p>
+          <p className="mt-3 text-sm text-muted-foreground">No data yet</p>
         )}
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-          <SimpleBarChart data={chartData} metric="revenue" label="Revenue over time (30 days)" />
+          {chartData.length > 0 && rangeHasSales ? (
+            <SimpleBarChart
+              data={chartData}
+              metric="revenue"
+              label={`Revenue · ${rangeStats.label}`}
+            />
+          ) : (
+            <AdminEmptyState title="No data yet" description="Revenue chart will appear after paid orders in this range." compact />
+          )}
         </section>
         <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-          <SimpleBarChart data={chartData} metric="orders" label="Orders over time (30 days)" />
+          {chartData.length > 0 && rangeHasSales ? (
+            <SimpleBarChart
+              data={chartData}
+              metric="orders"
+              label={`Orders · ${rangeStats.label}`}
+            />
+          ) : (
+            <AdminEmptyState title="No data yet" description="Orders chart will appear after paid orders in this range." compact />
+          )}
         </section>
       </div>
 
@@ -161,7 +216,7 @@ export default async function AdminDashboardPage() {
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-muted-foreground">No orders yet</p>
+          <p className="mt-3 text-sm text-muted-foreground">No data yet</p>
         )}
       </section>
 
@@ -175,7 +230,7 @@ export default async function AdminDashboardPage() {
           </div>
           {recentOrders.length === 0 ? (
             <div className="px-5 py-10">
-              <AdminEmptyState title="No orders yet" description="Orders will appear here when customers check out." compact />
+              <AdminEmptyState title="No data yet" description="Orders will appear here when customers check out." compact />
             </div>
           ) : (
             <ul className="divide-y divide-border">
@@ -208,7 +263,7 @@ export default async function AdminDashboardPage() {
           {topProducts.length === 0 ? (
             <div className="px-5 py-10">
               <AdminEmptyState
-                title="No sales data yet"
+                title="No data yet"
                 description="Top products are ranked from real order items once orders exist."
                 compact
               />
@@ -238,7 +293,7 @@ export default async function AdminDashboardPage() {
         </div>
         {lowStock.length === 0 ? (
           <div className="px-5 py-10">
-            <AdminEmptyState title="Stock looks healthy" description="No active products are below the low-stock threshold." compact />
+            <AdminEmptyState title="No data yet" description="No active products are below the low-stock threshold." compact />
           </div>
         ) : (
           <ul className="divide-y divide-border">

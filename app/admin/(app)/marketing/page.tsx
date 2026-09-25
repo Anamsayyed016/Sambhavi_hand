@@ -13,7 +13,7 @@ export default function MarketingPage() {
           <Tag className="size-8 text-wine" strokeWidth={1.5} />
           <div>
             <p className="font-medium">Coupons</p>
-            <p className="text-sm text-muted-foreground">Create discount codes (checkout integration pending)</p>
+            <p className="text-sm text-muted-foreground">Create discount codes used at checkout</p>
           </div>
         </Link>
         <Link href="/admin/marketing/newsletter" className="flex gap-4 rounded-md border border-border bg-[#faf8f4] p-5 hover:border-wine/30">

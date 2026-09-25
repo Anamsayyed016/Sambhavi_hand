@@ -1,26 +1,39 @@
 import {
   getAnalyticsSummary,
-  getDailySeries,
+  getDailySeriesBetween,
   getTopCategoriesAnalytics,
   getTopProductsAnalytics,
+  parseDateRangeKey,
+  resolveDateRange,
 } from '@/lib/admin/analytics'
 import { formatINR } from '@/lib/admin/format'
 import { AdminEmptyState } from '@/components/admin/empty-state'
 import { SimpleBarChart } from '@/components/admin/simple-bar-chart'
+import { DashboardDateFilters } from '@/components/admin/dashboard-date-filters'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AnalyticsPage() {
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string; from?: string; to?: string }>
+}) {
+  const sp = await searchParams
+  const range = parseDateRangeKey(sp.range)
+  const from = sp.from ?? undefined
+  const to = sp.to ?? undefined
+  const { start, end, label } = resolveDateRange(range, from, to)
+
   let summary, series, topProducts, topCategories
   try {
     ;[summary, series, topProducts, topCategories] = await Promise.all([
-      getAnalyticsSummary('30d'),
-      getDailySeries(30),
-      getTopProductsAnalytics(10),
-      getTopCategoriesAnalytics(10),
+      getAnalyticsSummary(range, from, to),
+      getDailySeriesBetween(start, end),
+      getTopProductsAnalytics(10, range, from, to),
+      getTopCategoriesAnalytics(10, range, from, to),
     ])
   } catch {
-    return <AdminEmptyState title="Unable to load analytics" />
+    return <AdminEmptyState title="Unable to load data" description="Please try again." />
   }
 
   const hasData = summary.orderCount > 0
@@ -29,11 +42,18 @@ export default async function AnalyticsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-serif text-3xl text-charcoal">Analytics</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Last 30 days · paid orders only</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {label} · paid orders only
+        </p>
       </div>
 
+      <DashboardDateFilters range={range} from={from} to={to} basePath="/admin/analytics" />
+
       {!hasData ? (
-        <AdminEmptyState title="No analytics data yet" description="Analytics will populate after customers place orders." />
+        <AdminEmptyState
+          title="No data yet"
+          description="Analytics will populate after customers place paid orders in this range."
+        />
       ) : (
         <>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -45,35 +65,43 @@ export default async function AnalyticsPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-              <SimpleBarChart data={series} metric="revenue" label="Revenue (30 days)" />
+              <SimpleBarChart data={series} metric="revenue" label={`Revenue · ${label}`} />
             </section>
             <section className="rounded-md border border-border bg-[#faf8f4] p-5">
-              <SimpleBarChart data={series} metric="orders" label="Orders (30 days)" />
+              <SimpleBarChart data={series} metric="orders" label={`Orders · ${label}`} />
             </section>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
             <section className="rounded-md border border-border bg-[#faf8f4] p-5">
               <h2 className="text-sm font-medium">Top products</h2>
-              <ul className="mt-3 divide-y divide-border text-sm">
-                {topProducts.map((p) => (
-                  <li key={p.productSlug} className="flex justify-between py-2">
-                    <span>{p.productName}</span>
-                    <span>{formatINR(p.revenue)}</span>
-                  </li>
-                ))}
-              </ul>
+              {topProducts.length === 0 ? (
+                <p className="mt-3 text-sm text-muted-foreground">No data yet</p>
+              ) : (
+                <ul className="mt-3 divide-y divide-border text-sm">
+                  {topProducts.map((p) => (
+                    <li key={p.productSlug} className="flex justify-between py-2">
+                      <span>{p.productName}</span>
+                      <span>{formatINR(p.revenue)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
             <section className="rounded-md border border-border bg-[#faf8f4] p-5">
               <h2 className="text-sm font-medium">Top categories</h2>
-              <ul className="mt-3 divide-y divide-border text-sm">
-                {topCategories.map((c) => (
-                  <li key={c.category} className="flex justify-between py-2">
-                    <span>{c.category}</span>
-                    <span>{formatINR(c.revenue)}</span>
-                  </li>
-                ))}
-              </ul>
+              {topCategories.length === 0 ? (
+                <p className="mt-3 text-sm text-muted-foreground">No data yet</p>
+              ) : (
+                <ul className="mt-3 divide-y divide-border text-sm">
+                  {topCategories.map((c) => (
+                    <li key={c.category} className="flex justify-between py-2">
+                      <span>{c.category}</span>
+                      <span>{formatINR(c.revenue)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
           </div>
         </>

@@ -20,6 +20,8 @@ export type Product = {
   care: string
   availability: 'In Stock' | 'Low Stock' | 'Made to Order'
   isNew?: boolean
+  /** From DB `Product.featured` when available. */
+  featured?: boolean
   /** ISO timestamp — from DB when available; used for New Arrivals newest-first ordering. */
   createdAt?: string
   description: string

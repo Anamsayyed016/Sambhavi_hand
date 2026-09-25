@@ -1,9 +1,10 @@
 import { prisma } from '@/lib/prisma'
+import type { Product as DbProduct } from '@prisma/client'
 import { resolveCheckoutCoupon } from '@/lib/checkout/coupon'
 import { calculateOrderTotal, getShippingRules } from '@/lib/checkout/shipping'
 import { isStorefrontProductVisible, productOffersFreeShipping } from '@/lib/payment-test-mode'
 import type { Product } from '@/lib/products'
-import { getProduct, getStorefrontProduct, getStorefrontProducts, withCatalogCreatedAt } from '@/lib/products'
+import { getProduct, getStorefrontProducts, withCatalogCreatedAt } from '@/lib/products'
 import { mapDbProductToStorefront } from '@/lib/catalog/storefront-search'
 
 export type DbProductPrice = {
@@ -37,105 +38,144 @@ export async function getDbPricesBySlugs(slugs: string[]): Promise<Map<string, D
   return new Map(rows.map((row) => [row.slug, row]))
 }
 
-/** Overlay DB selling prices onto static catalog records used for storefront display. */
+/**
+ * Merge a DB product with optional static catalog fallback.
+ * Non-empty database values ALWAYS win. Static is only used when DB field is empty.
+ */
+export function mergeDbProductWithStaticFallback(
+  row: DbProduct,
+  staticProduct?: Product,
+): Product {
+  const mapped = mapDbProductToStorefront(row)
+  const dbImage = row.image?.trim() ?? ''
+  const dbHasGallery = row.images.length > 0
+
+  const image =
+    dbImage ||
+    staticProduct?.image?.trim() ||
+    mapped.image
+
+  const images = dbHasGallery
+    ? [...row.images]
+    : staticProduct && staticProduct.images.length > 0
+      ? [...staticProduct.images]
+      : mapped.images
+
+  return {
+    ...mapped,
+    // Explicit DB-first field picks (non-empty DB never replaced by static)
+    name: row.name.trim() || staticProduct?.name || mapped.name,
+    price: row.price,
+    originalPrice: row.originalPrice ?? staticProduct?.originalPrice,
+    image,
+    images,
+    category: row.category.trim() || staticProduct?.category || mapped.category,
+    collections:
+      row.collections.length > 0
+        ? [...row.collections]
+        : staticProduct?.collections?.length
+          ? [...staticProduct.collections]
+          : mapped.collections,
+    fabric: row.fabric.trim() || staticProduct?.fabric || mapped.fabric,
+    weave: row.weave.trim() || staticProduct?.weave || mapped.weave,
+    length: row.length.trim() || staticProduct?.length || mapped.length,
+    blouse: row.blouse.trim() || staticProduct?.blouse || mapped.blouse,
+    care: row.care.trim() || staticProduct?.care || mapped.care,
+    description: row.description.trim() || staticProduct?.description || mapped.description,
+    availability: mapped.availability,
+    isNew: row.isNew,
+    featured: row.featured,
+    createdAt: row.createdAt.toISOString(),
+  }
+}
+
+/**
+ * Overlay DB commerce fields onto a product list (e.g. related products).
+ * Fetches full active DB rows by slug — DB wins for every present field.
+ */
 export async function applyDbPricesToProducts(products: Product[]): Promise<Product[]> {
   if (products.length === 0) return products
   try {
-    const prices = await getDbPricesBySlugs(products.map((p) => p.slug))
-    return products.map((product) => {
-      const db = prices.get(product.slug)
-      if (!db || !db.active) return product
-      return {
-        ...product,
-        name: db.name || product.name,
-        price: db.price,
-        image: db.image || product.image,
-        category: db.category || product.category,
-        description: db.description || product.description,
-      }
+    const slugs = products.map((p) => p.slug)
+    const rows = await prisma.product.findMany({
+      where: { slug: { in: slugs } },
+    })
+    const bySlug = new Map(rows.map((row) => [row.slug, row]))
+
+    return products.flatMap((product) => {
+      const row = bySlug.get(product.slug)
+      if (!row) return [] // hide static-only when we have DB context for these slugs
+      if (!row.active) return []
+      return [mergeDbProductWithStaticFallback(row, product)]
     })
   } catch (error) {
-    console.error('[catalog] DB price overlay failed; using static catalog prices', error)
+    console.error('[catalog] DB product overlay failed; using provided products', error)
     return products
   }
 }
 
+/**
+ * Full storefront catalog: active database products as source of truth.
+ * Static catalog fills only empty DB fields (e.g. legacy empty gallery).
+ */
 export async function getPricedStorefrontProducts(): Promise<Product[]> {
-  const staticPriced = withCatalogCreatedAt(await applyDbPricesToProducts(getStorefrontProducts()))
-
   try {
-    const [activeRows, inactiveRows] = await Promise.all([
+    const [activeRows, inactiveCount] = await Promise.all([
       prisma.product.findMany({ where: { active: true } }),
-      prisma.product.findMany({ where: { active: false }, select: { slug: true } }),
+      prisma.product.count({ where: { active: false } }),
     ])
+
     // Empty DB → static catalog only (local/dev without seed).
-    if (activeRows.length === 0 && inactiveRows.length === 0) return staticPriced
+    if (activeRows.length === 0 && inactiveCount === 0) {
+      return withCatalogCreatedAt(getStorefrontProducts())
+    }
 
-    // Commerce requires an active DB row. Never list static-only or inactive products —
-    // they look shoppable but fail cart pricing / coupon apply with a misleading availability error.
-    const staticBySlug = new Map(staticPriced.map((product) => [product.slug, product]))
     const priced: Product[] = []
-
     for (const row of activeRows) {
       if (!isStorefrontProductVisible(row.slug)) continue
-      const mapped = mapDbProductToStorefront(row)
-      const fromStatic = staticBySlug.get(row.slug)
-      // Keep explicit static gallery order for catalog products (never auto-sort / never let stale DB reorder).
-      if (fromStatic && fromStatic.images.length > 0) {
-        priced.push({
-          ...mapped,
-          createdAt: row.createdAt.toISOString(),
-          image: fromStatic.image || mapped.image,
-          images: [...fromStatic.images],
-        })
-      } else {
-        priced.push(mapped)
-      }
+      const staticProduct = getProduct(row.slug)
+      priced.push(mergeDbProductWithStaticFallback(row, staticProduct))
     }
     return withCatalogCreatedAt(priced)
   } catch (error) {
-    console.error('[catalog] DB catalog merge failed; using static+price overlay', error)
-    return staticPriced
+    console.error('[catalog] DB catalog load failed; falling back to static catalog', error)
+    return withCatalogCreatedAt(getStorefrontProducts())
   }
 }
 
+/**
+ * Single product for PDP: database row is primary.
+ * Inactive / missing DB products are hidden when the DB is reachable.
+ */
 export async function getPricedStorefrontProduct(slug: string): Promise<Product | undefined> {
-  if (!getStorefrontProduct(slug) && !getProduct(slug)) {
-    try {
-      const row = await prisma.product.findUnique({ where: { slug } })
-      if (!row || !row.active) return undefined
-      return mapDbProductToStorefront(row)
-    } catch (error) {
-      console.error('[catalog] DB product lookup failed; static catalog only', error)
-      return undefined
-    }
-  }
-
-  const base = getStorefrontProduct(slug) ?? getProduct(slug)
-  if (!base) return undefined
-  const [priced] = await applyDbPricesToProducts([base])
-
-  let dbActive: boolean | null = null
-  let dbReachable = true
   try {
-    const db = await prisma.product.findUnique({
-      where: { slug },
-      select: { active: true },
-    })
-    dbActive = db ? db.active : null
+    const row = await prisma.product.findUnique({ where: { slug } })
+    if (!row || !row.active) return undefined
+    if (!isStorefrontProductVisible(row.slug)) return undefined
+    return mergeDbProductWithStaticFallback(row, getProduct(slug))
   } catch (error) {
-    dbReachable = false
-    console.error('[catalog] DB product active check failed; using static catalog', error)
+    console.error('[catalog] DB product lookup failed; attempting static fallback', error)
+    const staticProduct = getProduct(slug)
+    if (!staticProduct || !isStorefrontProductVisible(slug)) return undefined
+    return staticProduct
   }
-  // Hide inactive and static-only products when the commerce DB is available.
-  if (dbReachable && dbActive !== true) return undefined
+}
 
-  // Preserve explicit catalog gallery order from static product data.
-  return {
-    ...priced,
-    image: base.image || priced.image,
-    images: base.images.length > 0 ? [...base.images] : priced.images,
-  }
+/** Related products from the live DB catalog (same collections). */
+export async function getRelatedPricedProducts(
+  slug: string,
+  collections: string[],
+  limit = 3,
+): Promise<Product[]> {
+  const all = await getPricedStorefrontProducts()
+  return all
+    .filter(
+      (p) =>
+        p.slug !== slug &&
+        (collections.length === 0 ||
+          p.collections.some((c) => collections.includes(c))),
+    )
+    .slice(0, limit)
 }
 
 export async function computeServerCartTotals(

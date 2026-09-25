@@ -1,7 +1,8 @@
 import { CHHABILI_HERO_IMAGE } from '@/components/collections/chhabili-collection-hero'
 import { getProductsForCatalogSlug } from '@/lib/catalog-filters'
 import { getSareeCategory } from '@/lib/categories'
-import { getStorefrontProducts, type Product } from '@/lib/products'
+import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
+import type { Product } from '@/lib/products'
 
 /**
  * Curated New Arrivals — category/collection showcase (exact order).
@@ -79,11 +80,10 @@ function firstValidProductPrimary(products: Product[]): string | null {
 
 /**
  * Resolve one representative cover per curated catalog.
- * Prefer static storefront catalog (stable Cloudinary URLs) over DB collection.image,
- * which is often seeded to `/images/collection-silk.png` (file does not exist → broken img).
+ * Prefer live DB catalog product images; fall back to known-good covers.
  */
-export function getNewArrivalsCatalogCards(): NewArrivalsCatalogCard[] {
-  const products = getStorefrontProducts()
+export async function getNewArrivalsCatalogCards(): Promise<NewArrivalsCatalogCard[]> {
+  const products = await getPricedStorefrontProducts()
 
   return NEW_ARRIVALS_CATALOG_DEFS.map((def) => {
     const category = getSareeCategory(def.slug)

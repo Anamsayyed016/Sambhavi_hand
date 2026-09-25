@@ -5,7 +5,9 @@ import { ProductGrid } from '@/components/product/product-grid'
 import { getPricedStorefrontProducts } from '@/lib/catalog/db-pricing'
 
 export async function FeaturedCollection() {
-  const products = (await getPricedStorefrontProducts()).slice(0, 9)
+  const all = await getPricedStorefrontProducts()
+  const featured = all.filter((p) => p.featured)
+  const products = (featured.length > 0 ? featured : all).slice(0, 9)
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-28">

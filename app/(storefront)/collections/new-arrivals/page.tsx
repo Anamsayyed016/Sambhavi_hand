@@ -14,8 +14,8 @@ export const metadata: Metadata = {
  * Dedicated New Arrivals route — category/collection showcase only.
  * Takes precedence over /collections/[slug] so ProductGrid can never render here.
  */
-export default function NewArrivalsPage() {
-  const catalogs = getNewArrivalsCatalogCards()
+export default async function NewArrivalsPage() {
+  const catalogs = await getNewArrivalsCatalogCards()
 
   return (
     <>

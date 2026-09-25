@@ -4,8 +4,8 @@ import { getNewArrivalsCatalogCards } from '@/lib/new-arrivals-catalogs'
 import Link from 'next/link'
 
 /** Homepage — curated category/collection New Arrivals (never product cards). */
-export function NewArrivals() {
-  const catalogs = getNewArrivalsCatalogCards()
+export async function NewArrivals() {
+  const catalogs = await getNewArrivalsCatalogCards()
 
   return (
     <section className="py-20 md:py-28">

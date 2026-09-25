@@ -2,43 +2,127 @@ import { OrderStatus, PaymentStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { LOW_STOCK_THRESHOLD } from '@/lib/admin/products'
 
-export type DateRangeKey = 'today' | '7d' | '30d' | '90d' | 'year' | 'month'
+export type DateRangeKey =
+  | 'today'
+  | 'yesterday'
+  | '7d'
+  | '30d'
+  | '90d'
+  | 'month'
+  | 'last_month'
+  | 'year'
+  | 'custom'
+
+export const DASHBOARD_RANGE_OPTIONS: Array<{ key: DateRangeKey; label: string }> = [
+  { key: 'today', label: 'Today' },
+  { key: 'yesterday', label: 'Yesterday' },
+  { key: '7d', label: 'Last 7 days' },
+  { key: '30d', label: 'Last 30 days' },
+  { key: 'month', label: 'This month' },
+  { key: 'last_month', label: 'Last month' },
+  { key: 'year', label: 'This year' },
+  { key: 'custom', label: 'Custom range' },
+]
 
 const paidOrderWhere = {
   paymentStatus: PaymentStatus.PAID,
   status: { not: OrderStatus.CANCELLED },
 } as const
 
-function rangeStart(key: DateRangeKey): Date {
+function startOfDay(d: Date) {
+  const x = new Date(d)
+  x.setHours(0, 0, 0, 0)
+  return x
+}
+
+function endOfDay(d: Date) {
+  const x = new Date(d)
+  x.setHours(23, 59, 59, 999)
+  return x
+}
+
+export function parseDateRangeKey(raw: string | null | undefined): DateRangeKey {
+  const allowed: DateRangeKey[] = [
+    'today',
+    'yesterday',
+    '7d',
+    '30d',
+    '90d',
+    'month',
+    'last_month',
+    'year',
+    'custom',
+  ]
+  if (raw && (allowed as string[]).includes(raw)) return raw as DateRangeKey
+  return '30d'
+}
+
+/** Resolve inclusive calendar range for analytics / dashboard. */
+export function resolveDateRange(
+  key: DateRangeKey,
+  fromIso?: string | null,
+  toIso?: string | null,
+): { start: Date; end: Date; label: string } {
   const now = new Date()
-  const d = new Date(now)
+  const todayStart = startOfDay(now)
+  const todayEnd = endOfDay(now)
+
   switch (key) {
     case 'today':
-      d.setHours(0, 0, 0, 0)
-      return d
-    case '7d':
-      d.setDate(d.getDate() - 7)
-      return d
-    case '30d':
-      d.setDate(d.getDate() - 30)
-      return d
-    case '90d':
-      d.setDate(d.getDate() - 90)
-      return d
-    case 'month':
-      d.setDate(1)
-      d.setHours(0, 0, 0, 0)
-      return d
-    case 'year':
-      d.setMonth(0, 1)
-      d.setHours(0, 0, 0, 0)
-      return d
+      return { start: todayStart, end: todayEnd, label: 'Today' }
+    case 'yesterday': {
+      const y = new Date(todayStart)
+      y.setDate(y.getDate() - 1)
+      return { start: startOfDay(y), end: endOfDay(y), label: 'Yesterday' }
+    }
+    case '7d': {
+      const start = new Date(todayStart)
+      start.setDate(start.getDate() - 6)
+      return { start, end: todayEnd, label: 'Last 7 days' }
+    }
+    case '30d': {
+      const start = new Date(todayStart)
+      start.setDate(start.getDate() - 29)
+      return { start, end: todayEnd, label: 'Last 30 days' }
+    }
+    case '90d': {
+      const start = new Date(todayStart)
+      start.setDate(start.getDate() - 89)
+      return { start, end: todayEnd, label: 'Last 90 days' }
+    }
+    case 'month': {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1)
+      return { start: startOfDay(start), end: todayEnd, label: 'This month' }
+    }
+    case 'last_month': {
+      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+      const end = new Date(now.getFullYear(), now.getMonth(), 0)
+      return { start: startOfDay(start), end: endOfDay(end), label: 'Last month' }
+    }
+    case 'year': {
+      const start = new Date(now.getFullYear(), 0, 1)
+      return { start: startOfDay(start), end: todayEnd, label: 'This year' }
+    }
+    case 'custom': {
+      const from = fromIso ? startOfDay(new Date(fromIso)) : new Date(todayStart)
+      const to = toIso ? endOfDay(new Date(toIso)) : todayEnd
+      const start = from <= to ? from : to
+      const end = from <= to ? to : from
+      return { start, end, label: 'Custom range' }
+    }
   }
 }
 
-export async function getAnalyticsSummary(range: DateRangeKey = '30d') {
-  const since = rangeStart(range)
-  const where = { ...paidOrderWhere, createdAt: { gte: since } }
+export async function getAnalyticsSummary(
+  range: DateRangeKey = '30d',
+  fromIso?: string | null,
+  toIso?: string | null,
+) {
+  const { start, end, label } = resolveDateRange(range, fromIso, toIso)
+  const where = {
+    ...paidOrderWhere,
+    createdAt: { gte: start, lte: end },
+  }
 
   const [orders, paidAgg, customers, productsSold] = await Promise.all([
     prisma.order.count({ where }),
@@ -70,20 +154,23 @@ export async function getAnalyticsSummary(range: DateRangeKey = '30d') {
     customerCount,
     unitsSold,
     aov,
-    since,
+    since: start,
+    until: end,
+    label,
   }
 }
 
-/** Daily paid-order series for revenue / order charts. */
-export async function getDailySeries(days = 30) {
-  const since = new Date()
-  since.setDate(since.getDate() - days)
-  since.setHours(0, 0, 0, 0)
+/** Daily paid-order series between two dates (inclusive). */
+export async function getDailySeriesBetween(start: Date, end: Date) {
+  const since = startOfDay(start)
+  const until = endOfDay(end)
+  const dayMs = 24 * 60 * 60 * 1000
+  const days = Math.max(0, Math.ceil((until.getTime() - since.getTime()) / dayMs))
 
   const orders = await prisma.order.findMany({
     where: {
       ...paidOrderWhere,
-      createdAt: { gte: since },
+      createdAt: { gte: since, lte: until },
     },
     select: { createdAt: true, total: true },
     orderBy: { createdAt: 'asc' },
@@ -93,6 +180,7 @@ export async function getDailySeries(days = 30) {
   for (let i = 0; i <= days; i++) {
     const d = new Date(since)
     d.setDate(d.getDate() + i)
+    if (d > until) break
     const key = d.toISOString().slice(0, 10)
     map.set(key, { revenue: 0, orders: 0 })
   }
@@ -109,10 +197,29 @@ export async function getDailySeries(days = 30) {
   return Array.from(map.entries()).map(([date, v]) => ({ date, ...v }))
 }
 
-export async function getTopProductsAnalytics(limit = 10) {
+/** @deprecated Prefer getDailySeriesBetween — kept for callers using day counts. */
+export async function getDailySeries(days = 30) {
+  const end = new Date()
+  const start = new Date()
+  start.setDate(start.getDate() - (days - 1))
+  start.setHours(0, 0, 0, 0)
+  return getDailySeriesBetween(start, end)
+}
+
+export async function getTopProductsAnalytics(
+  limit = 10,
+  range: DateRangeKey = '30d',
+  fromIso?: string | null,
+  toIso?: string | null,
+) {
+  const { start, end } = resolveDateRange(range, fromIso, toIso)
+  const orderWhere = {
+    ...paidOrderWhere,
+    createdAt: { gte: start, lte: end },
+  }
   const grouped = await prisma.orderItem.groupBy({
     by: ['productSlug', 'productName'],
-    where: { order: paidOrderWhere },
+    where: { order: orderWhere },
     _sum: { quantity: true, subtotal: true },
     orderBy: { _sum: { subtotal: 'desc' } },
     take: limit,
@@ -125,7 +232,17 @@ export async function getTopProductsAnalytics(limit = 10) {
   }))
 }
 
-export async function getTopCategoriesAnalytics(limit = 10) {
+export async function getTopCategoriesAnalytics(
+  limit = 10,
+  range: DateRangeKey = '30d',
+  fromIso?: string | null,
+  toIso?: string | null,
+) {
+  const { start, end } = resolveDateRange(range, fromIso, toIso)
+  const orderWhere = {
+    ...paidOrderWhere,
+    createdAt: { gte: start, lte: end },
+  }
   const items = await prisma.orderItem.findMany({
     select: {
       quantity: true,
@@ -134,7 +251,7 @@ export async function getTopCategoriesAnalytics(limit = 10) {
     },
     where: {
       productId: { not: null },
-      order: paidOrderWhere,
+      order: orderWhere,
     },
   })
 

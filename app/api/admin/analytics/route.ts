@@ -2,21 +2,26 @@ import { NextResponse } from 'next/server'
 import { adminAuthErrorResponse, requireAdminAccess } from '@/lib/admin/auth'
 import {
   getAnalyticsSummary,
-  getDailySeries,
+  getDailySeriesBetween,
   getTopCategoriesAnalytics,
   getTopProductsAnalytics,
-  type DateRangeKey,
+  parseDateRangeKey,
+  resolveDateRange,
 } from '@/lib/admin/analytics'
 
 export async function GET(request: Request) {
   try {
     await requireAdminAccess()
-    const range = (new URL(request.url).searchParams.get('range') as DateRangeKey | null) ?? '30d'
+    const url = new URL(request.url)
+    const range = parseDateRangeKey(url.searchParams.get('range'))
+    const from = url.searchParams.get('from')
+    const to = url.searchParams.get('to')
+    const { start, end } = resolveDateRange(range, from, to)
     const [summary, series, topProducts, topCategories] = await Promise.all([
-      getAnalyticsSummary(range),
-      getDailySeries(range === '7d' ? 7 : range === '90d' ? 90 : 30),
-      getTopProductsAnalytics(10),
-      getTopCategoriesAnalytics(10),
+      getAnalyticsSummary(range, from, to),
+      getDailySeriesBetween(start, end),
+      getTopProductsAnalytics(10, range, from, to),
+      getTopCategoriesAnalytics(10, range, from, to),
     ])
     return NextResponse.json({ summary, series, topProducts, topCategories })
   } catch (error) {

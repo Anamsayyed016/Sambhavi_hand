@@ -11,7 +11,7 @@ import {
   getVisibleNavCategoryGroups,
   getVisibleNavChildCategories,
 } from '@/lib/catalog-nav'
-import { getStorefrontProducts } from '@/lib/products'
+import { getStorefrontProducts, type Product } from '@/lib/products'
 
 const NAVRATRI_SLUG = 'navratri-collection'
 
@@ -223,15 +223,20 @@ function GroupHeading({
   )
 }
 
-export function CategoriesMegaMenu() {
+export function CategoriesMegaMenu({
+  products: productsProp,
+}: {
+  products?: Pick<Product, 'slug' | 'image' | 'images' | 'category' | 'collections'>[]
+}) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pathname = usePathname()
-  const visibleGroups = useMemo(
-    () => getVisibleNavCategoryGroups(getStorefrontProducts()),
-    [],
+  const products = useMemo(
+    () => (productsProp && productsProp.length > 0 ? productsProp : getStorefrontProducts()),
+    [productsProp],
   )
+  const visibleGroups = useMemo(() => getVisibleNavCategoryGroups(products as Product[]), [products])
   const primaryGroup = visibleGroups.find((group) => group.primary) ?? visibleGroups[0]
   const secondaryGroups = visibleGroups.filter((group) => group.slug !== primaryGroup?.slug)
 
@@ -367,12 +372,18 @@ export function CategoriesMegaMenu() {
   )
 }
 
-export function CategoriesMobileAccordion({ onNavigate }: { onNavigate?: () => void }) {
-  const visibleGroups = useMemo(
-    () => getVisibleNavCategoryGroups(getStorefrontProducts()),
-    [],
+export function CategoriesMobileAccordion({
+  onNavigate,
+  products: productsProp,
+}: {
+  onNavigate?: () => void
+  products?: Pick<Product, 'slug' | 'image' | 'images' | 'category' | 'collections'>[]
+}) {
+  const products = useMemo(
+    () => (productsProp && productsProp.length > 0 ? (productsProp as Product[]) : getStorefrontProducts()),
+    [productsProp],
   )
-  const products = useMemo(() => getStorefrontProducts(), [])
+  const visibleGroups = useMemo(() => getVisibleNavCategoryGroups(products), [products])
   const pathname = usePathname()
   const [expanded, setExpanded] = useState(false)
   const [openGroup, setOpenGroup] = useState<string | null>(visibleGroups[0]?.slug ?? null)
