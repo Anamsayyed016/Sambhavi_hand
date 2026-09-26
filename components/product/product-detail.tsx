@@ -17,13 +17,21 @@ import { DharviKarvaProductInfo, DharviKarvaProductSpecs } from '@/components/pr
 import { DharviDulhanProductInfo, DharviDulhanProductSpecs } from '@/components/product/dharvi-dulhan-product-info'
 import { TirupatiDurgaProductInfo, TirupatiDurgaProductSpecs } from '@/components/product/tirupati-durga-product-info'
 
-const detailRows = (product: Product) => [
-  { label: 'Fabric', value: product.fabric },
-  { label: 'Weave', value: product.weave },
-  { label: 'Length', value: product.length },
-  { label: 'Blouse', value: product.blouse },
-  { label: 'Care', value: product.care },
-]
+function hasSpecValue(value: string | null | undefined): boolean {
+  return String(value ?? '').trim().length > 0
+}
+
+/** Fabric / Weave / Length / Blouse only when set; Care always (common PDP row). */
+const detailRows = (product: Product) => {
+  const optionalSpecs = [
+    { label: 'Fabric', value: product.fabric },
+    { label: 'Weave', value: product.weave },
+    { label: 'Length', value: product.length },
+    { label: 'Blouse', value: product.blouse },
+  ].filter((row) => hasSpecValue(row.value))
+
+  return [...optionalSpecs, { label: 'Care', value: product.care }]
+}
 
 type Crumb = { label: string; href?: string }
 
