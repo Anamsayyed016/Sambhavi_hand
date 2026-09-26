@@ -42,7 +42,7 @@ function dedupeUrls(urls: string[]): string[] {
 
 /**
  * Prefill from a source product for Duplicate.
- * Copies reusable fields; never copies id/sku/slug; stock resets to 0; status defaults active.
+ * Copies reusable fields; never copies id/sku/slug; stock defaults to 10; status defaults active.
  */
 export function buildDuplicateInitialForm(product: Product): ProductDuplicateInitial {
   const images = dedupeUrls(
@@ -64,7 +64,7 @@ export function buildDuplicateInitialForm(product: Product): ProductDuplicateIni
     blouse: product.blouse ?? '',
     care: product.care ?? '',
     availability: product.availability ?? ProductAvailability.IN_STOCK,
-    stock: '0',
+    stock: '10',
     active: true,
     featured: Boolean(product.featured),
     isNew: Boolean(product.isNew),

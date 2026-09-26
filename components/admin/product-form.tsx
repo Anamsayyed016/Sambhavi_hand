@@ -105,7 +105,7 @@ function toFormState(product?: Product): FormState {
       blouse: '',
       care: '',
       availability: ProductAvailability.IN_STOCK,
-      stock: '0',
+      stock: '10',
       active: true,
       featured: false,
       isNew: false,
