@@ -15,7 +15,7 @@ import {
   buildDuplicateInitialForm,
   type ProductDuplicateInitial,
 } from '@/lib/admin/product-duplicate'
-import { categoryNames } from '@/lib/categories'
+import { getAdminAssignableCategoryNames } from '@/lib/categories'
 import { Button } from '@/components/ui/button'
 import { AdminImageLightbox } from '@/components/admin/admin-image-lightbox'
 
@@ -323,14 +323,30 @@ export function ProductForm({
     }
   }, [isBlankCreate, isDuplicate, isEdit, pathname, product, initialForm])
 
+  const adminAssignableCategories = useMemo(() => getAdminAssignableCategoryNames(), [])
+
   const categoryOptions = useMemo(() => {
-    const set = new Set<string>([...categoryNames, ...categories])
-    if (form.category.trim()) set.add(form.category.trim())
-    return Array.from(set).sort((a, b) => a.localeCompare(b))
-  }, [categories, form.category])
+    // Create: only storefront-nav assignable categories.
+    // Edit/duplicate: also keep the product's existing value if it is legacy.
+    const options = adminAssignableCategories.map((name) => ({
+      value: name,
+      label: name,
+      legacy: false as boolean,
+    }))
+    const current = form.category.trim()
+    if (current && !adminAssignableCategories.includes(current)) {
+      options.push({
+        value: current,
+        label: `${current} — Legacy / existing category`,
+        legacy: true,
+      })
+    }
+    return options.sort((a, b) => a.label.localeCompare(b.label))
+  }, [adminAssignableCategories, form.category])
 
   const isNonCanonicalCategory =
-    Boolean(form.category.trim()) && !categoryNames.includes(form.category.trim())
+    Boolean(form.category.trim()) &&
+    !adminAssignableCategories.includes(form.category.trim())
 
   const galleryUrls = useMemo(() => {
     const primary = form.image.trim()
@@ -859,15 +875,17 @@ export function ProductForm({
               Select category…
             </option>
             {categoryOptions.map((c) => (
-              <option key={c} value={c}>
-                {c}
+              <option key={c.value} value={c.value}>
+                {c.label}
               </option>
             ))}
           </select>
           {isNonCanonicalCategory ? (
             <p className="mt-2 text-xs text-muted-foreground">
-              Current category: <span className="font-medium text-charcoal">{form.category}</span>
-              {' — '}not in the standard storefront list; preserved until you change it.
+              Current category:{' '}
+              <span className="font-medium text-charcoal">{form.category}</span>
+              {' — '}Legacy / existing category; preserved until you change it. Not shown for new
+              products.
             </p>
           ) : null}
           {isBlankCreate && categoryTemplateStatus === 'loading' ? (

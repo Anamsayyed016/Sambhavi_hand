@@ -361,10 +361,13 @@ export const sareeCategories: SareeCategory[] = [
 ]
 
 /**
- * Canonical Admin + storefront category labels (active taxonomy only).
+ * Canonical Admin + storefront category labels (full configured taxonomy).
  * Includes group names marked showEmptyCategories so the parent catalog
  * (e.g. Summer Collection) is assignable alongside its leaf categories.
  * Retired categories (e.g. Chanderi) are intentionally omitted.
+ *
+ * Prefer `getAdminAssignableCategoryNames()` for the Product Form dropdown —
+ * that list matches storefront navigation structure (not every empty leaf).
  */
 export const categoryNames = Array.from(
   new Set([
@@ -373,6 +376,51 @@ export const categoryNames = Array.from(
     ...categoryGroups.filter((g) => g.showEmptyCategories).map((g) => g.name),
   ]),
 )
+
+/**
+ * Admin Product Category options — derived from the storefront nav taxonomy,
+ * not from DISTINCT Product.category and not from every configured empty leaf.
+ *
+ * Includes:
+ * - All nested nav children (KCS / Navratri / Kota soft-cotton suits, …)
+ * - Top-level leaves that are structural in nav: nested parents, prominent
+ *   (Digital Print, Kota Handloom), showWhenEmpty, or groups with
+ *   showEmptyCategories (Summer Collection leaves)
+ * - Group names for showEmptyCategories groups (e.g. Summer Collection)
+ *
+ * Excludes empty legacy leaves (Banarasi, Georgette, Diwali, Budget, …)
+ * that are hidden from the Categories mega-menu until they have content.
+ */
+export function getAdminAssignableCategoryNames(): string[] {
+  const names = new Set<string>()
+
+  for (const child of nestedCategories) {
+    names.add(child.name)
+  }
+
+  for (const group of categoryGroups) {
+    if (group.showEmptyCategories) {
+      names.add(group.name)
+    }
+    for (const category of group.categories) {
+      const hasNestedChildren = getChildCategories(category.slug).length > 0
+      if (
+        category.showWhenEmpty ||
+        group.showEmptyCategories ||
+        hasNestedChildren ||
+        category.prominent
+      ) {
+        names.add(category.name)
+      }
+    }
+  }
+
+  return Array.from(names).sort((a, b) => a.localeCompare(b))
+}
+
+export function isAdminAssignableCategoryName(name: string): boolean {
+  return getAdminAssignableCategoryNames().includes(name.trim())
+}
 
 export const primaryCategoryGroup = categoryGroups.find((g) => g.primary)
 export const secondaryCategoryGroups = categoryGroups.filter((g) => !g.primary)
