@@ -43,6 +43,7 @@ export function getVisibleNavCategoryGroups(products: Product[]): CategoryGroup[
       ...group,
       categories: group.categories.filter(
         (category) =>
+          category.showWhenEmpty ||
           group.showEmptyCategories ||
           categoryHasStorefrontContent(category.slug, products) ||
           getVisibleNavChildCategories(category.slug, products).length > 0,

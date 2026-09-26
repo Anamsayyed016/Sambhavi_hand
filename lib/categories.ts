@@ -14,6 +14,8 @@ export type SareeCategory = {
    * Does not alter `name`, slugs, or Product.category values.
    */
   navIcon?: FashionNavIcon
+  /** Keep this leaf in Categories nav before products are assigned. */
+  showWhenEmpty?: boolean
 }
 
 export type CategoryGroup = {
@@ -28,8 +30,10 @@ export type CategoryGroup = {
 
 const prominentCategorySlugs = new Set(['digital-print', 'kota-handloom'])
 
-/** Leaf category entry inside a group — string name, or name + explicit slug. */
-type GroupCategoryDef = string | { name: string; slug: string }
+/** Leaf category entry inside a group — string name, or name + optional slug/visibility. */
+type GroupCategoryDef =
+  | string
+  | { name: string; slug?: string; showWhenEmpty?: boolean }
 
 const groupDefs: {
   slug: string
@@ -49,6 +53,10 @@ const groupDefs: {
     names: [
       'Digital Print',
       'Kota Handloom',
+      {
+        name: 'EXCLUSIVE KOTA DORIA SOFT COTTON SUITS',
+        showWhenEmpty: true,
+      },
       'KCS COLLECTION',
       'Banarasi',
       'Kanjivaram / Kanchipuram',
@@ -229,6 +237,7 @@ export function nameToSlug(name: string): string {
 const NAV_ICON_BY_SLUG: Record<string, FashionNavIcon> = {
   'digital-print': '🥻',
   'kota-handloom': '🥻',
+  'exclusive-kota-doria-soft-cotton-suits': '🥻',
   chhabili: '👗',
   jobaniyu: '👗',
   lehanga: '👗',
@@ -279,6 +288,7 @@ function toCategory(
   groupSlug: string,
   parentSlug?: string,
   slugOverride?: string,
+  showWhenEmpty?: boolean,
 ): SareeCategory {
   const slug = slugOverride ?? nameToSlug(name)
   return {
@@ -288,6 +298,7 @@ function toCategory(
     parentSlug,
     prominent: prominentCategorySlugs.has(slug),
     navIcon: resolveCategoryNavIcon(slug, name),
+    showWhenEmpty,
   }
 }
 
@@ -296,7 +307,7 @@ function resolveGroupCategoryDef(
   groupSlug: string,
 ): SareeCategory {
   if (typeof def === 'string') return toCategory(def, groupSlug)
-  return toCategory(def.name, groupSlug, undefined, def.slug)
+  return toCategory(def.name, groupSlug, undefined, def.slug, def.showWhenEmpty)
 }
 
 export const categoryGroups: CategoryGroup[] = groupDefs.map((group) => ({

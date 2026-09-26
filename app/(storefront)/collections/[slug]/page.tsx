@@ -166,6 +166,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'exclusive-kota-doria-soft-cotton-suits') {
+    return {
+      title: 'EXCLUSIVE KOTA DORIA SOFT COTTON SUITS | Sambhavi Handloom',
+      description:
+        'Explore Exclusive Kota Doria Soft Cotton Suits from Handloom & Powerloom by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'lehenga-choli') {
     return {
       title: 'LEHENGA CHOLI | Sambhavi Handloom',
