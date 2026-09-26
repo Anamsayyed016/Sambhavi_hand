@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useLayoutEffect, useMemo, useState, useTransition } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import type { Product } from '@prisma/client'
 import { ProductAvailability } from '@prisma/client'
@@ -24,6 +24,20 @@ const PRODUCT_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', '
 const PRODUCT_VIDEO_ACCEPT = 'video/mp4,video/webm,video/quicktime'
 const PRODUCT_VIDEO_TYPES = new Set(['video/mp4', 'video/webm', 'video/quicktime'])
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024
+
+/** Reusable detail fields copied from a category template on Add Product. */
+const CATEGORY_TEMPLATE_FIELDS = [
+  'description',
+  'fabric',
+  'weave',
+  'length',
+  'blouse',
+  'care',
+] as const
+
+type CategoryTemplateField = (typeof CATEGORY_TEMPLATE_FIELDS)[number]
+
+type CategoryDetailTemplate = Record<CategoryTemplateField, string>
 
 type CollectionOption = { slug: string; name: string }
 
@@ -124,6 +138,27 @@ const labelClass = 'text-xs font-medium uppercase tracking-[0.1em] text-muted-fo
 
 function emptyFormState(): FormState {
   return toFormState(undefined)
+}
+
+function hasMeaningfulTemplateFields(form: FormState): boolean {
+  return CATEGORY_TEMPLATE_FIELDS.some((key) => form[key].trim().length > 0)
+}
+
+function templateHasAnyValue(template: CategoryDetailTemplate): boolean {
+  return CATEGORY_TEMPLATE_FIELDS.some((key) => template[key].trim().length > 0)
+}
+
+/** Copy only non-empty template values — never wipe a field with empty template data. */
+function applyCategoryDetailTemplate(
+  prev: FormState,
+  template: CategoryDetailTemplate,
+): FormState {
+  const next = { ...prev }
+  for (const key of CATEGORY_TEMPLATE_FIELDS) {
+    const value = template[key].trim()
+    if (value) next[key] = value
+  }
+  return next
 }
 
 /**
@@ -227,6 +262,12 @@ export function ProductForm({
   const [uploadError, setUploadError] = useState<string | null>(null)
   /** Admin image inspection lightbox — index into galleryUrls, or null when closed. */
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [categoryTemplateStatus, setCategoryTemplateStatus] = useState<
+    'idle' | 'loading' | 'prefilled' | 'none' | 'error'
+  >('idle')
+  const [pendingCategoryTemplate, setPendingCategoryTemplate] =
+    useState<CategoryDetailTemplate | null>(null)
+  const categoryTemplateAbortRef = useRef<AbortController | null>(null)
   // Blocks Chrome autofill from writing prior product values before the user focuses a field.
   // Never gate duplicate — template values must remain visible and editable immediately.
   const [autofillGate, setAutofillGate] = useState(() => isBlankCreate)
@@ -262,6 +303,10 @@ export function ProductForm({
       setFieldErrors({})
       setUploadError(null)
       setAutofillGate(true)
+      setCategoryTemplateStatus('idle')
+      setPendingCategoryTemplate(null)
+      categoryTemplateAbortRef.current?.abort()
+      categoryTemplateAbortRef.current = null
       return
     }
     if (isEdit && product) {
@@ -463,6 +508,75 @@ export function ProductForm({
     setForm((prev) => ({ ...prev, [key]: value }))
     setStatus('idle')
     setMessage(null)
+  }
+
+  function confirmApplyCategoryTemplate() {
+    if (!pendingCategoryTemplate) return
+    setForm((prev) => applyCategoryDetailTemplate(prev, pendingCategoryTemplate))
+    setPendingCategoryTemplate(null)
+    setCategoryTemplateStatus('prefilled')
+  }
+
+  function cancelCategoryTemplatePrefill() {
+    setPendingCategoryTemplate(null)
+    setCategoryTemplateStatus('idle')
+  }
+
+  async function handleCategoryChange(nextCategory: string) {
+    update('category', nextCategory)
+
+    // Category template prefill is Add Product only — never edit/duplicate.
+    if (!isBlankCreate) return
+
+    categoryTemplateAbortRef.current?.abort()
+    setPendingCategoryTemplate(null)
+
+    const category = nextCategory.trim()
+    if (!category) {
+      setCategoryTemplateStatus('idle')
+      return
+    }
+
+    const controller = new AbortController()
+    categoryTemplateAbortRef.current = controller
+    setCategoryTemplateStatus('loading')
+
+    try {
+      const res = await fetch(
+        `/api/admin/products/category-template?category=${encodeURIComponent(category)}`,
+        { signal: controller.signal },
+      )
+      if (controller.signal.aborted) return
+
+      const data = (await res.json().catch(() => ({}))) as {
+        template?: CategoryDetailTemplate | null
+        error?: string
+      }
+
+      if (!res.ok) {
+        setCategoryTemplateStatus('error')
+        return
+      }
+
+      const template = data.template
+      if (!template || !templateHasAnyValue(template)) {
+        setCategoryTemplateStatus('none')
+        return
+      }
+
+      // Auto-prefill when detail fields are still empty; otherwise ask first.
+      if (!hasMeaningfulTemplateFields(form)) {
+        setForm((prev) => applyCategoryDetailTemplate(prev, template))
+        setCategoryTemplateStatus('prefilled')
+        return
+      }
+
+      setPendingCategoryTemplate(template)
+      setCategoryTemplateStatus('idle')
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return
+      setCategoryTemplateStatus('error')
+    }
   }
 
   function toggleCollection(slug: string) {
@@ -735,7 +849,7 @@ export function ProductForm({
             id="category"
             className={fieldClass}
             value={form.category}
-            onChange={(e) => update('category', e.target.value)}
+            onChange={(e) => void handleCategoryChange(e.target.value)}
             required
           >
             <option value="" disabled>
@@ -752,6 +866,45 @@ export function ProductForm({
               Current category: <span className="font-medium text-charcoal">{form.category}</span>
               {' — '}not in the standard storefront list; preserved until you change it.
             </p>
+          ) : null}
+          {isBlankCreate && categoryTemplateStatus === 'loading' ? (
+            <p className="mt-2 text-xs text-muted-foreground">Loading category details…</p>
+          ) : null}
+          {isBlankCreate && categoryTemplateStatus === 'prefilled' ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Details prefilled from an existing product in this category. You can edit them before
+              saving.
+            </p>
+          ) : null}
+          {isBlankCreate && categoryTemplateStatus === 'none' ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              No existing product details available for this category.
+            </p>
+          ) : null}
+          {isBlankCreate && categoryTemplateStatus === 'error' ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Could not load category details. Enter product details manually.
+            </p>
+          ) : null}
+          {isBlankCreate && pendingCategoryTemplate ? (
+            <div className="mt-3 rounded-md border border-border bg-white/80 p-3">
+              <p className="text-xs text-muted-foreground">
+                Use details from an existing product in this category?
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={cancelCategoryTemplatePrefill}
+                >
+                  Cancel
+                </Button>
+                <Button type="button" size="sm" onClick={confirmApplyCategoryTemplate}>
+                  Prefill Details
+                </Button>
+              </div>
+            </div>
           ) : null}
           <p className="mt-1.5 text-xs text-muted-foreground">
             For Navratri sub-collections, choose <strong>CHHABILI</strong>, <strong>JOBANIYU</strong>,

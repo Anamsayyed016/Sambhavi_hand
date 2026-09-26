@@ -221,6 +221,54 @@ export async function archiveProduct(id: string): Promise<Product> {
   return setProductStatus(id, ProductStatus.ARCHIVED)
 }
 
+/** Reusable descriptive fields for category-based Add Product prefill (read-only). */
+export type CategoryDetailTemplate = {
+  description: string
+  fabric: string
+  weave: string
+  length: string
+  blouse: string
+  care: string
+}
+
+/**
+ * Latest ACTIVE product in `category` — used only as a read-only template for
+ * Add Product descriptive fields. Never returns identity/media/pricing fields.
+ */
+export async function getCategoryDetailTemplate(
+  category: string,
+): Promise<CategoryDetailTemplate | null> {
+  const trimmed = category.trim()
+  if (!trimmed) return null
+
+  const product = await prisma.product.findFirst({
+    where: {
+      category: trimmed,
+      status: ProductStatus.ACTIVE,
+    },
+    orderBy: { updatedAt: 'desc' },
+    select: {
+      description: true,
+      fabric: true,
+      weave: true,
+      length: true,
+      blouse: true,
+      care: true,
+    },
+  })
+
+  if (!product) return null
+
+  return {
+    description: product.description ?? '',
+    fabric: product.fabric ?? '',
+    weave: product.weave ?? '',
+    length: product.length ?? '',
+    blouse: product.blouse ?? '',
+    care: product.care ?? '',
+  }
+}
+
 export async function getProductFilterOptions() {
   const [categories, collections] = await Promise.all([
     prisma.product.findMany({
