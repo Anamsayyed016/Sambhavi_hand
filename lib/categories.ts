@@ -53,10 +53,6 @@ const groupDefs: {
     names: [
       'Digital Print',
       'Kota Handloom',
-      {
-        name: 'EXCLUSIVE KOTA DORIA SOFT COTTON SUITS',
-        showWhenEmpty: true,
-      },
       'KCS COLLECTION',
       'Banarasi',
       'Kanjivaram / Kanchipuram',
@@ -219,6 +215,13 @@ const nestedCategoryDefs: Array<{
     name: 'KOTA DORIA SOFT COTTON SUITS',
     /** Canonical route: /collections/kota-doria-soft-cotton-suits */
     slug: 'kota-doria-soft-cotton-suits',
+    parentSlug: 'exclusive-kota-doria',
+    groupSlug: 'summer-collection',
+  },
+  {
+    name: 'EXCLUSIVE KOTA DORIA SOFT COTTON SUITS',
+    /** Canonical route: /collections/exclusive-kota-doria-soft-cotton-suits */
+    slug: 'exclusive-kota-doria-soft-cotton-suits',
     parentSlug: 'exclusive-kota-doria',
     groupSlug: 'summer-collection',
   },
