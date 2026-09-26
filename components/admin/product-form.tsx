@@ -27,7 +27,10 @@ const MAX_VIDEO_BYTES = 50 * 1024 * 1024
 
 /** Reusable detail fields copied from a category template on Add Product. */
 const CATEGORY_TEMPLATE_FIELDS = [
+  'name',
   'description',
+  'price',
+  'originalPrice',
   'fabric',
   'weave',
   'length',

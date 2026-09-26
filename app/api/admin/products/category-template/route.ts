@@ -4,7 +4,8 @@ import { getCategoryDetailTemplate } from '@/lib/admin/products'
 
 /**
  * GET /api/admin/products/category-template?category=…
- * Read-only reusable detail fields from the latest ACTIVE product in that category.
+ * Read-only reusable fields (name, price, description, specs) from the latest
+ * ACTIVE product in that category. Never returns SKU/slug/images/videos/stock.
  */
 export async function GET(request: Request) {
   try {

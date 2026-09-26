@@ -221,9 +221,14 @@ export async function archiveProduct(id: string): Promise<Product> {
   return setProductStatus(id, ProductStatus.ARCHIVED)
 }
 
-/** Reusable descriptive fields for category-based Add Product prefill (read-only). */
+/** Reusable fields for category-based Add Product prefill (read-only). */
 export type CategoryDetailTemplate = {
+  name: string
   description: string
+  /** Form-ready string; empty when unavailable. */
+  price: string
+  /** Form-ready string; empty when reference has no originalPrice. */
+  originalPrice: string
   fabric: string
   weave: string
   length: string
@@ -233,7 +238,7 @@ export type CategoryDetailTemplate = {
 
 /**
  * Latest ACTIVE product in `category` — used only as a read-only template for
- * Add Product descriptive fields. Never returns identity/media/pricing fields.
+ * Add Product reusable fields. Never returns SKU/slug/images/videos/stock/status.
  */
 export async function getCategoryDetailTemplate(
   category: string,
@@ -248,7 +253,10 @@ export async function getCategoryDetailTemplate(
     },
     orderBy: { updatedAt: 'desc' },
     select: {
+      name: true,
       description: true,
+      price: true,
+      originalPrice: true,
       fabric: true,
       weave: true,
       length: true,
@@ -260,7 +268,10 @@ export async function getCategoryDetailTemplate(
   if (!product) return null
 
   return {
+    name: product.name ?? '',
     description: product.description ?? '',
+    price: product.price != null ? String(product.price) : '',
+    originalPrice: product.originalPrice != null ? String(product.originalPrice) : '',
     fabric: product.fabric ?? '',
     weave: product.weave ?? '',
     length: product.length ?? '',
