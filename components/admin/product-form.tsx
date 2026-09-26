@@ -17,6 +17,7 @@ import {
 } from '@/lib/admin/product-duplicate'
 import { categoryNames } from '@/lib/categories'
 import { Button } from '@/components/ui/button'
+import { AdminImageLightbox } from '@/components/admin/admin-image-lightbox'
 
 const PRODUCT_UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif'
 const PRODUCT_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
@@ -224,6 +225,8 @@ export function ProductForm({
   const [isPending, startTransition] = useTransition()
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  /** Admin image inspection lightbox — index into galleryUrls, or null when closed. */
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   // Blocks Chrome autofill from writing prior product values before the user focuses a field.
   // Never gate duplicate — template values must remain visible and editable immediately.
   const [autofillGate, setAutofillGate] = useState(() => isBlankCreate)
@@ -905,14 +908,20 @@ export function ProductForm({
             </p>
           ) : (
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {galleryUrls.map((url) => {
+              {galleryUrls.map((url, index) => {
                 const isMain = form.image.trim() === url
                 return (
                   <li
                     key={url}
                     className="overflow-hidden rounded-md border border-border bg-white"
                   >
-                    <div className="relative aspect-[3/4] bg-beige">
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => setLightboxIndex(index)}
+                      aria-label={`Open image preview ${index + 1} of ${galleryUrls.length}`}
+                      className="relative block aspect-[3/4] w-full cursor-zoom-in bg-beige text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
                       <Image
                         src={url}
                         alt=""
@@ -925,7 +934,7 @@ export function ProductForm({
                           Main
                         </span>
                       ) : null}
-                    </div>
+                    </button>
                     <div className="flex flex-wrap gap-1 p-2">
                       {!isMain ? (
                         <button
@@ -951,6 +960,15 @@ export function ProductForm({
               })}
             </ul>
           )}
+
+          <AdminImageLightbox
+            images={galleryUrls}
+            index={lightboxIndex ?? 0}
+            open={lightboxIndex != null && galleryUrls.length > 0}
+            onClose={() => setLightboxIndex(null)}
+            onIndexChange={setLightboxIndex}
+            altPrefix={form.name.trim() || 'Product image'}
+          />
 
           <details className="rounded-md border border-border/70 bg-white/60 p-3">
             <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
