@@ -212,6 +212,13 @@ const nestedCategoryDefs: Array<{
     groupSlug: 'handloom-powerloom',
   },
   {
+    name: 'KCS Kanchipuram Laxury',
+    /** Canonical route: /collections/kcs-kanchipuram-laxury — keep spelling “Laxury”. */
+    slug: 'kcs-kanchipuram-laxury',
+    parentSlug: 'kcs-collection',
+    groupSlug: 'handloom-powerloom',
+  },
+  {
     name: 'KOTA DORIA SOFT COTTON SUITS',
     /** Canonical route: /collections/kota-doria-soft-cotton-suits */
     slug: 'kota-doria-soft-cotton-suits',
@@ -252,6 +259,7 @@ const NAV_ICON_BY_SLUG: Record<string, FashionNavIcon> = {
   'kcs-handloom-khadi-cotton-saree': '🧵',
   'kcs-handloom-southcottonmix-sarees': '🧵',
   'kcs-mangalagiri-pure-handloom-orginal-pattu-by-cotton': '🧵',
+  'kcs-kanchipuram-laxury': '🧵',
   'kota-doria-soft-cotton-suits': '🧵',
   'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad': '🥻',
   'ritu-fashion-kaftan-collection': '👗',

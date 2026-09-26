@@ -134,6 +134,14 @@ export async function generateMetadata({
     }
   }
 
+  if (category?.slug === 'kcs-kanchipuram-laxury') {
+    return {
+      title: 'KCS Kanchipuram Laxury | Sambhavi Handloom',
+      description:
+        'Explore KCS Kanchipuram Laxury sarees from the KCS Collection by Sambhavi Handloom.',
+    }
+  }
+
   if (category?.slug === 'vinayaka-pure-dola-silk-softy-fully-jari-jaqurad') {
     return {
       title: 'Vinayaka Pure Dola Silk Softy Fully Jari Jaqurad | Sambhavi Handloom',
