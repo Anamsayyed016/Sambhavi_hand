@@ -8,6 +8,7 @@ import { ProductAvailability } from '@prisma/client'
 import {
   parseCollectionsField,
   parseImagesField,
+  parseVideosField,
   productCreateSchema,
 } from '@/lib/admin/validation'
 import {
@@ -19,7 +20,9 @@ import { Button } from '@/components/ui/button'
 
 const PRODUCT_UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif'
 const PRODUCT_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-const MAX_GALLERY = 12
+const PRODUCT_VIDEO_ACCEPT = 'video/mp4,video/webm,video/quicktime'
+const PRODUCT_VIDEO_TYPES = new Set(['video/mp4', 'video/webm', 'video/quicktime'])
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024
 
 type CollectionOption = { slug: string; name: string }
 
@@ -30,6 +33,7 @@ type FormState = {
   originalPrice: string
   image: string
   images: string[]
+  videos: string[]
   category: string
   collections: string[]
   fabric: string
@@ -74,6 +78,7 @@ function toFormState(product?: Product): FormState {
       originalPrice: '',
       image: '',
       images: [],
+      videos: [],
       category: '',
       collections: [],
       fabric: '',
@@ -96,6 +101,7 @@ function toFormState(product?: Product): FormState {
     originalPrice: product.originalPrice != null ? String(product.originalPrice) : '',
     image: product.image,
     images: dedupeUrls(product.images),
+    videos: dedupeUrls(product.videos ?? []),
     category: product.category,
     collections: product.collections,
     fabric: product.fabric,
@@ -200,6 +206,7 @@ export function ProductForm({
         return {
           ...initialForm,
           images: [...initialForm.images],
+          videos: [...(initialForm.videos ?? [])],
           collections: [...initialForm.collections],
         }
       }
@@ -228,6 +235,7 @@ export function ProductForm({
         setForm({
           ...initialForm,
           images: [...initialForm.images],
+          videos: [...(initialForm.videos ?? [])],
           collections: [...initialForm.collections],
         })
       } else if (product) {
@@ -298,7 +306,6 @@ export function ProductForm({
         if (!next) continue
         if (!primary) primary = next
         if (gallery.includes(next)) continue
-        if (gallery.length >= MAX_GALLERY) continue
         gallery = [...gallery, next]
       }
 
@@ -324,6 +331,7 @@ export function ProductForm({
         body.append('file', file)
         body.append('folder', 'sambhavi/products')
         body.append('purpose', 'product')
+        body.append('mediaType', 'image')
         const res = await fetch('/api/admin/media/upload', {
           method: 'POST',
           body,
@@ -343,6 +351,66 @@ export function ProductForm({
       applyUploadedImageUrls(uploaded)
     } catch {
       setUploadError('Image upload failed. Existing images were not changed.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  function applyUploadedVideoUrls(urls: string[]) {
+    if (urls.length === 0) return
+    setForm((prev) => {
+      let videos = dedupeUrls(prev.videos)
+      for (const url of urls) {
+        const next = url.trim()
+        if (!next || videos.includes(next)) continue
+        videos = [...videos, next]
+      }
+      return { ...prev, videos }
+    })
+  }
+
+  async function uploadProductVideos(files: FileList | File[]) {
+    const list = Array.from(files)
+    if (list.length === 0) return
+
+    setUploading(true)
+    setUploadError(null)
+    const uploaded: string[] = []
+    try {
+      for (const file of list) {
+        if (!PRODUCT_VIDEO_TYPES.has(file.type)) {
+          setUploadError('Invalid video type. Use MP4, WebM, or MOV.')
+          continue
+        }
+        if (file.size <= 0 || file.size > MAX_VIDEO_BYTES) {
+          setUploadError('Each video must be between 1 byte and 50 MB.')
+          continue
+        }
+
+        const body = new FormData()
+        body.append('file', file)
+        body.append('folder', 'sambhavi/products')
+        body.append('purpose', 'product')
+        body.append('mediaType', 'video')
+        const res = await fetch('/api/admin/media/upload', {
+          method: 'POST',
+          body,
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          setUploadError(typeof data.error === 'string' ? data.error : 'Video upload failed.')
+          break
+        }
+        const url = typeof data.url === 'string' ? data.url.trim() : ''
+        if (!url) {
+          setUploadError('Upload succeeded but no video URL was returned.')
+          break
+        }
+        uploaded.push(url)
+      }
+      applyUploadedVideoUrls(uploaded)
+    } catch {
+      setUploadError('Video upload failed. Existing videos were not changed.')
     } finally {
       setUploading(false)
     }
@@ -381,6 +449,13 @@ export function ProductForm({
     })
   }
 
+  function removeVideo(url: string) {
+    setForm((prev) => ({
+      ...prev,
+      videos: prev.videos.filter((u) => u !== url.trim()),
+    }))
+  }
+
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
     setStatus('idle')
@@ -408,6 +483,7 @@ export function ProductForm({
         ? [form.image.trim(), ...form.images.filter((u) => u !== form.image.trim())]
         : form.images,
     )
+    const videos = dedupeUrls(form.videos)
 
     const payload: Record<string, unknown> = {
       name: form.name,
@@ -416,6 +492,7 @@ export function ProductForm({
       originalPrice: form.originalPrice === '' ? null : Number(form.originalPrice),
       image: form.image,
       images,
+      videos,
       category: form.category,
       fabric: form.fabric,
       weave: form.weave,
@@ -439,6 +516,7 @@ export function ProductForm({
       const clientParsed = productCreateSchema.safeParse({
         ...payload,
         images: parseImagesField(payload.images),
+        videos: parseVideosField(payload.videos),
         collections: parseCollectionsField(payload.collections ?? []),
         active: payload.active ?? true,
         featured: payload.featured ?? false,
@@ -793,8 +871,8 @@ export function ProductForm({
       <section className="rounded-md border border-border bg-[#faf8f4] p-5">
         <h2 className="font-medium">Product images</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Upload to Cloudflare R2 (up to {MAX_GALLERY} images). New uploads are added — existing
-          images stay until you remove them.
+          Upload to Cloudflare R2. New uploads are added — existing images stay until you remove
+          them.
         </p>
         <div className="mt-4 space-y-4">
           <div className="flex flex-wrap items-center gap-3">
@@ -804,7 +882,7 @@ export function ProductForm({
                 accept={PRODUCT_UPLOAD_ACCEPT}
                 multiple
                 className="sr-only"
-                disabled={busy || galleryUrls.length >= MAX_GALLERY}
+                disabled={busy}
                 onChange={(e) => {
                   const files = e.target.files
                   if (files?.length) void uploadProductImages(files)
@@ -814,7 +892,7 @@ export function ProductForm({
               {uploading ? 'Uploading…' : 'Upload Images'}
             </label>
             <p className="text-xs text-muted-foreground">
-              {galleryUrls.length}/{MAX_GALLERY} images
+              {galleryUrls.length} {galleryUrls.length === 1 ? 'image' : 'images'}
             </p>
           </div>
           {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
@@ -927,6 +1005,75 @@ export function ProductForm({
               </div>
             </div>
           </details>
+        </div>
+      </section>
+
+      <section className="rounded-md border border-border bg-[#faf8f4] p-5">
+        <h2 className="font-medium">Product videos</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Upload MP4, WebM, or MOV to Cloudflare R2. Videos are stored separately from images and
+          never appear in the image gallery.
+        </p>
+        <div className="mt-4 space-y-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="inline-flex cursor-pointer items-center rounded-md border border-border bg-white px-3 py-2 text-sm hover:bg-beige/50">
+              <input
+                type="file"
+                accept={PRODUCT_VIDEO_ACCEPT}
+                multiple
+                className="sr-only"
+                disabled={busy}
+                onChange={(e) => {
+                  const files = e.target.files
+                  if (files?.length) void uploadProductVideos(files)
+                  e.target.value = ''
+                }}
+              />
+              {uploading ? 'Uploading…' : 'Upload Videos'}
+            </label>
+            <p className="text-xs text-muted-foreground">
+              {form.videos.length} {form.videos.length === 1 ? 'video' : 'videos'}
+            </p>
+          </div>
+          {err('videos') ? <p className="text-xs text-destructive">{err('videos')}</p> : null}
+
+          {form.videos.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No videos yet. Optional.</p>
+          ) : (
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+              {form.videos.map((url) => {
+                const label = url.split('/').pop() || 'Video'
+                return (
+                  <li
+                    key={url}
+                    className="overflow-hidden rounded-md border border-border bg-white"
+                  >
+                    <div className="bg-beige">
+                      <video
+                        src={url}
+                        controls
+                        preload="metadata"
+                        className="aspect-video w-full bg-black object-contain"
+                      />
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 p-2">
+                      <p className="truncate text-[11px] text-muted-foreground" title={label}>
+                        {label}
+                      </p>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => removeVideo(url)}
+                        className="rounded border border-border px-2 py-1 text-[11px] text-destructive hover:bg-beige/60"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
         </div>
       </section>
 

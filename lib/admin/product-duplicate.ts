@@ -13,6 +13,7 @@ export type ProductDuplicateInitial = {
   originalPrice: string
   image: string
   images: string[]
+  videos: string[]
   category: string
   collections: string[]
   fabric: string
@@ -54,6 +55,7 @@ export function buildDuplicateInitialForm(product: Product): ProductDuplicateIni
     originalPrice: product.originalPrice != null ? String(product.originalPrice) : '',
     image: product.image ?? '',
     images,
+    videos: dedupeUrls(product.videos ?? []),
     category: product.category ?? '',
     collections: Array.isArray(product.collections) ? [...product.collections] : [],
     fabric: product.fabric ?? '',

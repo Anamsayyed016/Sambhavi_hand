@@ -12,6 +12,7 @@ import {
   omitClientIdentifiers,
   parseCollectionsField,
   parseImagesField,
+  parseVideosField,
   productPatchSchema,
 } from '@/lib/admin/validation'
 
@@ -68,6 +69,7 @@ export async function PATCH(request: Request, { params }: Params) {
     const prepared = {
       ...body,
       ...(body.images !== undefined ? { images: parseImagesField(body.images) } : {}),
+      ...(body.videos !== undefined ? { videos: parseVideosField(body.videos) } : {}),
       ...(body.collections !== undefined
         ? { collections: parseCollectionsField(body.collections) }
         : {}),

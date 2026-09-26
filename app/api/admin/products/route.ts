@@ -12,6 +12,7 @@ import {
   omitClientIdentifiers,
   parseCollectionsField,
   parseImagesField,
+  parseVideosField,
   productCreateSchema,
 } from '@/lib/admin/validation'
 
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
     const parsed = productCreateSchema.safeParse({
       ...body,
       images: parseImagesField(body.images),
+      videos: parseVideosField(body.videos),
       collections: parseCollectionsField(body.collections),
       active: body.active ?? true,
       featured: body.featured ?? false,

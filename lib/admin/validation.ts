@@ -23,7 +23,9 @@ export const productBusinessFieldsSchema = z.object({
     .transform((v) => (v === '' || v === null || v === undefined ? null : v))
     .refine((v) => v === null || v >= 1, 'Original price must be at least ₹1'),
   image: z.string().trim().min(1, 'Main image path is required').max(500),
-  images: z.array(z.string().trim().min(1).max(500)).max(12).default([]),
+  images: z.array(z.string().trim().min(1).max(500)).default([]),
+  /** Product videos — stored separately from images; never mixed into images[]. */
+  videos: z.array(z.string().trim().min(1).max(500)).default([]),
   category: z.string().trim().min(1, 'Category is required').max(100),
   collections: z.array(z.string().trim().min(1).max(100)).max(20).default([]),
   fabric: optionalSpecString(200),
@@ -66,6 +68,11 @@ export function parseImagesField(raw: unknown): string[] {
     )
   }
   return []
+}
+
+/** Same URL dedupe rules as images — used for Product.videos[]. */
+export function parseVideosField(raw: unknown): string[] {
+  return parseImagesField(raw)
 }
 
 /** Preserve order; drop blank / duplicate URLs. */

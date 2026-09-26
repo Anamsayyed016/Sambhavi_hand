@@ -62,6 +62,8 @@ model Product {
   originalPrice Int?
   image        String
   images       String[]
+  /// Product video URLs (R2). Never mixed into `images[]`.
+  videos       String[]             @default([])
   category     String
   /// Collection slugs matching lib/content.ts (e.g. silk-sarees, new-arrivals)
   collections  String[]

@@ -120,6 +120,7 @@ export async function createProduct(data: ProductCreateInput): Promise<Product> 
     data.images.length ? data.images : data.image ? [data.image] : [],
   )
   const imageList = images.length ? images : [data.image]
+  const videos = dedupeImageUrls(data.videos ?? [])
 
   const maxAttempts = 5
   let lastError: unknown
@@ -139,6 +140,7 @@ export async function createProduct(data: ProductCreateInput): Promise<Product> 
           originalPrice: data.originalPrice,
           image: data.image,
           images: imageList,
+          videos,
           category: data.category,
           collections: data.collections,
           fabric: data.fabric,
@@ -185,6 +187,9 @@ export async function updateProduct(id: string, data: ProductPatch): Promise<Pro
       : data.image
         ? [data.image]
         : undefined
+  }
+  if (data.videos !== undefined) {
+    patch.videos = dedupeImageUrls(data.videos)
   }
   if (data.category !== undefined) patch.category = data.category
   // Omit collections from the patch when undefined so unrelated edits cannot wipe membership.
