@@ -932,6 +932,7 @@ export function ProductForm({
 
       <section className="rounded-md border border-border bg-[#faf8f4] p-5">
         <h2 className="font-medium">Fabric & care</h2>
+        <p className="mt-1 text-xs text-muted-foreground">Optional — fill only what you know.</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {(
             [
@@ -950,7 +951,6 @@ export function ProductForm({
                 className={fieldClass}
                 value={form[key]}
                 onChange={(e) => update(key, e.target.value)}
-                required
                 maxLength={200}
               />
               {err(key) ? <p className="mt-1 text-xs text-destructive">{err(key)}</p> : null}
@@ -965,7 +965,6 @@ export function ProductForm({
               className={`${fieldClass} min-h-20`}
               value={form.care}
               onChange={(e) => update('care', e.target.value)}
-              required
               maxLength={500}
             />
             {err('care') ? <p className="mt-1 text-xs text-destructive">{err('care')}</p> : null}

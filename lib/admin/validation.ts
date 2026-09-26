@@ -3,6 +3,16 @@ import { ProductAvailability } from '@prisma/client'
 
 export const productAvailabilitySchema = z.nativeEnum(ProductAvailability)
 
+/**
+ * Optional product-spec strings. Empty/null/undefined → "" for Prisma NOT NULL columns.
+ * Never require Fabric / Weave / Length / Blouse / Care.
+ */
+const optionalSpecString = (max: number) =>
+  z.preprocess(
+    (value) => (value == null ? '' : String(value)),
+    z.string().trim().max(max),
+  )
+
 /** Business fields accepted from admin create/edit. SKU + slug are server-generated on create. */
 export const productBusinessFieldsSchema = z.object({
   name: z.string().trim().min(2, 'Name is required').max(200),
@@ -16,11 +26,11 @@ export const productBusinessFieldsSchema = z.object({
   images: z.array(z.string().trim().min(1).max(500)).max(12).default([]),
   category: z.string().trim().min(1, 'Category is required').max(100),
   collections: z.array(z.string().trim().min(1).max(100)).max(20).default([]),
-  fabric: z.string().trim().min(1, 'Fabric is required').max(200),
-  weave: z.string().trim().min(1, 'Weave is required').max(200),
-  length: z.string().trim().min(1, 'Length is required').max(200),
-  blouse: z.string().trim().min(1, 'Blouse details are required').max(200),
-  care: z.string().trim().min(1, 'Care instructions are required').max(500),
+  fabric: optionalSpecString(200),
+  weave: optionalSpecString(200),
+  length: optionalSpecString(200),
+  blouse: optionalSpecString(200),
+  care: optionalSpecString(500),
   availability: productAvailabilitySchema,
   stock: z.coerce.number().int().min(0, 'Stock cannot be negative'),
   active: z.boolean().default(true),
