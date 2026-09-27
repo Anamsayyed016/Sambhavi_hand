@@ -155,7 +155,7 @@ export function DharviKarvaProductInfo({
         <EditorialSpecRows
           rows={[
             { label: 'Fabric', value: product.fabric },
-            { label: 'Weave', value: product.weave },
+            { label: 'Work', value: product.weave },
             { label: 'Length', value: product.length },
             { label: 'Blouse', value: product.blouse },
             { label: 'Care', value: product.care },
@@ -178,7 +178,7 @@ export function DharviKarvaProductSpecs({
       <EditorialSpecRows
         rows={[
           { label: 'Fabric', value: product.fabric },
-          { label: 'Weave', value: product.weave },
+          { label: 'Work', value: product.weave },
           { label: 'Length', value: product.length },
           { label: 'Blouse', value: product.blouse },
           { label: 'Care', value: product.care },

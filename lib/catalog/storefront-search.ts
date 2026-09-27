@@ -43,6 +43,7 @@ export function mapDbProductToStorefront(row: DbProduct): Product {
     originalPrice: row.originalPrice ?? undefined,
     image: row.image,
     images: row.images.length > 0 ? row.images : [row.image],
+    videos: row.videos ?? [],
     category: row.category,
     collections: row.collections,
     fabric: row.fabric,

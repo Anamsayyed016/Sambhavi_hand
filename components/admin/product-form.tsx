@@ -1364,7 +1364,7 @@ export function ProductForm({
           {(
             [
               ['fabric', 'Fabric'],
-              ['weave', 'Weave'],
+              ['weave', 'Work'],
               ['length', 'Length'],
               ['blouse', 'Blouse'],
             ] as const

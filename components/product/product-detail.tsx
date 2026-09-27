@@ -21,11 +21,12 @@ function hasSpecValue(value: string | null | undefined): boolean {
   return String(value ?? '').trim().length > 0
 }
 
-/** Fabric / Weave / Length / Blouse only when set; Care always (common PDP row). */
+/** Fabric / Work / Length / Blouse only when set; Care always (common PDP row). */
 const detailRows = (product: Product) => {
   const optionalSpecs = [
     { label: 'Fabric', value: product.fabric },
-    { label: 'Weave', value: product.weave },
+    // DB column stays `weave`; its content describes the product work (print/embroidery/zari).
+    { label: 'Work', value: product.weave },
     { label: 'Length', value: product.length },
     { label: 'Blouse', value: product.blouse },
   ].filter((row) => hasSpecValue(row.value))
@@ -54,10 +55,13 @@ export function ProductDetail({
     trackViewContent({ slug: product.slug, name: product.name, price: product.price })
   }, [product.slug, product.name, product.price])
 
-  const gallery = useMemo(
-    () => (product.images.length > 0 ? product.images : [product.image]),
-    [product.images, product.image],
-  )
+  const gallery = useMemo(() => {
+    const stills = product.images.length > 0 ? product.images : [product.image]
+    const videos = (product.videos ?? [])
+      .map((url) => url.trim())
+      .filter((url) => url && !stills.includes(url))
+    return [...stills, ...new Set(videos)]
+  }, [product.images, product.image, product.videos])
   const [activeImage, setActiveImage] = useState(() =>
     initialGalleryIndex(gallery, isChhabiliProduct(product)),
   )

@@ -11,6 +11,8 @@ export type Product = {
   originalPrice?: number
   image: string
   images: string[]
+  /** From DB `Product.videos` (R2 URLs). Kept separate from `images`; PDP gallery appends them. */
+  videos?: string[]
   category: string
   collections: string[]
   fabric: string
