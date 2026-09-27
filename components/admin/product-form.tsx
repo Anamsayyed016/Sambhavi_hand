@@ -24,6 +24,52 @@ const PRODUCT_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', '
 const PRODUCT_VIDEO_ACCEPT = 'video/mp4,video/webm,video/quicktime'
 const PRODUCT_VIDEO_TYPES = new Set(['video/mp4', 'video/webm', 'video/quicktime'])
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024
+const MAX_VIDEO_MB = MAX_VIDEO_BYTES / (1024 * 1024)
+
+type VideoUploadState =
+  | { phase: 'idle' }
+  | { phase: 'uploading'; fileName: string; index: number; total: number; percent: number }
+  | { phase: 'success'; message: string }
+  | { phase: 'error'; message: string }
+
+function formatMb(bytes: number): string {
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/** XHR instead of fetch so the admin sees real upload progress for large videos. */
+function postMediaWithProgress(
+  body: FormData,
+  onProgress: (percent: number) => void,
+): Promise<{ status: number; data: Record<string, unknown> }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', '/api/admin/media/upload')
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100))
+    }
+    xhr.onload = () => {
+      let data: Record<string, unknown> = {}
+      try {
+        data = JSON.parse(xhr.responseText)
+      } catch {
+        data = {}
+      }
+      resolve({ status: xhr.status, data })
+    }
+    xhr.onerror = () => reject(new Error('network'))
+    xhr.onabort = () => reject(new Error('aborted'))
+    xhr.send(body)
+  })
+}
+
+function videoUploadErrorMessage(status: number, data: Record<string, unknown>): string {
+  if (typeof data.error === 'string' && data.error) return data.error
+  if (status === 413) {
+    return `Video is too large for the server. Maximum allowed size is ${MAX_VIDEO_MB} MB.`
+  }
+  if (status === 401 || status === 403) return 'Your admin session expired. Sign in again and retry.'
+  return `Video upload failed (HTTP ${status}). Please try again.`
+}
 
 /** Reusable detail fields copied from a category template on Add Product. */
 const CATEGORY_TEMPLATE_FIELDS = [
@@ -263,6 +309,7 @@ export function ProductForm({
   const [isPending, startTransition] = useTransition()
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [videoUpload, setVideoUpload] = useState<VideoUploadState>({ phase: 'idle' })
   /** Admin image inspection lightbox — index into galleryUrls, or null when closed. */
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [categoryTemplateStatus, setCategoryTemplateStatus] = useState<
@@ -441,45 +488,60 @@ export function ProductForm({
     if (list.length === 0) return
 
     setUploading(true)
-    setUploadError(null)
     const uploaded: string[] = []
+    let failure: string | null = null
     try {
-      for (const file of list) {
+      for (const [i, file] of list.entries()) {
         if (!PRODUCT_VIDEO_TYPES.has(file.type)) {
-          setUploadError('Invalid video type. Use MP4, WebM, or MOV.')
+          failure = `"${file.name}" is not a supported video. Use MP4, WebM, or MOV.`
           continue
         }
         if (file.size <= 0 || file.size > MAX_VIDEO_BYTES) {
-          setUploadError('Each video must be between 1 byte and 50 MB.')
+          failure = `"${file.name}" is ${formatMb(file.size)}. Video is too large. Maximum allowed size is ${MAX_VIDEO_MB} MB.`
           continue
         }
 
+        setVideoUpload({ phase: 'uploading', fileName: file.name, index: i + 1, total: list.length, percent: 0 })
         const body = new FormData()
         body.append('file', file)
         body.append('folder', 'sambhavi/products')
         body.append('purpose', 'product')
         body.append('mediaType', 'video')
-        const res = await fetch('/api/admin/media/upload', {
-          method: 'POST',
-          body,
-        })
-        const data = await res.json().catch(() => ({}))
-        if (!res.ok) {
-          setUploadError(typeof data.error === 'string' ? data.error : 'Video upload failed.')
+        const { status, data } = await postMediaWithProgress(body, (percent) =>
+          setVideoUpload({ phase: 'uploading', fileName: file.name, index: i + 1, total: list.length, percent }),
+        )
+        if (status < 200 || status >= 300) {
+          failure = videoUploadErrorMessage(status, data)
           break
         }
         const url = typeof data.url === 'string' ? data.url.trim() : ''
         if (!url) {
-          setUploadError('Upload succeeded but no video URL was returned.')
+          failure = 'Upload succeeded but no video URL was returned.'
           break
         }
         uploaded.push(url)
       }
       applyUploadedVideoUrls(uploaded)
     } catch {
-      setUploadError('Video upload failed. Existing videos were not changed.')
+      failure = 'Video upload failed (network error). Existing videos were not changed.'
     } finally {
       setUploading(false)
+    }
+
+    if (failure) {
+      setVideoUpload({
+        phase: 'error',
+        message: uploaded.length
+          ? `${uploaded.length} uploaded. ${failure}`
+          : failure,
+      })
+    } else if (uploaded.length) {
+      setVideoUpload({
+        phase: 'success',
+        message: `${uploaded.length} ${uploaded.length === 1 ? 'video' : 'videos'} uploaded. Save the product to keep ${uploaded.length === 1 ? 'it' : 'them'}.`,
+      })
+    } else {
+      setVideoUpload({ phase: 'idle' })
     }
   }
 
@@ -1221,12 +1283,38 @@ export function ProductForm({
                   e.target.value = ''
                 }}
               />
-              {uploading ? 'Uploading…' : 'Upload Videos'}
+              {videoUpload.phase === 'uploading' ? 'Uploading…' : 'Upload Videos'}
             </label>
             <p className="text-xs text-muted-foreground">
-              {form.videos.length} {form.videos.length === 1 ? 'video' : 'videos'}
+              {form.videos.length} {form.videos.length === 1 ? 'video' : 'videos'} · MP4, WebM, MOV ·
+              max {MAX_VIDEO_MB} MB each
             </p>
           </div>
+          {videoUpload.phase === 'uploading' ? (
+            <div className="space-y-1" role="status" aria-live="polite">
+              <p className="text-xs text-muted-foreground">
+                Uploading {videoUpload.total > 1 ? `${videoUpload.index}/${videoUpload.total} ` : ''}
+                “{videoUpload.fileName}” — {videoUpload.percent}%
+                {videoUpload.percent >= 100 ? ' · saving to storage…' : ''}
+              </p>
+              <div className="h-1.5 w-full max-w-sm overflow-hidden rounded bg-beige">
+                <div
+                  className="h-full bg-foreground/70 transition-[width]"
+                  style={{ width: `${videoUpload.percent}%` }}
+                />
+              </div>
+            </div>
+          ) : null}
+          {videoUpload.phase === 'success' ? (
+            <p className="text-xs text-green-700" role="status">
+              {videoUpload.message}
+            </p>
+          ) : null}
+          {videoUpload.phase === 'error' ? (
+            <p className="text-sm text-destructive" role="alert">
+              {videoUpload.message}
+            </p>
+          ) : null}
           {err('videos') ? <p className="text-xs text-destructive">{err('videos')}</p> : null}
 
           {form.videos.length === 0 ? (

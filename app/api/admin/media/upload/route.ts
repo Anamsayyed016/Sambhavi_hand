@@ -65,10 +65,13 @@ export async function POST(request: Request) {
           { status: 400 },
         )
       }
-      if (file.size <= 0 || file.size > MAX_VIDEO_BYTES) {
+      if (file.size <= 0) {
+        return NextResponse.json({ error: 'Video file is empty.' }, { status: 400 })
+      }
+      if (file.size > MAX_VIDEO_BYTES) {
         return NextResponse.json(
-          { error: 'Video must be between 1 byte and 50 MB.' },
-          { status: 400 },
+          { error: 'Video is too large. Maximum allowed size is 50 MB.' },
+          { status: 413 },
         )
       }
       if (!isR2UploadConfigured()) {

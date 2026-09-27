@@ -3,6 +3,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    // middleware.ts matches /api/admin/*; bodies above this are truncated before route handlers.
+    // Must cover MAX_VIDEO_BYTES (50 MB) in app/api/admin/media/upload/route.ts plus multipart overhead.
+    proxyClientMaxBodySize: '60mb',
+  },
   images: {
     unoptimized: true,
     remotePatterns: [
